@@ -22,5 +22,5 @@ done
 
 echo "=== capture files ==="
 ls -la $RUNS/smoke_*/capture/
-$PY analysis/check_capture.py $RUNS/smoke_sft/capture $RUNS/smoke_rlvr/capture
-echo "SMOKE_OK"
+$PY analysis/check_capture.py $RUNS/smoke_sft/capture $RUNS/smoke_rlvr/capture \
+  && echo "SMOKE_OK"

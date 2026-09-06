@@ -189,22 +189,38 @@ class Trainer:
         exs = self.sampler.next(self.args.prompts_per_step)
         prompts = [build_prompt(self.tok, ex["question"]) for ex in exs]
         p_lists, c_lists, texts = self.generate(prompts, num_return_sequences=K)
-        rewards, advs = [], []
+        all_rewards = []
+        # keep only informative groups (nonzero reward variance): degenerate
+        # groups have A=0 everywhere and contribute zero gradient; at ~10%
+        # reward rate they would otherwise dominate save-step captures
+        groups = []  # (rows, advs, texts, complete)
         for gi, ex in enumerate(exs):
             rs = [reward_fn(texts[gi * K + k], ex["gold"]) for k in range(K)]
-            rs = torch.tensor(rs, dtype=torch.float32)
-            a = (rs - rs.mean()) / (rs.std(unbiased=False) + 1e-4)
-            rewards += rs.tolist()
-            advs += a.tolist()
-        all_rows = [self.tokenize_prompt_completion(p, c)
-                    for p, c in zip(p_lists, c_lists)]
-        keep = [i for i, c in enumerate(c_lists) if len(c) > 0]
-        rows = [all_rows[i] for i in keep]
-        advs_k = [advs[i] for i in keep]
-        # first prompt's full rollout group intact? needed for H3 capture
-        group0_ok = all(i in keep for i in range(K))
-        info = {"reward_mean": float(torch.tensor(rewards).mean()),
-                "adv": advs_k, "n_seqs": len(rows), "group0_ok": group0_ok}
+            all_rewards += rs
+            rs_t = torch.tensor(rs, dtype=torch.float32)
+            if rs_t.std(unbiased=False) < 1e-6:
+                continue
+            a = (rs_t - rs_t.mean()) / (rs_t.std(unbiased=False) + 1e-4)
+            g_rows, g_advs, g_txt, complete = [], [], [], True
+            for k in range(K):
+                i = gi * K + k
+                if len(c_lists[i]) == 0:
+                    complete = False
+                    continue
+                g_rows.append(self.tokenize_prompt_completion(p_lists[i], c_lists[i]))
+                g_advs.append(a[k].item())
+                g_txt.append((texts[i], rs[k]))
+            groups.append((g_rows, g_advs, g_txt, complete))
+        # put a complete group first so the H3 per-rollout capture sees one
+        # full K-rollout group with nonzero advantage variance
+        groups.sort(key=lambda g: not g[3])
+        rows = [r for g in groups for r in g[0]]
+        advs_k = [a for g in groups for a in g[1]]
+        info = {"reward_mean": float(torch.tensor(all_rewards).mean()),
+                "adv": advs_k, "n_seqs": len(rows),
+                "n_groups_kept": len(groups),
+                "group0_ok": bool(groups) and groups[0][3],
+                "group0_texts": groups[0][2] if groups else []}
         return rows, info
 
     def loss_on(self, rows, info, idxs):
@@ -286,6 +302,8 @@ class Trainer:
                         self.instr.capture_rollout_grad(k, self.rollout_names)
                     self.instr.set_extra(
                         "rollout_adv", [info["adv"][k] for k in range(n_cap)])
+                    self.instr.set_extra("rollout_texts",
+                                         info.get("group0_texts", []))
                     self.zero_grad()
 
             mbs = args.seqs_per_microbatch or (2 if args.objective == "rlvr" else 1)
@@ -326,6 +344,7 @@ class Trainer:
                    "secs": round(time.time() - t0, 2)}
             if "reward_mean" in info:
                 rec["reward_mean"] = info["reward_mean"]
+                rec["n_groups_kept"] = info.get("n_groups_kept")
             if save and self.engine and self.engine.alpha_log:
                 vals = list(self.engine.alpha_log.values())
                 rec["alpha_mean"] = sum(vals) / len(vals)
