@@ -11,7 +11,7 @@
 
 ## 人员分工(按当前 GPU 情况)
 
-**作者A(本集群,MIG 切片)**
+**作者A(MIG 切片)**
 - 0.8B 全部:Phase 1 六格、**Phase 2 ×8(主责)**、E1 SSD 行、E2/E3/E4、补 seed、全部评测
 - Phase 2 留本地的原因:依赖 H1 判定后可能调参数(q 值、步数),迭代回路要短;
   计算量小(~16 GPU·h)。**备援**:若 D3 我们 MIG 队列受阻,4 个 RLVR 干预 run
@@ -37,16 +37,16 @@
 
 | 模型 | 范围 | 谁跑 | 硬件 |
 |---|---|---|---|
-| Qwen3.5-0.8B | 全量主线(下表全部) | 本集群 | MIG 3g.40gb |
+| Qwen3.5-0.8B | 全量主线(下表全部) | 作者A | MIG 3g.40gb |
 | Qwen3.5-4B | Phase 1 (AdamW×3) + E1 RLVR 行 | 协作者B | 单卡 80GB/run,开箱即用(见 SCALING.md),可并行 |
 | Qwen3.5-9B | Phase 1 (AdamW×3) 复现 Fig.2/4 | 协作者B | `--device-map auto`:sft/rlvr 3×80GB、opd 4×80GB(含 27B teacher) |
-| Llama-3.2-3B-Instruct | Phase 1 (AdamW×3) 家族轴,复现 Fig.2/4 | 本集群 | MIG;等 gated 审批(已申请) |
+| Llama-3.2-3B-Instruct | Phase 1 (AdamW×3) 家族轴,复现 Fig.2/4 | 作者A | MIG;等 gated 审批(已申请) |
 | Qwen3.5-2B | 仅作 0.8B 的 OPD teacher(bf16 推理) | — | — |
 | 27B / 35B-A3B(MoE) | 不跑,future work | — | — |
 
 OPD teacher 配对:0.8B←2B、4B←9B、9B←27B(teacher 全部 bf16 推理)。
 
-## 0.8B 主线(本集群)
+## 0.8B 主线(作者A)
 
 ### Phase 1 — 三范式测量,H1-H4(任务 #3)
 500 步,save-every 10,P=8,K=8,seed 0。
@@ -66,7 +66,7 @@ OPD teacher 配对:0.8B←2B、4B←9B、9B←27B(teacher 全部 bf16 推理)。
 ### 决策点
 H1 成立(R_spectrum: SFT > OPD > RLVR)→ Phase 2;不成立 → 主线转 H2+§5(见文档 §附)。
 
-### Phase 2 — 干预实验,H5-H6(任务 #4)🔒 依赖 Phase 1|主责:本集群
+### Phase 2 — 干预实验,H5-H6(任务 #4)🔒 依赖 Phase 1|主责:作者A
 300 步 + GSM8K-500 评测,AdamW 底座,`slurm/phase2.sbatch` array 0-7:
 {rlvr,sft} × {spectrum_only, frame_only} (H5);{rlvr,sft} × {snr_topq, mag_topq} q=0.1 (H6)。
 产出:Fig.6、Fig.7。执行:H1 判定当天提交全部 8 个;RLVR 4 个若排不上队 → 转协作者B
