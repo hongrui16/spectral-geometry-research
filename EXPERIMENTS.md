@@ -11,38 +11,38 @@
 
 ## 人员分工(按当前 GPU 情况)
 
-**作者A(MIG 切片)**
+**作者A**
 - 0.8B 全部:Phase 1 六格、**Phase 2 ×8(主责)**、E1 SSD 行、E2/E3/E4、补 seed、全部评测
 - Phase 2 留本地的原因:依赖 H1 判定后可能调参数(q 值、步数),迭代回路要短;
-  计算量小(~16 GPU·h)。**备援**:若 D3 我们 MIG 队列受阻,4 个 RLVR 干预 run
-  (phase2 array 0,1,4,5 中的 rlvr 项)转协作者B单卡跑,0.8B 在任何 80GB 卡上零改动
-- Llama-3.2-3B 家族轴 Phase 1(等 gated 审批;MIG 跑得动,~30 GPU·h)
+  计算量小(~16 GPU·h)。**备援**:若 D3 排队受阻,4 个 RLVR 干预 run
+  (phase2 array 0,1,4,5 中的 rlvr 项)转协作者B单卡跑,零改动
+- Llama-3.2-3B 家族轴 Phase 1(等 gated 审批;~30 GPU·h)
 - 全部分析出图(analysis/ 管线,含协作者B传回的数据)
 - 工程侧同样归作者A:SSD 50 步试跑验证(解锁 E1/E2/E3)、Llama 冒烟、
   E3 分层路由 flag、MMLU 遗忘评测脚本、本文档状态维护
 - 另外两件:① GPU 取舍——fit*/ss* 作业与论文作业共享 16 卡配额,要加速就暂停几个;
   ② gated 模型审批(Llama 已申请)
 
-**协作者B(GPU 充裕,多张 80GB)——所有需要 ≥2×80GB 的任务全部归B**
+**协作者B——所有多卡任务归B**
 - 【立刻开工,可全部并行】
   - 4B:Phase 1 AdamW×3(sft/opd/rlvr,teacher=9B,单卡/run)+ E1 RLVR 行
     ({adamw, muon, ssd})+ 4B base 的 GSM8K greedy 基线一次
   - 9B:Phase 1 AdamW×3,用 `--device-map auto`(已实现,零改动):
-    sft/rlvr 每 run 3×80GB,opd(载 27B teacher)4×80GB;命令见 SCALING.md
+    卡数与命令见 SCALING.md
 - 【余力】9B 的 E1 RLVR 行;27B 不做
 - 交付物:每个 run 的 `capture/` 目录 + `log.jsonl` + `args.json` + 评测 json,
   打包传回集群(或给可访问路径);**不要自己改分析代码**,口径统一走本仓库 analysis/
 
 ## 模型分工
 
-| 模型 | 范围 | 谁跑 | 硬件 |
+| 模型 | 范围 | 谁跑 | 备注 |
 |---|---|---|---|
-| Qwen3.5-0.8B | 全量主线(下表全部) | 作者A | MIG 3g.40gb |
-| Qwen3.5-4B | Phase 1 (AdamW×3) + E1 RLVR 行 | 协作者B | 单卡 80GB/run,开箱即用(见 SCALING.md),可并行 |
-| Qwen3.5-9B | Phase 1 (AdamW×3) 复现 Fig.2/4 | 协作者B | `--device-map auto`:sft/rlvr 3×80GB、opd 4×80GB(含 27B teacher) |
-| Llama-3.2-3B-Instruct | Phase 1 (AdamW×3) 家族轴,复现 Fig.2/4 | 作者A | MIG;等 gated 审批(已申请) |
-| Qwen3.5-2B | 仅作 0.8B 的 OPD teacher(bf16 推理) | — | — |
-| 27B / 35B-A3B(MoE) | 不跑,future work | — | — |
+| Qwen3.5-0.8B | 全量主线(下表全部) | 作者A | |
+| Qwen3.5-4B | Phase 1 (AdamW×3) + E1 RLVR 行 | 协作者B | 开箱即用,可并行(见 SCALING.md) |
+| Qwen3.5-9B | Phase 1 (AdamW×3) 复现 Fig.2/4 | 协作者B | `--device-map auto`,配置见 SCALING.md |
+| Llama-3.2-3B-Instruct | Phase 1 (AdamW×3) 家族轴,复现 Fig.2/4 | 作者A | 等 gated 审批(已申请) |
+| Qwen3.5-2B | 仅作 0.8B 的 OPD teacher(bf16 推理) | — | |
+| 27B / 35B-A3B(MoE) | 不跑,future work | — | |
 
 OPD teacher 配对:0.8B←2B、4B←9B、9B←27B(teacher 全部 bf16 推理)。
 
@@ -99,7 +99,7 @@ rlvr 300 步 ×4:f≡1(退化 Muon)、硬阈值 vs Wiener、k∈{64,256}、去 m
 - 3 seeds → 主表 2-3 seeds,消融 1 seed
 
 ## 时间预算(实测步速)
-单 run:SFT ~1h,OPD ~3-4h,RLVR ~4.5h(MIG 3g.40gb,500 步)。
+单 run:SFT ~1h,OPD ~3-4h,RLVR ~4.5h(500 步,实测)。
 0.8B 全部 ≈ 105-120 GPU·h;3 切片并行 ≈ 2.5-3 天。
 4B 全套(协作者B)≈ 90 GPU·h;9B Phase1 ≈ 60 GPU·h;Llama-3B Phase1 ≈ 30 GPU·h。
 
