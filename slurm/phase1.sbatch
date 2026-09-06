@@ -20,7 +20,12 @@ read -r OBJ OPT <<< "${CONFIGS[$SLURM_ARRAY_TASK_ID]}"
 OUT=$RUNS/phase1_${OBJ}_${OPT}
 echo "=== phase1 $OBJ $OPT -> $OUT ==="
 
-$PY scripts/train.py --objective $OBJ --optimizer $OPT \
+# RL-standard lr for policy gradient: 1e-5 (SFT parity) collapses the policy
+# (reward 23%->2% by step 40, incoherent rollouts). SFT/OPD keep 1e-5.
+EXTRA=""
+if [ "$OBJ" = "rlvr" ]; then EXTRA="--lr 2e-6 --muon-lr 2e-5"; fi
+
+$PY scripts/train.py --objective $OBJ --optimizer $OPT $EXTRA \
   --steps 500 --save-every 10 --prompts-per-step 8 --rollouts 8 \
   --max-new-tokens 384 \
   --out $OUT
