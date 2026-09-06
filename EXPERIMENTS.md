@@ -9,29 +9,25 @@
 更新:2026-09-06。状态标记:✅ 完成 / 🟢 运行中 / ⬜ 排队或未开始 / 🔒 等依赖。
 所有 run 输出在 `/scratch/rhong5/spectral_runs/<run_name>`,捕获数据同目录 `capture/`。
 
-## 人员分工(按当前 GPU 情况)
+## 人员分工
 
-**作者A**
-- 0.8B 全部:Phase 1 六格、**Phase 2 ×8(主责)**、E1 SSD 行、E2/E3/E4、补 seed、全部评测
-- Phase 2 留本地的原因:依赖 H1 判定后可能调参数(q 值、步数),迭代回路要短;
-  计算量小(~16 GPU·h)。**备援**:若 D3 排队受阻,4 个 RLVR 干预 run
-  (phase2 array 0,1,4,5 中的 rlvr 项)转作者B单卡跑,零改动
-- Llama-3.2-3B 家族轴 Phase 1(等 gated 审批;~30 GPU·h)
-- 全部分析出图(analysis/ 管线,含作者B传回的数据)
-- 工程侧同样归作者A:SSD 50 步试跑验证(解锁 E1/E2/E3)、Llama 冒烟、
-  E3 分层路由 flag、MMLU 遗忘评测脚本、本文档状态维护
-- 另外两件:① GPU 取舍——fit*/ss* 作业与论文作业共享 16 卡配额,要加速就暂停几个;
-  ② gated 模型审批(Llama 已申请)
+**原则:只有"单卡 + 任务数量少"的任务归作者A;批量实验和多卡任务全部归作者B。**
 
-**作者B——所有多卡任务归B**
-- 【立刻开工,可全部并行】
-  - 4B:Phase 1 AdamW×3(sft/opd/rlvr,teacher=9B,单卡/run)+ E1 RLVR 行
-    ({adamw, muon, ssd})+ 4B base 的 GSM8K greedy 基线一次
-  - 9B:Phase 1 AdamW×3,用 `--device-map auto`(已实现,零改动):
-    卡数与命令见 SCALING.md
-- 【余力】9B 的 E1 RLVR 行;27B 不做
-- 交付物:每个 run 的 `capture/` 目录 + `log.jsonl` + `args.json` + 评测 json,
-  打包传给作者A(或提供可访问路径);**不要自己改分析代码**,口径统一走本仓库 analysis/
+**作者A(单卡、少量、快迭代)**
+- Phase 1 0.8B 六格(已在跑/完成)+ H1-H4 判定
+- SSD 50 步单卡试跑验证(验证通过后 E1/E2/E3 由作者B 批量执行)
+- Llama-3.2-3B 家族轴 Phase 1 AdamW×3(单卡,3 个 run)
+- 全部分析出图(analysis/ 管线,含作者B 传回的数据)、论文写作、本文档维护
+- gated 模型审批等只有 A 能做的账号操作
+
+**作者B(批量 + 多卡,全部可并行)**
+- **Phase 2 全部 10 个 run**:详细步骤见 `PHASE2_RUNBOOK.md`,现在即可开跑
+- 4B:Phase 1 AdamW×3 + E1 RLVR 行({adamw, muon, ssd})+ 4B 基线评测
+- 9B:Phase 1 AdamW×3(`--device-map auto`,见 SCALING.md)
+- E1 SSD 行 ×4、E2 消融 ×4、E3 分层 ×4、E4 ×3、补 seed 批量(SSD 相关项等
+  作者A 试跑验证通过后开跑;各项的具体命令届时由作者A 更新到本文档)
+- 交付物:每个 run 的 `capture/` + `log.jsonl` + `args.json` + 评测 json,
+  打包传给作者A;**不要自己改分析代码**,口径统一走本仓库 analysis/
 
 ## 模型分工
 
@@ -68,11 +64,10 @@ lr:SFT/OPD 1e-5;RLVR 用 RL 惯例 2e-6(AdamW)/2e-5(Muon)——1e-5 会在
 ### 决策点
 H1 成立(R_spectrum: SFT > OPD > RLVR)→ Phase 2;不成立 → 主线转 H2+§5(见文档 §附)。
 
-### Phase 2 — 干预实验,H5-H6(任务 #4)🔒 依赖 Phase 1|主责:作者A
-300 步 + GSM8K-500 评测,AdamW 底座,`slurm/phase2.sbatch` array 0-7:
-{rlvr,sft} × {spectrum_only, frame_only} (H5);{rlvr,sft} × {snr_topq, mag_topq} q=0.1 (H6)。
-产出:Fig.6、Fig.7。执行:H1 判定当天提交全部 8 个;RLVR 4 个若排不上队 → 转作者B
-(0.8B 单卡,命令: `python scripts/train.py --objective rlvr --intervention spectrum_only --steps 300 ...`)。
+### Phase 2 — 干预实验,H5-H6(任务 #4)|主责:**作者B**
+10 个 run(8 干预 + 2 对照),300 步 + GSM8K-500 评测,全部单卡可并行。
+**完整执行手册:`PHASE2_RUNBOOK.md`**(环境、命令、健康自检、交付物)。
+不依赖 Phase 1 收尾,现在即可开跑。产出:Fig.6、Fig.7(作者A 出图)。
 
 ### E1 — optimizer × 范式主表(任务 #5)
 `slurm/e1_optimizers.sbatch`。AdamW/Muon 六格复用 Phase 1(同配置同 seed);新跑:
