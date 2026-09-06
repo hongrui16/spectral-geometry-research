@@ -1,5 +1,11 @@
 # 实验总账(Run Matrix)
 
+**硬 deadline:全部实验 14 天内跑完(至 2026-09-20)。**
+- D0-2 Phase 1 → D1-4 SSD+Phase 2 → D3-9 E1/E2/E3/E4+seed → D9-14 家族轴+缓冲+图表冻结
+- 家族轴:Llama-3.2-3B 审批若 D1 内不下来,立即切 SmolLM3-3B(Apache,免审批)
+- 9B:仅当协作者 4B 在 D8 前收尾,否则砍
+- seed 策略:E1 RLVR 行 3 seeds,主表其余 2,消融 1
+
 更新:2026-09-06。状态标记:✅ 完成 / 🟢 运行中 / ⬜ 排队或未开始 / 🔒 等依赖。
 所有 run 输出在 `/scratch/rhong5/spectral_runs/<run_name>`,捕获数据同目录 `capture/`。
 
