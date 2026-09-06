@@ -5,7 +5,7 @@ For collaborators reproducing Phase 1 / E1 on bigger checkpoints.
 ## Model family (dense — use these)
 | Model | Params | Single-GPU trainable with this repo? |
 |---|---|---|
-| Qwen3.5-0.8B | 0.87B | YES (fp32, done here, even fits 40GB MIG) |
+| Qwen3.5-0.8B | 0.87B | YES (fp32, run by Author A, fits a 40GB slice) |
 | Qwen3.5-2B | 2.3B | YES on 1x A100.80gb (fp32 weights ~9G + AdamW ~18G) |
 | Qwen3.5-4B | ~4B | YES on 1x A100.80gb, borderline — reduce seqs/microbatch to 1 |
 | Qwen3.5-9B | ~9B | NO as-is — needs 8-bit optimizer or 2+ GPUs (see below) |
