@@ -12,7 +12,10 @@
 ## 人员分工(按当前 GPU 情况)
 
 **你(本集群,MIG 切片;作业由 Claude 编排提交)**
-- 0.8B 全部:Phase 1 六格、Phase 2 ×8、E1 SSD 行、E2/E3/E4、补 seed、全部评测
+- 0.8B 全部:Phase 1 六格、**Phase 2 ×8(主责)**、E1 SSD 行、E2/E3/E4、补 seed、全部评测
+- Phase 2 留本地的原因:依赖 H1 判定后可能调参数(q 值、步数),迭代回路要短;
+  计算量小(~16 GPU·h)。**备援**:若 D3 我们 MIG 队列受阻,4 个 RLVR 干预 run
+  (phase2 array 0,1,4,5 中的 rlvr 项)转协作者单卡跑,0.8B 在任何 80GB 卡上零改动
 - Llama-3.2-3B 家族轴 Phase 1(等 gated 审批;MIG 跑得动,~30 GPU·h)
 - 全部分析出图(analysis/ 管线,含协作者传回的数据)
 - 只有你本人能做的两件事:① GPU 取舍——fit*/ss* 手部建模作业与论文作业共享 16 卡配额,
@@ -65,10 +68,11 @@ OPD teacher 配对:0.8B←2B、4B←9B、9B←27B(teacher 全部 bf16 推理)。
 ### 决策点
 H1 成立(R_spectrum: SFT > OPD > RLVR)→ Phase 2;不成立 → 主线转 H2+§5(见文档 §附)。
 
-### Phase 2 — 干预实验,H5-H6(任务 #4)🔒 依赖 Phase 1
+### Phase 2 — 干预实验,H5-H6(任务 #4)🔒 依赖 Phase 1|主责:本集群
 300 步 + GSM8K-500 评测,AdamW 底座,`slurm/phase2.sbatch` array 0-7:
 {rlvr,sft} × {spectrum_only, frame_only} (H5);{rlvr,sft} × {snr_topq, mag_topq} q=0.1 (H6)。
-产出:Fig.6、Fig.7。
+产出:Fig.6、Fig.7。执行:H1 判定当天提交全部 8 个;RLVR 4 个若排不上队 → 转协作者
+(0.8B 单卡,命令: `python scripts/train.py --objective rlvr --intervention spectrum_only --steps 300 ...`)。
 
 ### E1 — optimizer × 范式主表(任务 #5)
 `slurm/e1_optimizers.sbatch`。AdamW/Muon 六格复用 Phase 1(同配置同 seed);新跑:
