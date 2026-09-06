@@ -1,32 +1,0 @@
-=== GPU ===
-Sun Sep  6 13:39:15 2026       
-+-----------------------------------------------------------------------------------------+
-| NVIDIA-SMI 595.71.05              Driver Version: 595.71.05      CUDA Version: 13.2     |
-+-----------------------------------------+------------------------+----------------------+
-| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
-|                                         |                        |               MIG M. |
-|=========================================+========================+======================|
-|   0  NVIDIA A100-SXM4-80GB          On  |   00000000:01:00.0 Off |                   On |
-| N/A   32C    P0             71W /  500W |     213MiB /  81920MiB |     N/A      Default |
-|                                         |                        |              Enabled |
-+-----------------------------------------+------------------------+----------------------+
-=== smoke sft ===
-Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:   0%|          | 1/320 [00:01<05:19,  1.00s/it]Loading weights:  61%|██████    | 195/320 [00:01<00:00, 234.27it/s]Loading weights:  88%|████████▊ | 283/320 [00:01<00:00, 254.31it/s]Loading weights: 100%|██████████| 320/320 [00:01<00:00, 199.27it/s]
-Using the latest cached version of the dataset since openai/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
-Found the latest cached dataset configuration 'main' at /scratch/rhong5/dataset/hf_home/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866 (last modified on Sun Sep  6 12:01:03 2026).
-Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:04<00:00,  4.55s/it]Writing model shards: 100%|██████████| 1/1 [00:04<00:00,  4.55s/it]
-=== smoke rlvr ===
-Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:  58%|█████▊    | 186/320 [00:00<00:00, 1758.58it/s]Loading weights: 100%|██████████| 320/320 [00:00<00:00, 1811.31it/s]
-Using the latest cached version of the dataset since openai/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
-Found the latest cached dataset configuration 'main' at /scratch/rhong5/dataset/hf_home/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866 (last modified on Sun Sep  6 12:01:03 2026).
-Traceback (most recent call last):
-  File "/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/scripts/train.py", line 344, in <module>
-    Trainer(args).train()
-  File "/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/scripts/train.py", line 297, in train
-    loss = self.loss_on(rows, info, chunk) / len(idx_chunks)
-  File "/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/scripts/train.py", line 212, in loss_on
-    logp = F.log_softmax(logits[:, :-1], dim=-1)
-  File "/home/rhong5/envs_spectral/lib/python3.10/site-packages/torch/nn/functional.py", line 2267, in log_softmax
-    ret = input.log_softmax(dim)
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.68 GiB. GPU 0 has a total capacity of 39.25 GiB of which 608.88 MiB is free. Process 2450534 has 27.21 GiB memory in use. Including non-PyTorch memory, this process has 38.54 GiB memory in use. Of the allocated memory 37.00 GiB is allocated by PyTorch, and 1.32 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

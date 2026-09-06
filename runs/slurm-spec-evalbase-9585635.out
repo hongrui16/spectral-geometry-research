@@ -1,12 +1,0 @@
-Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:  30%|███       | 97/320 [00:00<00:00, 926.70it/s]Loading weights:  59%|█████▉    | 190/320 [00:00<00:00, 635.53it/s]Loading weights:  81%|████████  | 259/320 [00:00<00:00, 608.73it/s]Loading weights: 100%|██████████| 320/320 [00:00<00:00, 669.00it/s]
-Using the latest cached version of the dataset since openai/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
-Found the latest cached dataset configuration 'main' at /scratch/rhong5/dataset/hf_home/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866 (last modified on Sun Sep  6 12:01:03 2026).
-32/200 acc=0.5625
-64/200 acc=0.5312
-96/200 acc=0.5729
-128/200 acc=0.5781
-160/200 acc=0.5563
-192/200 acc=0.5781
-200/200 acc=0.5750
-FINAL pass@1 = 0.5750 on 200 examples
-EVALBASE_DONE
