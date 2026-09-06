@@ -3,6 +3,26 @@
 更新:2026-09-06。状态标记:✅ 完成 / 🟢 运行中 / ⬜ 排队或未开始 / 🔒 等依赖。
 所有 run 输出在 `/scratch/rhong5/spectral_runs/<run_name>`,捕获数据同目录 `capture/`。
 
+## 人员分工(按当前 GPU 情况)
+
+**你(本集群,MIG 切片;作业由 Claude 编排提交)**
+- 0.8B 全部:Phase 1 六格、Phase 2 ×8、E1 SSD 行、E2/E3/E4、补 seed、全部评测
+- Llama-3.2-3B 家族轴 Phase 1(等 gated 审批;MIG 跑得动,~30 GPU·h)
+- 全部分析出图(analysis/ 管线,含协作者传回的数据)
+- 只有你本人能做的两件事:① GPU 取舍——fit*/ss* 手部建模作业与论文作业共享 16 卡配额,
+  要加速就暂停几个;② gated 模型审批(Llama 已申请)
+
+**协作者(自己的 GPU,假设 ≥1×A100/H100 80GB;不够 80GB 提前说)**
+- 【立刻开工】4B:Phase 1 AdamW×3(sft/opd/rlvr,teacher=9B)+ E1 RLVR 行
+  ({adamw, muon, ssd})+ 4B base 的 GSM8K greedy 基线一次
+- 【4B 收尾后】9B:Phase 1 AdamW×3(等仓库里的影子捕获改造,Claude 负责,预计 1-2 天内推上)
+- 交付物:每个 run 的 `capture/` 目录 + `log.jsonl` + `args.json` + 评测 json,
+  打包传回集群(或给可访问路径);**不要自己改分析代码**,口径统一走本仓库 analysis/
+
+**Claude(工程,不占 GPU 决策)**
+- SSD 50 步试跑验证 → 解锁 E1/E2/E3;9B 影子 fp32 捕获改造;Llama 冒烟;
+  E3 分层路由 flag;MMLU 遗忘评测脚本;EXPERIMENTS.md 状态维护 + push
+
 ## 模型分工
 
 | 模型 | 范围 | 谁跑 | 硬件 |
