@@ -1,0 +1,5 @@
+=== phase1 sft adamw -> /scratch/rhong5/spectral_runs/phase1_sft_adamw ===
+Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:   0%|          | 1/320 [00:00<05:05,  1.04it/s]Loading weights:  48%|████▊     | 153/320 [00:01<00:00, 197.72it/s]Loading weights:  75%|███████▌  | 241/320 [00:01<00:00, 222.34it/s]Loading weights:  94%|█████████▍| 301/320 [00:01<00:00, 228.81it/s]Loading weights: 100%|██████████| 320/320 [00:01<00:00, 184.52it/s]
+Using the latest cached version of the dataset since openai/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'main' at /scratch/rhong5/dataset/hf_home/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866 (last modified on Sun Sep  6 12:01:03 2026).
+[sft] step 10 loss 0.6659 8.01s

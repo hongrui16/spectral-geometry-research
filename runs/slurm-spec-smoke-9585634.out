@@ -1,0 +1,64 @@
+=== GPU ===
+Sun Sep  6 13:50:52 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.71.05              Driver Version: 595.71.05      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-80GB          On  |   00000000:01:00.0 Off |                   On |
+| N/A   27C    P0             68W /  500W |     213MiB /  81920MiB |     N/A      Default |
+|                                         |                        |              Enabled |
++-----------------------------------------+------------------------+----------------------+
+=== smoke sft ===
+Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:   0%|          | 1/320 [00:01<06:42,  1.26s/it]Loading weights:  58%|█████▊    | 187/320 [00:01<00:00, 189.08it/s]Loading weights:  92%|█████████▏| 294/320 [00:01<00:00, 195.81it/s]Loading weights: 100%|██████████| 320/320 [00:02<00:00, 159.73it/s]
+Using the latest cached version of the dataset since openai/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'main' at /scratch/rhong5/dataset/hf_home/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866 (last modified on Sun Sep  6 12:01:03 2026).
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:04<00:00,  4.44s/it]Writing model shards: 100%|██████████| 1/1 [00:04<00:00,  4.44s/it]
+=== smoke rlvr ===
+Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:  54%|█████▍    | 172/320 [00:00<00:00, 1631.77it/s]Loading weights: 100%|██████████| 320/320 [00:00<00:00, 1678.68it/s]
+Using the latest cached version of the dataset since openai/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'main' at /scratch/rhong5/dataset/hf_home/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866 (last modified on Sun Sep  6 12:01:03 2026).
+=== smoke opd ===
+Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:  57%|█████▋    | 181/320 [00:00<00:00, 1748.23it/s]Loading weights: 100%|██████████| 320/320 [00:00<00:00, 1720.83it/s]
+Loading weights:   0%|          | 0/320 [00:00<?, ?it/s]Loading weights:  17%|█▋        | 54/320 [00:00<00:00, 525.19it/s]Loading weights:  43%|████▎     | 137/320 [00:00<00:00, 687.52it/s]Loading weights:  64%|██████▍   | 206/320 [00:00<00:00, 648.54it/s]Loading weights:  86%|████████▌ | 275/320 [00:00<00:00, 662.18it/s]Loading weights: 100%|██████████| 320/320 [00:00<00:00, 682.24it/s]
+Using the latest cached version of the dataset since openai/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'main' at /scratch/rhong5/dataset/hf_home/datasets/openai___gsm8k/main/0.0.0/740312add88f781978c0658806c59bc2815b9866 (last modified on Sun Sep  6 12:01:03 2026).
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:05<00:00,  5.18s/it]Writing model shards: 100%|██████████| 1/1 [00:05<00:00,  5.18s/it]
+=== capture files ===
+/scratch/rhong5/spectral_runs/smoke_opd/capture/:
+total 1603653
+drwxr-sr-x 2 rhong5 scratch      4096 Sep  6 13:54 .
+drwxr-sr-x 2 rhong5 scratch      4096 Sep  6 13:54 ..
+-rw-r--r-- 1 rhong5 scratch 821070017 Sep  6 13:54 step_000002.pt
+-rw-r--r-- 1 rhong5 scratch 821070017 Sep  6 13:54 step_000004.pt
+
+/scratch/rhong5/spectral_runs/smoke_rlvr/capture/:
+total 730147
+drwxr-sr-x 2 rhong5 scratch      4096 Sep  6 13:52 .
+drwxr-sr-x 2 rhong5 scratch      4096 Sep  6 13:52 ..
+-rw-r--r-- 1 rhong5 scratch 747670397 Sep  6 13:52 step_000002.pt
+
+/scratch/rhong5/spectral_runs/smoke_sft/capture/:
+total 1603653
+drwxr-sr-x 2 rhong5 scratch      4096 Sep  6 13:52 .
+drwxr-sr-x 2 rhong5 scratch      4096 Sep  6 13:52 ..
+-rw-r--r-- 1 rhong5 scratch 821070017 Sep  6 13:51 step_000002.pt
+-rw-r--r-- 1 rhong5 scratch 821070017 Sep  6 13:52 step_000004.pt
+
+/scratch/rhong5/spectral_runs/smoke_sft/capture: 2 files, last step 4, 27 matrices
+  [model.layers.7.self_attn.q_proj.weight] shape (4096, 1024)
+  |G|=1.091e+00 |H|=1.031e-02 |W|=3.147e+01
+  R_spectrum(G)=0.0001 R_spectrum(H)=0.0002
+  G_b: 4 samples, median SNR diag=0.178 offdiag=0.168
+  OK
+
+/scratch/rhong5/spectral_runs/smoke_rlvr/capture: 1 files, last step 2, 27 matrices
+  [model.layers.7.self_attn.q_proj.weight] shape (4096, 1024)
+  |G|=4.679e+00 |H|=1.422e-02 |W|=3.147e+01
+  R_spectrum(G)=0.0002 R_spectrum(H)=0.0002
+  G_b: 2 samples, median SNR diag=0.658 offdiag=0.636
+  rollouts: 4, |rho_sigma| median=0.474 |rho_frame| median=0.470
+  OK
+SMOKE_OK
