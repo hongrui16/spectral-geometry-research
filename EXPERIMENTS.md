@@ -8,8 +8,8 @@
 | 模型 | 范围 | 谁跑 | 硬件 |
 |---|---|---|---|
 | Qwen3.5-0.8B | 全量主线(下表全部) | 本集群 | MIG 3g.40gb |
-| Qwen3.5-4B | Phase 1 (AdamW×3) + E1 RLVR 行 | 协作者 A | 单卡 80GB,开箱即用(见 SCALING.md) |
-| Qwen3.5-9B | Phase 1 (AdamW×3) 复现 Fig.2/4 | 协作者 B | 单卡 80GB + 影子捕获改造(待做)或 2×80GB |
+| Qwen3.5-4B | 【优先】Phase 1 (AdamW×3) + E1 RLVR 行 | 协作者(唯一) | 单卡 80GB,开箱即用(见 SCALING.md) |
+| Qwen3.5-9B | 【余力目标】Phase 1 (AdamW×3) 复现 Fig.2/4 | 同一协作者,4B 收尾后 | 需影子捕获改造(待做);若放弃,尺度轴 0.8→4 + Llama 家族轴仍然成立 |
 | Llama-3.2-3B-Instruct | Phase 1 (AdamW×3) 家族轴,复现 Fig.2/4 | 本集群 | MIG;等 gated 审批(已申请) |
 | Qwen3.5-2B | 仅作 0.8B 的 OPD teacher(bf16 推理) | — | — |
 | 27B / 35B-A3B(MoE) | 不跑,future work | — | — |
