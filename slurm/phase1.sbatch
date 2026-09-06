@@ -5,7 +5,7 @@
 #SBATCH --job-name=spec-p1
 #SBATCH --partition=gpuq
 #SBATCH --qos=gpu
-#SBATCH --gres=gpu:A100.80gb:1
+#SBATCH --gres=gpu:A100.40gb:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=48:00:00
@@ -17,7 +17,7 @@ CONFIGS=(
   "sft adamw" "opd adamw" "rlvr adamw" "rlvr muon" "sft muon" "opd muon"
 )
 read -r OBJ OPT <<< "${CONFIGS[$SLURM_ARRAY_TASK_ID]}"
-OUT=runs/phase1_${OBJ}_${OPT}
+OUT=$RUNS/phase1_${OBJ}_${OPT}
 echo "=== phase1 $OBJ $OPT -> $OUT ==="
 
 $PY scripts/train.py --objective $OBJ --optimizer $OPT \

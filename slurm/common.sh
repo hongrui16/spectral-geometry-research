@@ -5,4 +5,6 @@ export HF_HUB_OFFLINE=1
 export TOKENIZERS_PARALLELISM=false
 export PYTHONUNBUFFERED=1
 export PY=$HOME/envs_spectral/bin/python
+export RUNS=/scratch/rhong5/spectral_runs
+mkdir -p $RUNS
 cd $PROJ

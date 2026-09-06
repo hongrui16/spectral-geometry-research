@@ -40,7 +40,8 @@ def decoder_param_groups(model, weight_decay=0.0):
     for name, p in model.named_parameters():
         if not p.requires_grad:
             continue
-        if p.dim() == 2 and ("layers." in name) and ("embed" not in name):
+        if (p.dim() == 2 and ("layers." in name) and ("embed" not in name)
+                and "visual" not in name and not name.startswith("mtp.")):
             matrix.append(p)
         else:
             other.append(p)

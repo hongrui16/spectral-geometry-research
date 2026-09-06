@@ -20,13 +20,14 @@ class InterventionEngine:
         self.q = q
         self.refresh_every = refresh_every
         self.beta1, self.beta2, self.eps = beta1, beta2, eps
-        pat = re.compile(r"layers\.\d+\.(?:self_attn|mlp)\."
-                         r"(?:q|k|v|o|gate|up|down)_proj\.weight$")
+        pat = re.compile(r"layers\.\d+\.(?:self_attn|mlp|linear_attn)\.\w+\.weight$")
         self.params = {n: p for n, p in model.named_parameters()
-                       if p.dim() == 2 and pat.search(n)}
+                       if p.dim() == 2 and pat.search(n)
+                       and "visual" not in n and not n.startswith("mtp.")}
         self.basis = {}      # name -> (U, V)
         self.m = {}
         self.v = {}
+        self.alpha_log = {}  # adaptive_alpha: latest alpha per matrix (Fig.10)
         self._w_before = None
         self._step = 0
 
@@ -39,7 +40,7 @@ class InterventionEngine:
     @torch.no_grad()
     def observe_grad(self):
         """Call after backward, before optimizer.step (needs p.grad)."""
-        if self.mode != "snr_topq":
+        if self.mode not in ("snr_topq", "adaptive_alpha"):
             return
         for n, p in self.params.items():
             U, V = self.basis[n]
@@ -76,6 +77,17 @@ class InterventionEngine:
                 k = max(1, int(self.q * C.numel()))
                 th = snr.flatten().kthvalue(snr.numel() - k + 1).values
                 Hp = U @ (C * (snr >= th)) @ V.T
+            elif self.mode == "adaptive_alpha":
+                # M2: H' = H - (1 - alpha) * spectral part; alpha = Wiener gate
+                # on the mean diagonal SNR (doc Cor. 13.1). alpha=1 -> full
+                # update, alpha=0 -> ISO-like (first-order isospectral).
+                snr_diag = (self.m[n].diagonal().pow(2)
+                            / self.v[n].diagonal().clamp_min(self.eps))
+                s = snr_diag.mean()
+                alpha = (s / (1.0 + s)).item()
+                self.alpha_log[n] = alpha
+                spec = U @ torch.diag(C.diagonal()) @ V.T
+                Hp = H - (1.0 - alpha) * spec
             else:
                 raise ValueError(self.mode)
             p.copy_(self._w_before[n] + Hp.to(p.dtype))

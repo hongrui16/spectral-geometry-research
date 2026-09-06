@@ -4,7 +4,7 @@
 #SBATCH --job-name=spec-e1
 #SBATCH --partition=gpuq
 #SBATCH --qos=gpu
-#SBATCH --gres=gpu:A100.80gb:1
+#SBATCH --gres=gpu:A100.40gb:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=48:00:00
@@ -19,7 +19,7 @@ CONFIGS=(
   "rlvr adamw" "rlvr muon" "rlvr ssd"
 )
 read -r OBJ OPT <<< "${CONFIGS[$SLURM_ARRAY_TASK_ID]}"
-OUT=runs/e1_${OBJ}_${OPT}_s${SEED}
+OUT=$RUNS/e1_${OBJ}_${OPT}_s${SEED}
 echo "=== e1 $OBJ $OPT seed $SEED -> $OUT ==="
 
 $PY scripts/train.py --objective $OBJ --optimizer $OPT --seed $SEED \

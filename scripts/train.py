@@ -48,10 +48,10 @@ def parse_args():
     p.add_argument("--rollout-capture-mats", type=int, default=4,
                    help="how many tracked matrices get per-rollout grads (RLVR)")
     p.add_argument("--grad-clip", type=float, default=1.0)
-    p.add_argument("--save-ckpt-every", type=int, default=100)
+    p.add_argument("--save-ckpt-every", type=int, default=250)
     p.add_argument("--intervention", default="none",
                    choices=["none", "spectrum_only", "frame_only",
-                            "mag_topq", "snr_topq"])
+                            "mag_topq", "snr_topq", "adaptive_alpha"])
     p.add_argument("--intervention-q", type=float, default=0.1)
     return p.parse_args()
 
@@ -291,15 +291,16 @@ class Trainer:
                                              max(1, math.ceil(len(rows) / B)))]
             self.zero_grad()
             losses = []
-            prev = {n: torch.zeros_like(p, device="cpu")
-                    for n, p in self.instr.tracked.items()} if save else None
+            prev = {n: torch.zeros_like(self.instr.tracked[n], device="cpu")
+                    for n in self.instr.snr_names} if save else None
             for bi, chunk in enumerate(idx_chunks):
                 loss = self.loss_on(rows, info, chunk) / len(idx_chunks)
                 loss.backward()
                 losses.append(loss.item() * len(idx_chunks))
                 if save:
                     with torch.no_grad():
-                        for n, p in self.instr.tracked.items():
+                        for n in self.instr.snr_names:
+                            p = self.instr.tracked[n]
                             cur = p.grad.detach().cpu()
                             gb = (cur - prev[n]) * len(idx_chunks)
                             self.instr._record["mats"][n].setdefault(
@@ -324,6 +325,9 @@ class Trainer:
                    "secs": round(time.time() - t0, 2)}
             if "reward_mean" in info:
                 rec["reward_mean"] = info["reward_mean"]
+            if save and self.engine and self.engine.alpha_log:
+                vals = list(self.engine.alpha_log.values())
+                rec["alpha_mean"] = sum(vals) / len(vals)
             self.log(rec)
             if step % 10 == 0:
                 print(f"[{args.objective}] step {step} "

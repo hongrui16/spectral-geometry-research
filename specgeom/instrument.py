@@ -19,19 +19,41 @@ import torch
 
 DEFAULT_TYPES = ("q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj")
 
+# matrix families for hybrid archs (qwen3_5: some layers full attention, some
+# gated linear attention). For each family, early/mid/late layers among the
+# layers that actually contain it.
+FAMILIES = {
+    "self_attn": ("self_attn.q_proj", "self_attn.k_proj",
+                  "self_attn.v_proj", "self_attn.o_proj"),
+    "mlp": ("mlp.gate_proj", "mlp.up_proj", "mlp.down_proj"),
+    "linear_attn": ("linear_attn.in_proj_qkv", "linear_attn.out_proj"),
+}
 
-def select_tracked(model, n_layers: int, types=DEFAULT_TYPES, layer_picks=None):
-    """Pick early/mid/late layers x matrix types. Returns {param_name: shape}."""
-    if layer_picks is None:
-        layer_picks = sorted({1, n_layers // 2, n_layers - 2})
-    pat = re.compile(
-        r"layers\.(" + "|".join(str(l) for l in layer_picks) + r")\."
-        r"(?:self_attn|mlp)\.(" + "|".join(types) + r")\.weight$"
-    )
+
+def select_tracked(model, n_layers: int, types=None, layer_picks=None):
+    """Pick early/mid/late layers per matrix family. Returns {param_name: param}.
+
+    Hybrid-arch aware: each family only exists in a subset of layers, so the
+    early/mid/late picks are made within that subset.
+    """
+    layer_of = re.compile(r"\blayers\.(\d+)\.")
+    params = {n: p for n, p in model.named_parameters()
+              if p.dim() == 2 and layer_of.search(n) and "visual" not in n
+              and not n.startswith("mtp.")}
     tracked = {}
-    for name, p in model.named_parameters():
-        if p.dim() == 2 and pat.search(name):
-            tracked[name] = p
+    for fam, suffixes in FAMILIES.items():
+        fam_layers = sorted({int(layer_of.search(n).group(1)) for n in params
+                             if f".{suffixes[0]}.weight" in n})
+        if not fam_layers:
+            continue
+        picks = sorted({fam_layers[min(1, len(fam_layers) - 1)],
+                        fam_layers[len(fam_layers) // 2],
+                        fam_layers[-2] if len(fam_layers) > 1 else fam_layers[-1]})
+        for l in picks:
+            for suf in suffixes:
+                for n, p in params.items():
+                    if n.endswith(f"layers.{l}.{suf}.weight"):
+                        tracked[n] = p
     return tracked
 
 
@@ -44,6 +66,11 @@ class Instrumenter:
         self.save_every = save_every
         self.tracked = select_tracked(model, n_layers, types, layer_picks)
         assert self.tracked, "no tracked parameters matched"
+        # G_b (SNR) storage is 8x per matrix; restrict to one representative
+        # matrix per (family, depth) to keep capture files manageable
+        self.snr_names = [n for n in self.tracked
+                          if any(s in n for s in
+                                 ("q_proj", "down_proj", "in_proj_qkv"))]
         self._record = None
         self._w_before = None
 
