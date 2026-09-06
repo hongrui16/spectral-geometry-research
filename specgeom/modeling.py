@@ -4,22 +4,31 @@ import torch
 from transformers import AutoConfig, AutoTokenizer
 
 
-def load_model(model_id, dtype=torch.float32, device="cuda", trainable=True):
+def load_model(model_id, dtype=torch.float32, device="cuda", trainable=True,
+               device_map=None):
     """Load as causal LM if possible, else the multimodal class (text-only fwd).
 
     Returns (model, tokenizer, n_layers). Weights in fp32 by default so that
     captured G/H are not quantized by bf16 master weights; forward runs under
     autocast(bf16) in the train loop.
+
+    device_map="auto" enables naive model parallelism across all visible GPUs
+    (layers sharded, optimizer states colocated with their shards). Identical
+    math to single-GPU — used for 9B+ where fp32 + AdamW exceeds one card.
     """
     tok = AutoTokenizer.from_pretrained(model_id)
+    kwargs = {"dtype": dtype}
+    if device_map:
+        kwargs["device_map"] = device_map
     model = None
     try:
         from transformers import AutoModelForCausalLM
-        model = AutoModelForCausalLM.from_pretrained(model_id, dtype=dtype)
+        model = AutoModelForCausalLM.from_pretrained(model_id, **kwargs)
     except Exception:
         from transformers import AutoModelForMultimodalLM  # transformers >= 5
-        model = AutoModelForMultimodalLM.from_pretrained(model_id, dtype=dtype)
-    model = model.to(device)
+        model = AutoModelForMultimodalLM.from_pretrained(model_id, **kwargs)
+    if not device_map:
+        model = model.to(device)
     if not trainable:
         model.eval()
         for p in model.parameters():

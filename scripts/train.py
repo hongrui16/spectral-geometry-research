@@ -57,6 +57,9 @@ def parse_args():
                    choices=["none", "spectrum_only", "frame_only",
                             "mag_topq", "snr_topq", "adaptive_alpha"])
     p.add_argument("--intervention-q", type=float, default=0.1)
+    p.add_argument("--device-map", default="",
+                   help='"auto" = naive model parallelism over all visible '
+                        "GPUs (for 9B+ fp32; math identical to single-GPU)")
     return p.parse_args()
 
 
@@ -70,7 +73,8 @@ class Trainer:
         self.args = args
         torch.manual_seed(args.seed)
         os.makedirs(args.out, exist_ok=True)
-        self.model, self.tok, n_layers = load_model(args.model)
+        self.model, self.tok, n_layers = load_model(
+            args.model, device_map=args.device_map or None)
         self.device = next(self.model.parameters()).device
         self.instr = Instrumenter(self.model, args.out, n_layers,
                                   save_every=args.save_every)
@@ -102,7 +106,8 @@ class Trainer:
 
         if args.objective == "opd":
             self.teacher, _, _ = load_model(args.teacher, dtype=torch.bfloat16,
-                                            trainable=False)
+                                            trainable=False,
+                                            device_map=args.device_map or None)
         data = load_gsm8k("train")
         self.sampler = PromptSampler(data, seed=args.seed)
         self.log_path = os.path.join(args.out, "log.jsonl")
@@ -236,7 +241,8 @@ class Trainer:
         input_ids, labels, attn = self.collate(sub)
         logits = self.lm_logits(input_ids, attn)
         logp = F.log_softmax(logits[:, :-1], dim=-1)
-        tgt = labels[:, 1:]
+        # with device_map, logits sit on the last shard's GPU
+        tgt = labels[:, 1:].to(logits.device)
         mask = tgt.ne(-100)
         tok_logp = torch.gather(
             logp, 2, tgt.clamp_min(0).unsqueeze(-1)).squeeze(-1) * mask
@@ -246,7 +252,7 @@ class Trainer:
 
         if self.args.objective == "rlvr":
             adv = torch.tensor([info["adv"][i] for i in idxs],
-                               device=self.device)
+                               device=logits.device)
             seq_mean_logp = tok_logp.sum(1) / mask.sum(1).clamp_min(1)
             return -(adv * seq_mean_logp).mean()
 
@@ -254,7 +260,7 @@ class Trainer:
         with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
             t_logits = self.teacher(input_ids=input_ids,
                                     attention_mask=attn).logits
-        t_logp = F.log_softmax(t_logits.float()[:, :-1], dim=-1)
+        t_logp = F.log_softmax(t_logits.float()[:, :-1], dim=-1).to(logits.device)
         s_logp = logp
         kl = (s_logp.exp() * (s_logp - t_logp)).sum(-1) * mask   # (B, T-1)
         return kl.sum() / mask.sum().clamp_min(1)
@@ -264,7 +270,7 @@ class Trainer:
         input_ids, labels, attn = self.collate([row])
         logits = self.lm_logits(input_ids, attn)
         logp = F.log_softmax(logits[:, :-1], dim=-1)
-        tgt = labels[:, 1:]
+        tgt = labels[:, 1:].to(logits.device)
         mask = tgt.ne(-100)
         tok_logp = torch.gather(
             logp, 2, tgt.clamp_min(0).unsqueeze(-1)).squeeze(-1) * mask

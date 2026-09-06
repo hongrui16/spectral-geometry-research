@@ -18,10 +18,13 @@
 - 只有你本人能做的两件事:① GPU 取舍——fit*/ss* 手部建模作业与论文作业共享 16 卡配额,
   要加速就暂停几个;② gated 模型审批(Llama 已申请)
 
-**协作者(自己的 GPU,假设 ≥1×A100/H100 80GB;不够 80GB 提前说)**
-- 【立刻开工】4B:Phase 1 AdamW×3(sft/opd/rlvr,teacher=9B)+ E1 RLVR 行
-  ({adamw, muon, ssd})+ 4B base 的 GSM8K greedy 基线一次
-- 【4B 收尾后】9B:Phase 1 AdamW×3(等仓库里的影子捕获改造,Claude 负责,预计 1-2 天内推上)
+**协作者(GPU 充裕,多张 80GB)——所有需要 ≥2×80GB 的任务全部归他**
+- 【立刻开工,可全部并行】
+  - 4B:Phase 1 AdamW×3(sft/opd/rlvr,teacher=9B,单卡/run)+ E1 RLVR 行
+    ({adamw, muon, ssd})+ 4B base 的 GSM8K greedy 基线一次
+  - 9B:Phase 1 AdamW×3,用 `--device-map auto`(已实现,零改动):
+    sft/rlvr 每 run 3×80GB,opd(载 27B teacher)4×80GB;命令见 SCALING.md
+- 【余力】9B 的 E1 RLVR 行;27B 不做
 - 交付物:每个 run 的 `capture/` 目录 + `log.jsonl` + `args.json` + 评测 json,
   打包传回集群(或给可访问路径);**不要自己改分析代码**,口径统一走本仓库 analysis/
 
