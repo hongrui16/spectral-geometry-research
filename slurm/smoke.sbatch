@@ -16,7 +16,7 @@ for OBJ in sft rlvr opd; do
   echo "=== smoke $OBJ ==="
   $PY scripts/train.py --objective $OBJ \
     --steps 4 --save-every 2 --prompts-per-step 4 --rollouts 4 \
-    --max-new-tokens 256 --microbatches 4 \
+    --max-new-tokens 256 \
     --out $RUNS/smoke_$OBJ || exit 1
 done
 

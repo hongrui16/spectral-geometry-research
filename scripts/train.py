@@ -11,7 +11,6 @@ every --save-every steps (see specgeom.instrument).
 
 import argparse
 import json
-import math
 import os
 import sys
 import time
@@ -40,7 +39,11 @@ def parse_args():
     p.add_argument("--save-every", type=int, default=10)
     p.add_argument("--prompts-per-step", type=int, default=8)
     p.add_argument("--rollouts", type=int, default=8, help="K for GRPO")
-    p.add_argument("--microbatches", type=int, default=8, help="B for SNR capture")
+    p.add_argument("--microbatches", type=int, default=8,
+                   help="(unused, kept for compat)")
+    p.add_argument("--seqs-per-microbatch", type=int, default=0,
+                   help="0 = auto: rlvr 2, sft/opd 1 (memory-bound by "
+                        "seqs x seq_len x 248k-vocab fp32 logits)")
     p.add_argument("--max-new-tokens", type=int, default=384)
     p.add_argument("--temperature", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=0)
@@ -285,10 +288,8 @@ class Trainer:
                         "rollout_adv", [info["adv"][k] for k in range(n_cap)])
                     self.zero_grad()
 
-            # microbatch accumulation (B microbatches at save steps for SNR)
-            B = args.microbatches if save else 2
-            idx_chunks = [c for c in batched(list(range(len(rows))),
-                                             max(1, math.ceil(len(rows) / B)))]
+            mbs = args.seqs_per_microbatch or (2 if args.objective == "rlvr" else 1)
+            idx_chunks = [c for c in batched(list(range(len(rows))), mbs)]
             self.zero_grad()
             losses = []
             prev = {n: torch.zeros_like(self.instr.tracked[n], device="cpu")

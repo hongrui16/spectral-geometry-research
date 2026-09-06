@@ -22,7 +22,7 @@ echo "=== phase1 $OBJ $OPT -> $OUT ==="
 
 $PY scripts/train.py --objective $OBJ --optimizer $OPT \
   --steps 500 --save-every 10 --prompts-per-step 8 --rollouts 8 \
-  --max-new-tokens 384 --microbatches 8 \
+  --max-new-tokens 384 \
   --out $OUT
 
 $PY analysis/compute_metrics.py $OUT
