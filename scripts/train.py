@@ -40,7 +40,7 @@ def parse_args():
     p.add_argument("--prompts-per-step", type=int, default=8)
     p.add_argument("--rollouts", type=int, default=8, help="K for GRPO")
     p.add_argument("--microbatches", type=int, default=8,
-                   help="(unused, kept for compat)")
+                   help="max G_b samples stored per save step (B in doc 6.1)")
     p.add_argument("--seqs-per-microbatch", type=int, default=0,
                    help="0 = auto: rlvr 2, sft/opd 1 (memory-bound by "
                         "seqs x seq_len x 248k-vocab fp32 logits)")
@@ -316,7 +316,9 @@ class Trainer:
                 loss = self.loss_on(rows, info, chunk) / len(idx_chunks)
                 loss.backward()
                 losses.append(loss.item() * len(idx_chunks))
-                if save:
+                if save and bi < self.args.microbatches:
+                    # G_b capped at B=8 samples (doc section 6.1); the mean
+                    # gradient G still accumulates over ALL microbatches
                     with torch.no_grad():
                         for n in self.instr.snr_names:
                             p = self.instr.tracked[n]
