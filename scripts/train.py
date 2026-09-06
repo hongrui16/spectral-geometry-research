@@ -32,7 +32,8 @@ def parse_args():
     p.add_argument("--objective", choices=["sft", "opd", "rlvr"], required=True)
     p.add_argument("--model", default="Qwen/Qwen3.5-0.8B")
     p.add_argument("--teacher", default="Qwen/Qwen3.5-2B")
-    p.add_argument("--optimizer", choices=["adamw", "muon"], default="adamw")
+    p.add_argument("--optimizer", choices=["adamw", "muon", "ssd", "ssd-muon"],
+                   default="adamw")
     p.add_argument("--lr", type=float, default=1e-5)
     p.add_argument("--muon-lr", type=float, default=2e-4)
     p.add_argument("--steps", type=int, default=500)
@@ -84,8 +85,14 @@ class Trainer:
                 [{"params": matrix}, {"params": other}],
                 lr=args.lr, betas=(0.9, 0.95), weight_decay=0.0)
             self.opt_other = None
-        else:
+        elif args.optimizer == "muon":
             self.opt = Muon(matrix, lr=args.muon_lr, momentum=0.95)
+            self.opt_other = torch.optim.AdamW(other, lr=args.lr, betas=(0.9, 0.95))
+        else:  # ssd / ssd-muon (M1)
+            from specgeom.ssd import SSD
+            variant = "wiener" if args.optimizer == "ssd" else "muon"
+            self.opt = SSD(matrix, lr=args.muon_lr, momentum=0.95,
+                           k=256, variant=variant)
             self.opt_other = torch.optim.AdamW(other, lr=args.lr, betas=(0.9, 0.95))
 
         self.engine = None
