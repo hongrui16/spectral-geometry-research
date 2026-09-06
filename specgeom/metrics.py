@@ -104,7 +104,7 @@ def rollout_correlations(Cks: torch.Tensor, A: torch.Tensor, S: torch.Tensor) ->
     Returns flattened correlation tensors (frame off-diagonal upper triangle).
     """
     K = Cks.shape[0]
-    A = A.float()
+    A = A.float().to(Cks.device)
     Ac = A - A.mean()
     denomA = Ac.pow(2).sum().sqrt().clamp_min(1e-12)
 
