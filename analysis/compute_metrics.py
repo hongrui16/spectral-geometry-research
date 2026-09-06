@@ -39,7 +39,11 @@ def process_run(run_dir, device="cpu"):
             G = m["G"].float().to(device)
             H = m["H"].float().to(device)
             U, S, V = metrics.weight_svd(W)
-            row = {"step": step, "matrix": name}
+            # null baseline for R_spectrum of an isotropic random G is
+            # r/(m*n) = 1/max(m,n); report shapes so plots can normalize
+            row = {"step": step, "matrix": name,
+                   "m": W.shape[0], "n": W.shape[1],
+                   "r_null": 1.0 / max(W.shape)}
             for pref, X in (("G", G), ("H", H)):
                 rep = metrics.full_report(X, W, U, S, V)
                 row.update({f"{pref}_{k}": v for k, v in rep.items()})

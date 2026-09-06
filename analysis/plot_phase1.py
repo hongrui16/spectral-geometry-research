@@ -21,20 +21,36 @@ import torch
 COLORS = {"SFT": "tab:blue", "OPD": "tab:green", "RLVR": "tab:red"}
 
 
+SHAPE_MAP = {  # qwen3.5-0.8B fallback for CSVs written before r_null existed
+    "q_proj": 4096, "k_proj": 1024, "v_proj": 1024, "o_proj": 2048,
+    "gate_proj": 3584, "up_proj": 3584, "down_proj": 3584,
+    "in_proj_qkv": 6144, "out_proj": 2048,
+}
+
+
 def load(run):
-    return pd.read_csv(os.path.join(run, "metrics.csv"))
+    df = pd.read_csv(os.path.join(run, "metrics.csv"))
+    if "r_null" not in df.columns:
+        dim = df.matrix.str.extract(r"(\w+)\.weight")[0].map(SHAPE_MAP)
+        df["r_null"] = 1.0 / dim
+    # enrichment of diagonal energy over the random-G null (shape-normalized)
+    df["G_r_enrich"] = df["G_r_spectrum"] / df["r_null"]
+    df["H_r_enrich"] = df["H_r_spectrum"] / df["r_null"]
+    return df
 
 
 def fig2(runs, labels, out):
     plt.figure(figsize=(6, 4))
     for run, lab in zip(runs, labels):
         df = load(run)
-        g = df.groupby("step")["G_r_spectrum"]
+        g = df.groupby("step")["G_r_enrich"]
         med, lo, hi = g.median(), g.quantile(0.25), g.quantile(0.75)
         c = COLORS.get(lab.split("-")[0], None)
         plt.plot(med.index, med.values, label=lab, color=c)
         plt.fill_between(med.index, lo.values, hi.values, alpha=0.2, color=c)
-    plt.xlabel("step"), plt.ylabel(r"$R_{\rm spectrum}(G)$")
+    plt.axhline(1.0, color="k", lw=0.6, ls=":", label="random-G null")
+    plt.xlabel("step")
+    plt.ylabel(r"$R_{\rm spectrum}(G)\,/\,R_{\rm null}$")
     plt.yscale("log"), plt.legend(), plt.tight_layout()
     plt.savefig(os.path.join(out, "fig2_rspectrum.pdf"))
     plt.close()
@@ -44,12 +60,13 @@ def fig3(runs, labels, out):
     plt.figure(figsize=(5, 5))
     for run, lab in zip(runs, labels):
         df = load(run)
-        plt.scatter(df["G_r_spectrum"], df["H_r_spectrum"], s=6, alpha=0.4,
+        plt.scatter(df["G_r_enrich"], df["H_r_enrich"], s=6, alpha=0.4,
                     label=lab, color=COLORS.get(lab.split("-")[0], None))
     lim = plt.gca().get_xlim()
     plt.plot(lim, lim, "k--", lw=0.5)
     plt.xscale("log"), plt.yscale("log")
-    plt.xlabel(r"$R_{\rm spectrum}(G)$"), plt.ylabel(r"$R_{\rm spectrum}(H)$")
+    plt.xlabel(r"$R_{\rm spectrum}(G)/R_{\rm null}$")
+    plt.ylabel(r"$R_{\rm spectrum}(H)/R_{\rm null}$")
     plt.legend(), plt.tight_layout()
     plt.savefig(os.path.join(out, "fig3_G_vs_H.pdf"))
     plt.close()
