@@ -104,9 +104,6 @@ python scripts/train.py --objective rlvr --optimizer ssd --lr 2e-6 --muon-lr 2e-
 ```
 --steps 300,其余同 E1 模板,--out $RUNS/e2_<变体名>。
 
-### E2 — SSD 消融 🔒 依赖 E1
-rlvr 300 步 ×4:f≡1(退化 Muon)、硬阈值 vs Wiener、k∈{64,256}、去 mode 对齐。
-
 ### E3 — 预测关(Part I → M1)|作者B,flag 已实现
 按 4 组层单独启用 SSD(其余层 Muon),rlvr 300 步 ×4 + 对照全 Muon(复用 E1):
 ```bash
@@ -132,9 +129,10 @@ python scripts/train.py --objective rlvr --optimizer ssd-routed --ssd-layer-rang
 0.8B 全部 ≈ 105-120 GPU·h;3 切片并行 ≈ 2.5-3 天。
 4B 全套(作者B)≈ 90 GPU·h;9B Phase1 ≈ 60 GPU·h;Llama-3B Phase1 ≈ 30 GPU·h。
 
-## 待办(工程)
-- [ ] SSD 小规模 GPU 试跑(50 步 rlvr)后解锁 E1/E2/E3
-- [x] 9B 多卡支持(`--device-map auto`,fp32 保持,已推仓库,作者B 直接用)
-- [ ] Llama-3.2-3B 冒烟(等 gated 审批)
-- [ ] MMLU 子集遗忘评测脚本
-- [ ] E3 分层 SSD 路由 flag
+## 待办(工程)— D1 全部清零
+- [x] SSD GPU 试跑(50 步 rlvr 通过,reward 正常爬升)
+- [x] 9B 多卡支持(`--device-map auto`)
+- [x] Llama-3.2-3B 冒烟(GPU 节点通过;登录节点 OOM-kill 是内存限额)
+- [x] MMLU 遗忘评测脚本(`scripts/eval_mmlu.py`)
+- [x] E3 分层 SSD 路由(`--optimizer ssd-routed --ssd-layer-range`)
+- [x] H3 加强采样 run + 终判(拒绝 H-RLVR,归因 SNR 通道)
