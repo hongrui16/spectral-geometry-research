@@ -32,8 +32,12 @@ def parse_args():
     p.add_argument("--objective", choices=["sft", "opd", "rlvr"], required=True)
     p.add_argument("--model", default="Qwen/Qwen3.5-0.8B")
     p.add_argument("--teacher", default="Qwen/Qwen3.5-2B")
-    p.add_argument("--optimizer", choices=["adamw", "muon", "ssd", "ssd-muon"],
+    p.add_argument("--optimizer",
+                   choices=["adamw", "muon", "ssd", "ssd-muon", "ssd-routed"],
                    default="adamw")
+    p.add_argument("--ssd-layer-range", default="",
+                   help='E3: "lo-hi" layer range that gets SSD; the rest get '
+                        "Muon (only with --optimizer ssd-routed)")
     p.add_argument("--lr", type=float, default=1e-5)
     p.add_argument("--muon-lr", type=float, default=2e-4)
     p.add_argument("--steps", type=int, default=500)
@@ -98,6 +102,18 @@ class Trainer:
         elif args.optimizer == "muon":
             self.opt = Muon(matrix, lr=args.muon_lr, momentum=0.95)
             self.opt_other = torch.optim.AdamW(other, lr=args.lr, betas=(0.9, 0.95))
+        elif args.optimizer == "ssd-routed":
+            # E3: SSD on one layer range, Muon elsewhere
+            import re as _re
+            from specgeom.ssd import SSD
+            lo, hi = (int(x) for x in args.ssd_layer_range.split("-"))
+            named, _ = decoder_param_groups(self.model, with_names=True)
+            layer_no = _re.compile(r"layers\.(\d+)\.")
+            in_r = [p for n, p in named if lo <= int(layer_no.search(n).group(1)) <= hi]
+            out_r = [p for n, p in named if not lo <= int(layer_no.search(n).group(1)) <= hi]
+            self.opt = SSD(in_r, lr=args.muon_lr, momentum=0.95, k=args.ssd_k)
+            self.opt2 = Muon(out_r, lr=args.muon_lr, momentum=0.95)
+            self.opt_other = torch.optim.AdamW(other, lr=args.lr, betas=(0.9, 0.95))
         else:  # ssd / ssd-muon (M1)
             from specgeom.ssd import SSD
             variant = "wiener" if args.optimizer == "ssd" else "muon"
@@ -106,6 +122,8 @@ class Trainer:
                            tail_coef=args.ssd_tail_coef,
                            no_align=args.ssd_no_align)
             self.opt_other = torch.optim.AdamW(other, lr=args.lr, betas=(0.9, 0.95))
+        if not hasattr(self, "opt2"):
+            self.opt2 = None
 
         self.engine = None
         if args.intervention != "none":
@@ -290,6 +308,8 @@ class Trainer:
 
     def zero_grad(self):
         self.opt.zero_grad(set_to_none=False)
+        if self.opt2:
+            self.opt2.zero_grad(set_to_none=False)
         if self.opt_other:
             self.opt_other.zero_grad(set_to_none=False)
 
@@ -298,6 +318,8 @@ class Trainer:
             [p for p in self.model.parameters() if p.requires_grad],
             self.args.grad_clip)
         self.opt.step()
+        if self.opt2:
+            self.opt2.step()
         if self.opt_other:
             self.opt_other.step()
 

@@ -43,7 +43,7 @@ def load_model(model_id, dtype=torch.float32, device="cuda", trainable=True,
     return model, tok, n_layers
 
 
-def decoder_param_groups(model, weight_decay=0.0):
+def decoder_param_groups(model, weight_decay=0.0, with_names=False):
     """Split params: 2D decoder matrices (Muon-eligible) vs everything else."""
     matrix, other = [], []
     for name, p in model.named_parameters():
@@ -51,7 +51,7 @@ def decoder_param_groups(model, weight_decay=0.0):
             continue
         if (p.dim() == 2 and ("layers." in name) and ("embed" not in name)
                 and "visual" not in name and not name.startswith("mtp.")):
-            matrix.append(p)
+            matrix.append((name, p) if with_names else p)
         else:
             other.append(p)
     return matrix, other

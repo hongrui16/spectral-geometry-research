@@ -107,9 +107,16 @@ python scripts/train.py --objective rlvr --optimizer ssd --lr 2e-6 --muon-lr 2e-
 ### E2 — SSD 消融 🔒 依赖 E1
 rlvr 300 步 ×4:f≡1(退化 Muon)、硬阈值 vs Wiener、k∈{64,256}、去 mode 对齐。
 
-### E3 — 预测关(Part I → M1)🔒 依赖 Phase 1 + E1
-按 4 组层(embed 侧/中/深/输出侧)单独启用 SSD,rlvr 300 步 ×4;
-横轴用 Phase 1 测得的 1−Spearman(|C|,SNR),纵轴 SSD 相对 Muon 增益。产出:Fig.9。
+### E3 — 预测关(Part I → M1)|作者B,flag 已实现
+按 4 组层单独启用 SSD(其余层 Muon),rlvr 300 步 ×4 + 对照全 Muon(复用 E1):
+```bash
+# 0.8B 共 24 层,4 组:0-5 / 6-11 / 12-17 / 18-23
+python scripts/train.py --objective rlvr --optimizer ssd-routed --ssd-layer-range 0-5 \
+  --lr 2e-6 --muon-lr 2e-5 --steps 300 --save-every 25 --prompts-per-step 8 \
+  --rollouts 8 --max-new-tokens 384 --seed 0 --out $RUNS/e3_ssd_layers0-5
+# 其余三组同理:6-11 / 12-17 / 18-23,各配 eval(--limit 500)
+```
+横轴用 Phase 1 测得的按层 1−Spearman(|C|,SNR),纵轴该组启用 SSD 的增益。产出:Fig.9。
 
 ### E4 — M2 自适应 α(任务 #5 内)
 {sft,opd,rlvr} × adaptive_alpha(`--intervention adaptive_alpha`),300-500 步 + 评测;
