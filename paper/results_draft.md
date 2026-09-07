@@ -29,8 +29,16 @@ Fisher-z 池化后均降至池化零假设水平;符号无关池化:均值 0.316
 尾部(>0.3)13.0% / 12.9% vs 零假设 11.4%。**σ/frame 完全对称,H-RLVR 拒绝,
 Prop.7 对称性在真实模型成立;frame-dominance 归因唯一化到 SNR 通道(§5/C3)。**
 
-家族轴(Llama-3.2-3B,标准注意力):SFT R_enrich 1.073(mlp 1.112 / attn 1.038),
-Spearman 0.863。RLVR/OPD 待跑:______
+家族轴(Llama-3.2-3B,标准注意力)SFT vs RLVR:
+- 全程:R_enrich 1.073 vs 1.072(无差);Spearman 0.863 vs **0.785**(差距 0.078,
+  是 Qwen 的 2.5 倍)
+- **饱和混淆**:Llama reward 100 步内 58%→98%,后 400 步 RLVR 信号近零。
+  限定未饱和窗口(step≤100):R_enrich 1.084 vs 1.060——**H1 排序在 RLVR
+  实际生效阶段复现**;Spearman 0.858 vs 0.808
+- 结论:H4(SNR 通道)跨家族复现且在标准注意力上更强;H1 排序在活跃 RLVR
+  阶段跨家族复现(幅度均温和)。写作时注明饱和窗口的处理
+- |ρ^Σ| med 0.325(192 captures)——σ/frame 对称性待同样检查
+- OPD 格待跑:______
 
 分家族(Qwen 0.8B,三范式一致):linear_attn 富集 ~0.65 **低于随机**,
 mlp ~0.98,self_attn ~0.87-0.89。
