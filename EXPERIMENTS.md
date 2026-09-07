@@ -67,7 +67,7 @@ H2 三对齐全:G 侧 optimizer 不变性在 SFT/OPD/RLVR 全部成立(RLVR 对:
 - **H1 方向成立、幅度温和**:富集度 SFT 0.886 > OPD 0.869 > RLVR 0.839(排序一致,跨度 ~5%)
 - **H2 强成立**:G 侧几何对 optimizer 不变(SFT/OPD 两对均 <7% 差异)
 - **H3 未获支持**:K=8 下 |ρ^Σ| ≈ |ρ^frame|(0.291 vs 0.292),池化后仍对称——符合 Prop.7,
-  H-RLVR 的序列级破缺不可见。可选翻案:4 组 × K=16 重采一个 RLVR run(~5h)
+  H-RLVR 的序列级破缺不可见。终判(D1 加强采样 8×统计力):σ/frame 完全对称,H-RLVR 拒绝,归因唯一化到 SNR 通道
 - **H4 方向成立、幅度小**:Spearman(|C|,SNR) RLVR 0.848 < SFT 0.880
 - **新发现**:linear_attn 梯度对角富集仅 0.65(低于随机),MLP ≈1.0,三范式一致
 

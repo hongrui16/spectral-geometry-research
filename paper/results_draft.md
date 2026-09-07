@@ -24,7 +24,10 @@ H2(G 侧 optimizer 不变性,AdamW vs Muon 的 R_spectrum(G)):
 H3(K=8,4 矩阵 × 50 步):|ρ^Σ| med 0.291 ≈ |ρ^frame| med 0.292,零假设 0.278;
 Fisher-z 池化后均降至池化零假设水平;符号无关池化:均值 0.316-0.336 vs 零假设 0.313,
 超阈 mode 占比 3-12%(零假设 ~2%)。→ 有微弱持续信号,但 σ/frame **无差别**。
-加强采样 run(P=4×K=16×4 组,seed 3)进行中,判定待更新:______
+加强采样 run(P=4×K=16,4 捕获组,400 步,seed 3)终判:
+|ρ^Σ| med 0.1314 ≈ |ρ^frame| med 0.1308,匹配零假设(K16,G2)0.1305;
+尾部(>0.3)13.0% / 12.9% vs 零假设 11.4%。**σ/frame 完全对称,H-RLVR 拒绝,
+Prop.7 对称性在真实模型成立;frame-dominance 归因唯一化到 SNR 通道(§5/C3)。**
 
 家族轴(Llama-3.2-3B,标准注意力):SFT R_enrich 1.073(mlp 1.112 / attn 1.038),
 Spearman 0.863。RLVR/OPD 待跑:______
