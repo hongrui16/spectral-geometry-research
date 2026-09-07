@@ -61,8 +61,17 @@ lr:SFT/OPD 1e-5;RLVR 用 RL 惯例 2e-6(AdamW)/2e-5(Muon)——1e-5 会在
 产出:Fig.2 (R_spectrum 三范式)、Fig.3 (G vs H)、Fig.4 (ρ^Σ/ρ^frame)、Fig.5 (|C| vs SNR)。
 基线:0.8B GSM8K greedy pass@1 = **57.5%** (200 题) ✅
 
-### 决策点
-H1 成立(R_spectrum: SFT > OPD > RLVR)→ Phase 2;不成立 → 主线转 H2+§5(见文档 §附)。
+### 决策点 — 已判定(D0 晚)
+0.8B AdamW 三格结果:
+- **H1 方向成立、幅度温和**:富集度 SFT 0.886 > OPD 0.869 > RLVR 0.839(排序一致,跨度 ~5%)
+- **H2 强成立**:G 侧几何对 optimizer 不变(SFT/OPD 两对均 <7% 差异)
+- **H3 未获支持**:K=8 下 |ρ^Σ| ≈ |ρ^frame|(0.291 vs 0.292),池化后仍对称——符合 Prop.7,
+  H-RLVR 的序列级破缺不可见。可选翻案:4 组 × K=16 重采一个 RLVR run(~5h)
+- **H4 方向成立、幅度小**:Spearman(|C|,SNR) RLVR 0.848 < SFT 0.880
+- **新发现**:linear_attn 梯度对角富集仅 0.65(低于随机),MLP ≈1.0,三范式一致
+
+**主线调整**:机制叙事以 §5 SNR 理论 + C3 为核心(文档 §附 预案);Phase 2 因果干预
+(作者B,PHASE2_RUNBOOK.md)升级为全文关键证据;H3 结果作为"可证伪量按设计工作"呈现。
 
 ### Phase 2 — 干预实验,H5-H6(任务 #4)|主责:**作者B**
 10 个 run(8 干预 + 2 对照),300 步 + GSM8K-500 评测,全部单卡可并行。
