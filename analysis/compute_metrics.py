@@ -60,16 +60,28 @@ def process_run(run_dir, device="cpu"):
                 row["spearman_absC_snr"] = spearman(
                     mean.flatten()[idx].abs(), snr.flatten()[idx])
             if "rollout_G" in m:
-                Cks = torch.stack([metrics.project(g.float().to(device), U, V)
-                                   for g in m["rollout_G"].values()])
-                A = torch.tensor(rec["rollout_adv"])
-                if A.std() > 1e-6:
+                keys = sorted(m["rollout_G"].keys())
+                Cks_all = torch.stack(
+                    [metrics.project(m["rollout_G"][k].float().to(device), U, V)
+                     for k in keys])
+                A_all = torch.tensor(rec["rollout_adv"])
+                sizes = rec.get("rollout_group_sizes", [len(keys)])
+                off = 0
+                meds_s, meds_f = [], []
+                for gi, sz in enumerate(sizes):
+                    Cks, A = Cks_all[off:off + sz], A_all[off:off + sz]
+                    off += sz
+                    if A.std() <= 1e-6:
+                        continue
                     rho = metrics.rollout_correlations(Cks, A, S)
-                    row["rho_sigma_absmed"] = rho["rho_sigma"].abs().median().item()
-                    row["rho_frame_absmed"] = rho["rho_frame"].abs().median().item()
-                    rho_store.append({"step": step, "matrix": name,
+                    meds_s.append(rho["rho_sigma"].abs().median().item())
+                    meds_f.append(rho["rho_frame"].abs().median().item())
+                    rho_store.append({"step": step, "matrix": name, "group": gi,
                                       "rho_sigma": rho["rho_sigma"].cpu(),
                                       "rho_frame": rho["rho_frame"].cpu()})
+                if meds_s:
+                    row["rho_sigma_absmed"] = sum(meds_s) / len(meds_s)
+                    row["rho_frame_absmed"] = sum(meds_f) / len(meds_f)
             rows.append(row)
         print(f"{run_dir}: step {step} done", flush=True)
 

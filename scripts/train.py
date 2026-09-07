@@ -51,6 +51,8 @@ def parse_args():
     p.add_argument("--out", required=True)
     p.add_argument("--rollout-capture-mats", type=int, default=4,
                    help="how many tracked matrices get per-rollout grads (RLVR)")
+    p.add_argument("--capture-groups", type=int, default=1,
+                   help="complete rollout groups captured per save step (H3)")
     p.add_argument("--grad-clip", type=float, default=1.0)
     p.add_argument("--save-ckpt-every", type=int, default=250)
     p.add_argument("--intervention", default="none",
@@ -237,6 +239,8 @@ class Trainer:
         info = {"reward_mean": float(torch.tensor(all_rewards).mean()),
                 "adv": advs_k, "n_seqs": len(rows),
                 "n_groups_kept": len(groups),
+                "group_sizes": [len(g[0]) for g in groups],
+                "group_complete": [g[3] for g in groups],
                 "group0_ok": bool(groups) and groups[0][3],
                 "group0_texts": groups[0][2] if groups else []}
         return rows, info
@@ -311,18 +315,31 @@ class Trainer:
             save = self.instr.is_save_step(step)
             if save:
                 self.instr.begin_step(step)
-                # RLVR: per-rollout grad-log-pi for first group (H3 statistic)
-                if args.objective == "rlvr" and info.get("group0_ok"):
-                    K = args.rollouts
-                    n_cap = min(K, len(rows))
-                    for k in range(n_cap):
-                        self.zero_grad()
-                        (-self.logp_sum_single(rows[k])).backward()
-                        self.instr.capture_rollout_grad(k, self.rollout_names)
-                    self.instr.set_extra(
-                        "rollout_adv", [info["adv"][k] for k in range(n_cap)])
-                    self.instr.set_extra("rollout_texts",
-                                         info.get("group0_texts", []))
+                # RLVR: per-rollout grad-log-pi for the first N complete
+                # groups (H3 statistic; N = --capture-groups)
+                if args.objective == "rlvr":
+                    adv_flat, sizes_cap, gk, off = [], [], 0, 0
+                    for sz, ok in zip(info.get("group_sizes", []),
+                                      info.get("group_complete", [])):
+                        if len(sizes_cap) >= args.capture_groups:
+                            break
+                        if not ok:
+                            off += sz
+                            continue
+                        for j in range(sz):
+                            self.zero_grad()
+                            (-self.logp_sum_single(rows[off + j])).backward()
+                            self.instr.capture_rollout_grad(
+                                gk, self.rollout_names)
+                            adv_flat.append(info["adv"][off + j])
+                            gk += 1
+                        sizes_cap.append(sz)
+                        off += sz
+                    if adv_flat:
+                        self.instr.set_extra("rollout_adv", adv_flat)
+                        self.instr.set_extra("rollout_group_sizes", sizes_cap)
+                        self.instr.set_extra("rollout_texts",
+                                             info.get("group0_texts", []))
                     self.zero_grad()
 
             mbs = args.seqs_per_microbatch or (2 if args.objective == "rlvr" else 1)
