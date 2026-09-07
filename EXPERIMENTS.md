@@ -41,7 +41,8 @@ Llama SFT ✅、RLVR/OPD ⬜ 排队等 80GB;作者A 工程待办清零;
 | Qwen3.5-0.8B | 全量主线(下表全部) | 作者A | |
 | Qwen3.5-4B | Phase 1 (AdamW×3) + E1 RLVR 行 | 作者B | 开箱即用,可并行(见 SCALING.md) |
 | Qwen3.5-9B | Phase 1 (AdamW×3) 复现 Fig.2/4 | 作者B | `--device-map auto`,配置见 SCALING.md |
-| Llama-3.2-3B-Instruct | Phase 1 (AdamW×3) 家族轴,复现 Fig.2/4 | 作者A | ✅ 权限已获,冒烟通过;SFT/RLVR 已入队,OPD teacher=Llama-3.1-8B |
+| Llama-3.2-3B-Instruct | 家族轴(补充材料,带饱和窗口分析) | 作者A | SFT/RLVR ✅ 判定已出;OPD 排队 |
+| Llama-3.2-1B-Instruct | 家族轴主证据(无饱和,AdamW×3) | 作者A | 三格已提交 MIG(9693553),teacher=3B |
 | Qwen3.5-2B | 仅作 0.8B 的 OPD teacher(bf16 推理) | — | |
 | 27B / 35B-A3B(MoE) | 不跑,future work | — | |
 
