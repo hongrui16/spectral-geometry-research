@@ -44,19 +44,20 @@ OPD teacher 配对:0.8B←2B、4B←9B、9B←27B(teacher 全部 bf16 推理)。
 
 ## 0.8B 主线(作者A)
 
-### Phase 1 — 三范式测量,H1-H4(任务 #3)
+### Phase 1 — 三范式测量,H1-H4(任务 #3)✅ 0.8B 六格全部完成(D0)
 500 步,save-every 10,P=8,K=8,seed 0。
-lr:SFT/OPD 1e-5;RLVR 用 RL 惯例 2e-6(AdamW)/2e-5(Muon)——1e-5 会在
-40 步内策略崩塌(reward 23%→2%,rollout 语无伦次),已实测确认。
+lr:SFT/OPD 1e-5;RLVR 2e-6(AdamW)/2e-5(Muon)——1e-5 实测 40 步内策略崩塌。
 
-| Run | 状态 | 备注 |
-|---|---|---|
-| phase1_sft_adamw | 🟢 step 400+ | 即将完成 |
-| phase1_opd_adamw | 🟢 step 50+ (~21s/步) | teacher=2B |
-| phase1_rlvr_adamw | 🟢 已用修复 lr 重启 | 关键路径 |
-| phase1_rlvr_muon | 🟢 已用修复 lr 重启 | H2 |
-| phase1_sft_muon | ⬜ 未提交(array 4) | H2 |
-| phase1_opd_muon | ⬜ 未提交(array 5) | H2 |
+| Run | 状态 |
+|---|---|
+| phase1_{sft,opd,rlvr}_{adamw,muon} 六格 | ✅ 全部完成 + metrics |
+| phase1_llama3b_sft_adamw(家族轴) | ✅ 完成:R_enrich 1.073,spearman 0.863 |
+| phase1_llama3b_rlvr / opd | ⬜ 排队(等 80GB 配额) |
+
+H2 三对齐全:G 侧 optimizer 不变性在 SFT/OPD/RLVR 全部成立(RLVR 对:0.000290 vs
+0.000287);Muon 的 H 谱富集在 RLVR 上反而消失(H/G≈1.0 vs SFT/OPD 的 1.1)。
+跨架构:Llama(标准注意力)富集 >1,Qwen 偏低是 linear_attn(0.674)拖累——
+线性注意力抑制谱对角是架构效应。
 
 产出:Fig.2 (R_spectrum 三范式)、Fig.3 (G vs H)、Fig.4 (ρ^Σ/ρ^frame)、Fig.5 (|C| vs SNR)。
 基线:0.8B GSM8K greedy pass@1 = **57.5%** (200 题) ✅
