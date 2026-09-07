@@ -78,15 +78,30 @@ lr:SFT/OPD 1e-5;RLVR 用 RL 惯例 2e-6(AdamW)/2e-5(Muon)——1e-5 会在
 **完整执行手册:`PHASE2_RUNBOOK.md`**(环境、命令、健康自检、交付物)。
 不依赖 Phase 1 收尾,现在即可开跑。产出:Fig.6、Fig.7(作者A 出图)。
 
-### E1 — optimizer × 范式主表(任务 #5)
-`slurm/e1_optimizers.sbatch`。AdamW/Muon 六格复用 Phase 1(同配置同 seed);新跑:
-| Run | 状态 |
-|---|---|
-| e1_{sft,opd,rlvr}_ssd(SSD-Wiener) | 🔒 SSD 先过小规模试跑 |
-| e1_rlvr_ssd-muon(变体) | 🔒 |
-| 每 run 附 GSM8K-500 评测 | |
-补 seed:RLVR 三 optimizer × seed {1,2} 优先;SFT/OPD × seed 1 次之。
-产出:Tab.1、Fig.8 (RLVR 训练曲线:Muon 退化 vs SSD)。
+### E1 — optimizer × 范式主表(任务 #5)|✅ SSD 试跑通过,作者B 可开跑
+AdamW/Muon 六格复用 Phase 1(seed 0);作者B 新跑以下 16 个(0.8B,单卡/run,全可并行):
+
+**seed 0 SSD 格(4 个)**,500 步模板(SFT/OPD 去掉 --lr/--rollouts,OPD 加 --objective opd):
+```bash
+python scripts/train.py --objective rlvr --optimizer ssd --lr 2e-6 --muon-lr 2e-5 \
+  --steps 500 --save-every 25 --prompts-per-step 8 --rollouts 8 \
+  --max-new-tokens 384 --seed 0 --out $RUNS/e1_rlvr_ssd_s0
+# 同样跑:e1_sft_ssd_s0、e1_opd_ssd_s0、e1_rlvr_ssd-muon_s0(--optimizer ssd-muon)
+```
+**补 seed(12 个)**:rlvr×{adamw,muon,ssd}×seed{1,2}(6 个);{sft,opd}×{adamw,muon,ssd}×seed 1(6 个)。
+参数与 Phase 1/上面完全一致,只改 --seed 与 --out 后缀(_s1/_s2)。
+每 run 结束跑评测:`python scripts/eval_gsm8k.py --model $RUNS/<run>/ckpt_000500 --limit 500 --out $RUNS/<run>/eval_gsm8k.json`
+产出:Tab.1、Fig.8。
+
+### E2 — SSD 消融(作者B,rlvr 300 步 ×4,seed 0)
+```bash
+# 基准即 e1_rlvr_ssd_s0;消融各改一个 flag:
+--optimizer ssd-muon                 # sign 变体(硬 vs Wiener)
+--ssd-k 64                           # 子空间维度
+--ssd-no-align                       # 去 mode 对齐
+--ssd-tail-coef 0                    # 去尾部更新
+```
+--steps 300,其余同 E1 模板,--out $RUNS/e2_<变体名>。
 
 ### E2 — SSD 消融 🔒 依赖 E1
 rlvr 300 步 ×4:f≡1(退化 Muon)、硬阈值 vs Wiener、k∈{64,256}、去 mode 对齐。

@@ -57,6 +57,10 @@ def parse_args():
                    choices=["none", "spectrum_only", "frame_only",
                             "mag_topq", "snr_topq", "adaptive_alpha"])
     p.add_argument("--intervention-q", type=float, default=0.1)
+    p.add_argument("--ssd-k", type=int, default=256)
+    p.add_argument("--ssd-tail-coef", type=float, default=0.1)
+    p.add_argument("--ssd-no-align", action="store_true",
+                   help="E2 ablation: disable cross-step mode alignment")
     p.add_argument("--device-map", default="",
                    help='"auto" = naive model parallelism over all visible '
                         "GPUs (for 9B+ fp32; math identical to single-GPU)")
@@ -96,7 +100,9 @@ class Trainer:
             from specgeom.ssd import SSD
             variant = "wiener" if args.optimizer == "ssd" else "muon"
             self.opt = SSD(matrix, lr=args.muon_lr, momentum=0.95,
-                           k=256, variant=variant)
+                           k=args.ssd_k, variant=variant,
+                           tail_coef=args.ssd_tail_coef,
+                           no_align=args.ssd_no_align)
             self.opt_other = torch.optim.AdamW(other, lr=args.lr, betas=(0.9, 0.95))
 
         self.engine = None

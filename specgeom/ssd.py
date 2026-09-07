@@ -43,9 +43,11 @@ def _align(P_new, Q_new, c_new, P_old):
 
 class SSD(torch.optim.Optimizer):
     def __init__(self, params, lr=2e-4, momentum=0.95, beta1=0.9, beta2=0.99,
-                 k=256, variant="wiener", tail_coef=0.1, eps=1e-12):
+                 k=256, variant="wiener", tail_coef=0.1, eps=1e-12,
+                 no_align=False):
         defaults = dict(lr=lr, momentum=momentum, beta1=beta1, beta2=beta2,
-                        k=k, variant=variant, tail_coef=tail_coef, eps=eps)
+                        k=k, variant=variant, tail_coef=tail_coef, eps=eps,
+                        no_align=no_align)
         super().__init__(params, defaults)
 
     @torch.no_grad()
@@ -70,7 +72,8 @@ class SSD(torch.optim.Optimizer):
                                             niter=4)
                 P, Q = P[:, :k], Q[:, :k]
                 c = torch.einsum("mk,mn,nk->k", P, G, Q)
-                P, Q, c, perm = _align(P, Q, c, st["P"])
+                if not group["no_align"]:
+                    P, Q, c, perm = _align(P, Q, c, st["P"])
 
                 if st["m"] is None or st["m"].shape[0] != c.shape[0]:
                     st["m"] = torch.zeros_like(c)
