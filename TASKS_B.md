@@ -97,6 +97,6 @@ Qwen/Qwen3.5-9B、teacher 换成 Qwen/Qwen3.5-27B(先 hf download),
 ```bash
 cd $RUNS && for d in <本批目录>; do tar cf $d.tar $d; done
 ```
-传输任选其一:① scp 到作者A 集群的 `/scratch/rhong5/from_B/`(主机名与账号方式问作者A);
-② 任何网盘给下载链接;③ 如果你的机器能被 ssh,直接给作者A 一个可读路径。
+传输任选其一:① 任何网盘/云存储给下载链接(推荐,tar 包较大时分卷);
+② 如果你的机器能被 ssh,给作者A 一个可读路径由 A 来拉取。
 **每批开跑 30 分钟内**把各 run 的 `tail -5 log.jsonl` 发给作者A 做健康核对。
