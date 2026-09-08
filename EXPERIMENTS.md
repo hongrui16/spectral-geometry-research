@@ -1,18 +1,17 @@
 # 实验总账(Run Matrix)
 
 **硬 deadline:全部实验 14 天内跑完(至 2026-09-20)。**
-- D0-2 Phase 1 → D1-4 SSD+Phase 2 → D3-9 E1/E2/E3/E4+seed → D9-14 家族轴+缓冲+图表冻结
-- 家族轴:Llama-3.2-3B 审批若 D1 内不下来,立即切 SmolLM3-3B(Apache,免审批)
 - 9B:仅当作者B 4B 在 D8 前收尾,否则砍
 - seed 策略:E1 RLVR 行 3 seeds,主表其余 2,消融 1
+- 家族轴不再扩尺寸(8B+ 会加剧 GSM8K 饱和,无科学增益;尺度泛化由 Qwen 4B/9B 承担)
 
-更新:2026-09-07(D1)。状态标记:✅ 完成 / 🟢 运行中 / ⬜ 排队或未开始 / 🔒 等依赖。
+更新:2026-09-08(D2)。状态标记:✅ 完成 / 🟢 运行中 / ⬜ 排队或未开始 / 🔒 等依赖。
 所有 run 输出在 `/scratch/rhong5/spectral_runs/<run_name>`,捕获数据同目录 `capture/`。
 
-**D1 快照**:0.8B Phase 1 六格 ✅ + 四假设判定 ✅(含 H3 加强采样终判);SSD 验证 ✅;
-Llama SFT ✅、RLVR/OPD ⬜ 排队等 80GB;作者A 工程待办清零;
-**关键路径 = 作者B 的 Phase 2 ×10 与 E1-E3 批量(指令齐备,等开跑)**。
-数值登记与叙事:`paper/results_draft.md`。
+**D2 快照**:作者A 侧接近收官——0.8B 六格 ✅ + 四假设判定 ✅;H3 终判 ✅;SSD ✅;
+家族轴 5/6 格 ✅(3B SFT/RLVR + 1B SFT/OPD;在途:1B RLVR ⬜ 排队、3B OPD 🟢);
+**关键路径 = 作者B(Phase 2 ×10、E1 ×16、E2 ×4、E3 ×4、4B/9B),D2 仍零开工——
+论文的 Fig.6-9 与主表全部依赖这批**。数值登记:`paper/results_draft.md`。
 
 ## 人员分工
 
@@ -56,9 +55,12 @@ lr:SFT/OPD 1e-5;RLVR 2e-6(AdamW)/2e-5(Muon)——1e-5 实测 40 步内策略崩�
 
 | Run | 状态 |
 |---|---|
-| phase1_{sft,opd,rlvr}_{adamw,muon} 六格 | ✅ 全部完成 + metrics |
-| phase1_llama3b_sft_adamw(家族轴) | ✅ 完成:R_enrich 1.073,spearman 0.863 |
-| phase1_llama3b_rlvr / opd | ⬜ 排队(等 80GB 配额) |
+| phase1_{sft,opd,rlvr}_{adamw,muon} 六格(0.8B) | ✅ 全部完成 + metrics |
+| phase1_llama3b_sft / rlvr | ✅(判定:H4 更强,H1 于未饱和窗口复现) |
+| phase1_llama3b_opd | 🟢 running(teacher=8B) |
+| phase1_llama1b_sft / opd | ✅ 1.067/0.846、1.073/0.818(与 0.8B 稠密端结论一致) |
+| phase1_llama1b_rlvr | ⬜ 排队(无饱和家族轴关键格) |
+| h3power_rlvr(加强采样) | ✅ 终判:σ/frame 对称,H-RLVR 拒绝 |
 
 H2 三对齐全:G 侧 optimizer 不变性在 SFT/OPD/RLVR 全部成立(RLVR 对:0.000290 vs
 0.000287);Muon 的 H 谱富集在 RLVR 上反而消失(H/G≈1.0 vs SFT/OPD 的 1.1)。
