@@ -30,8 +30,8 @@
 - 9B:Phase 1 AdamW×3(`--device-map auto`,见 SCALING.md)
 - E1 SSD 行 ×4、E2 消融 ×4、E3 分层 ×4、E4 ×3、补 seed 批量(SSD 相关项等
   作者A 试跑验证通过后开跑;各项的具体命令届时由作者A 更新到本文档)
-- 交付物:每个 run 的 `capture/` + `log.jsonl` + `args.json` + 评测 json,
-  打包传给作者A;**不要自己改分析代码**,口径统一走本仓库 analysis/
+- 交付物:每 run 的小文件 push 到仓库 `results_B/`(见 TASKS_B.md 交付方式),
+  capture/ 留在 B 本机;**不要自己改分析代码**
 
 ## 模型分工
 

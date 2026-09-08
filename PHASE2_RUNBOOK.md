@@ -117,14 +117,16 @@ CUDA_VISIBLE_DEVICES=1 ~/envs_spectral/bin/python scripts/train.py \
 - **HF 报连不上网**:确认 `HF_HUB_OFFLINE=1` 且模型已预下载在 `HF_HOME`。
 - **首步特别慢**:模型 fp32 加载 + 编译预热,正常。
 
-## 6. 交付物
+## 6. 交付物(git push 回仓库,只推小文件)
 
-每个 run 目录打包(共 10 个):
+每 run 完成后:
 ```bash
-cd $RUNS && for d in phase2_*; do tar cf $d.tar $d/capture $d/log.jsonl $d/args.json $d/eval_gsm8k.json; done
+$PY analysis/compute_metrics.py $RUNS/<run>          # 生成 metrics.csv
+mkdir -p results_B/<run>
+cp $RUNS/<run>/{log.jsonl,args.json,metrics.csv} $RUNS/<run>/eval*.json results_B/<run>/
+git add results_B && git commit -m "results_B: <run>" && git push
 ```
-传给作者A(网盘/scp/任何可访问路径均可)。**不要删 capture/**——里面的 G/H/W 捕获
-是出 Fig.6/7 的原始数据;**不要改 analysis/ 下任何代码**,分析口径由作者A统一执行。
+**capture/ 大文件留在本机不删**;**不要改 analysis/ 下代码**,分析由作者A统一执行。
 
 ## 7. 时间线
 
