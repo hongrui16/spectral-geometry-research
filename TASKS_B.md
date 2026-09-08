@@ -13,7 +13,7 @@ export RUNS=/你的输出根目录
 PY=~/envs_spectral/bin/python
 ```
 **铁律**:除 `--out`/`CUDA_VISIBLE_DEVICES` 外不要改任何参数;RLVR 的 lr 必须照抄
-(默认 1e-5 会策略崩塌);每 run 交付 `capture/ log.jsonl args.json eval_gsm8k.json`。
+(默认 1e-5 会策略崩塌);每 run 交付 4 个小文件(见文末交付方式)。
 
 ---
 
@@ -92,11 +92,11 @@ Qwen/Qwen3.5-9B、teacher 换成 Qwen/Qwen3.5-27B(先 hf download),
 
 ---
 
-## 交付方式
-每完成一批,打包:
+## 交付方式(只传小文件,总共几 MB)
+每 run 完成后在本地跑一次(生成 metrics.csv):
 ```bash
-cd $RUNS && for d in <本批目录>; do tar cf $d.tar $d; done
+$PY analysis/compute_metrics.py $RUNS/<run>
 ```
-传输任选其一:① 任何网盘/云存储给下载链接(推荐,tar 包较大时分卷);
-② 如果你的机器能被 ssh,给作者A 一个可读路径由 A 来拉取。
-**每批开跑 30 分钟内**把各 run 的 `tail -5 log.jsonl` 发给作者A 做健康核对。
+然后只回传每 run 的 4 个小文件:`log.jsonl、args.json、eval*.json、metrics.csv`
+(微信/邮件/网盘均可)。**capture/ 大文件留在你机器上,不删即可**,需要时另说。
+每批开跑 30 分钟内把 `tail -5 log.jsonl` 发作者A 核对健康度。
