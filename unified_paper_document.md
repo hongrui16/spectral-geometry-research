@@ -12,11 +12,13 @@
 
 给定 pretrained 权重 \(W_0\in\mathbb R^{m\times n}\)，post-training objective 产生梯度 \(G_t\)，optimizer 给出 update \(H_t\)，\(W_{t+1}=W_t+H_t\)，\(W_t=U_t\Sigma_tV_t^\top\)。
 
+> **实验判定注记 2026-09-08** —— Phase 1 已在 Qwen3.5-0.8B 六格与 Llama-3.2-3B/1B 家族轴上完成。标注约定:~~删除线~~ = 被实验推翻;【判定】= 实验结果注记。总览:**H2 强成立;H1/H4 方向成立、幅度温和;H3 即 H-RLVR 被干净证伪**——frame-dominance 的机制归因唯一化到 §5 的 SNR/方差通道,即 §附"独立性"预案所述主线。计划外发现:① 线性注意力矩阵的梯度谱对角富集显著低于随机基线,约 0.65,而 MLP 约 1.0,三范式一致,属架构效应;② Muon 的 H 谱富集在 RLVR 下消失,H/G 约 1.0,稠密范式约 1.1。H5/H6 因果干预与 E1-E4 在途,由作者B执行。
+
 三个可证伪主张：
 
-- **C1（Objective-determined）**：spectral-vs-frame 倾向在 raw gradient \(G_t\) 中已存在，optimizer 只是调制。
-- **C2（Credit-assignment mechanism）**：RLVR 的 frame-dominance 来自 sequence-level 标量 credit 与 score-function 零均值的组合，可写成 covariance 并给出机制。
-- **C3（SNR, not magnitude）**：gradient 各 singular mode 的幅值混合了"与 reward 的相关性"和"该 mode 统计量的方差"，后者与 signal 无关；按 SNR 选方向优于按幅值。
+- **C1（Objective-determined）**：spectral-vs-frame 倾向在 raw gradient \(G_t\) 中已存在，optimizer 只是调制。【判定 ✓ 强支持:三范式 × AdamW/Muon 共三对,G 侧谱几何差异均 <7%;Muon 对 H 的谱调制在稠密范式约 +11%、在 RLVR 消失】
+- **C2（Credit-assignment mechanism）**：RLVR 的 frame-dominance 来自 sequence-level 标量 credit 与 score-function 零均值的组合，可写成 covariance ~~并给出机制~~。【判定 ✗ 机制部分被证伪:covariance 形式(Prop.5)数学成立,但 per-mode reward 相关在 σ 与 frame 方向完全对称(8× 统计力,中位数 0.1314 vs 0.1308,匹配零假设 0.1305)——序列级破缺不存在,frame-dominance 改由 C3 的 SNR/方差通道解释,详见 §4 判定】
+- **C3（SNR, not magnitude）**：gradient 各 singular mode 的幅值混合了"与 reward 的相关性"和"该 mode 统计量的方差"，后者与 signal 无关；按 SNR 选方向优于按幅值。【判定 ◐ 弱形式成立:Spearman(|C|,SNR) 排序 SFT>OPD>RLVR 在 Qwen-0.8B(0.880/0.874/0.848)与 Llama-3B(0.863/0.809/0.785)两个架构上一致,标准注意力上差距更大;"RLVR 低相关"的强形式未出现;决定性因果检验为 H6 干预(在途)。本主张现为全文机制主线】
 
 ---
 
@@ -166,7 +168,7 @@ $$
 即对角与非对角项只差标量 \(a_i\) vs \(a_j\)，与 reward 的相关系数相同：\(\rho^\Sigma_i=\rho^{\rm frame}_{ij}\)。
 *证明.* \(\nabla_W\log\pi(y)=(e_y-\pi)x^\top\)，\(u_i^\top(e_y-\pi)=u_{i,y}-\mathbb E_\pi[u_{i,\cdot}]\)，\(x^\top v_j=a_j\)。\(\blacksquare\)
 
-**含义.** 单 token 结构不产生 frame-dominance。若实验观察到 RLVR 的 \(|\rho^\Sigma|\ll|\rho^{\rm frame}|\)，原因只能来自序列级效应或 pretrained 权重的结构，这正是下面假设的内容。
+**含义.** 单 token 结构不产生 frame-dominance。若实验观察到 RLVR 的 \(|\rho^\Sigma|\ll|\rho^{\rm frame}|\)，原因只能来自序列级效应或 pretrained 权重的结构，这正是下面假设的内容。【判定:实验观察到的是对称而非 \(|\rho^\Sigma|\ll|\rho^{\rm frame}|\)(见 H-RLVR 判定)——本命题的对称性在真实序列模型上成立,从 toy 引理升级为正结果】
 
 **Hypothesis H-RLVR（gain-sensitivity 的 reward 无关性）.** 对 on-policy 采样的 pretrained model，\(S_i(y)=\sum_te^0_{i,t}a_{i,t}\) 主要由 reward 无关因素决定：
 1. **温度效应**：放大 \(\sigma_i\) 近似均匀缩放该 mode 贡献的 logits，主要改熵；组内归一化后熵与 \(A\) 相关弱。
@@ -179,9 +181,11 @@ $$
 $$
 \rho^\Sigma_i:=\operatorname{Corr}_y(A,S_i),\qquad\rho^{\rm frame}_{ij}:=\operatorname{Corr}_y(A,T_{ij}).
 $$
-预测：RLVR 下 \(|\rho^\Sigma|\) 集中于 0，\(|\rho^{\rm frame}|\) 有尾；OPD 下 \(|\rho^\Sigma|\) 显著更大。对照：对 pretrained 能力之外的 mode（新增随机 LoRA 方向），\(|\rho^\Sigma|\) 应上升（检验第 3 点）。
+预测：RLVR 下 \(|\rho^\Sigma|\) 集中于 0，~~\(|\rho^{\rm frame}|\) 有尾~~；OPD 下 \(|\rho^\Sigma|\) 显著更大。对照：对 pretrained 能力之外的 mode（新增随机 LoRA 方向），\(|\rho^\Sigma|\) 应上升（检验第 3 点）。
 
 若实验支持，可在简化模型（线性 policy + 高斯 reward + 长序列）下尝试证明 \(\rho^\Sigma\to0\) 的集中不等式。
+
+【判定 ✗ H-RLVR 被拒绝(0.8B RLVR,GSM8K)。K=8 初测:|ρ^Σ| 中位 0.291 ≈ |ρ^frame| 0.292,零假设 0.278;加强采样终判(P=4、K=16、每保存步 4 个完整组,统计力 8×):0.1314 vs 0.1308,匹配零假设 0.1305——σ 与 frame 完全对称,各自仅约 1.6 个百分点的真实相关尾部且两方向均匀。"|ρ^Σ| 集中于 0" 的预测成立,但破缺不存在;Prop.7 的单步对称性由此升级为实验验证的性质。简化模型的证明目标相应改为"对称性定理"而非"集中不等式"。】
 
 ---
 
@@ -248,6 +252,14 @@ $$
 | H6 SNR 选择优于幅值 | 同稀疏度 SNR-top-\(q\) > Mag-top-\(q\)，差距 RLVR 最大 | Phase 2 |
 | H7 高贡献 mode 谱变化致遗忘 | 限制 high-\(c\) 的 \(\dot\sigma\) 减少遗忘不损任务 | Phase 2 + held-out |
 
+【逐条判定 2026-09-08】
+- **H1 ◐**:排序 SFT>OPD>RLVR 成立(0.8B 归一化富集 0.886>0.869>0.839,27 矩阵 × 50 步一致;Llama-3B 在未饱和窗口 1.084>1.060 复现)。~~理论期待的悬殊对比~~未出现——总跨度仅约 5%,且三范式绝对值均处随机基线附近。幅度叙事需弱化,谱-frame 差异的主要载体是 SNR 结构而非对角能量占比。
+- **H2 ✓**:三对全部成立,G 侧差异 <7%。附加发现:Muon 的 H 谱富集在 RLVR 下消失。
+- **H3 ✗**:见 §4 判定,H-RLVR 拒绝。
+- **H4 ◐**:秩相关排序两架构一致,但 RLVR 端绝对值仍高(0.848/0.785),强形式未现;归 H6 干预裁决。
+- **H5/H6 ⏳**:Phase 2 在途(作者B)。**H7:已按 14 天砍单剪除,不检验。**
+- 家族轴:H4 排序在标准注意力(Llama)上完整复现且差距更大;H1 排序在活跃 RLVR 阶段复现。尺度轴 4B/9B 在途。
+
 ## 6.4 干预协议（Phase 2）
 
 训练循环中把 \(H_t\) 替换为投影：
@@ -267,7 +279,7 @@ $$
 
 ## M1. Spectral-SNR Descent（SSD）
 
-**触发**：H4 + H6。
+**触发**：H4 + H6。【H4 弱形式成立;H6 在途。SSD 已实现并通过 GPU 试跑(RLVR 50 步,reward 正常爬升,开销 +15%),E1/E2 在途】
 **规则**：梯度奇异基下 SNR 加权。
 $$
 \bar G=P\Lambda Q^\top,\qquad H=P\operatorname{diag}\big(f(\widehat{\rm SNR}_\ell)\big)Q^\top
@@ -283,7 +295,7 @@ $$
 
 ## M2. Adaptive Spectrum–Frame Learning Rates
 
-**触发**：H1 + H5。
+**触发**：H1 + H5。【H1 方向成立;H5 在途。M2 已实现(adaptive_alpha 干预模式),E4 在途】
 **规则**：
 $$
 C=U^\top HV,\qquad H'=U\big(\alpha_t\operatorname{diag}C+\beta_t(C-\operatorname{diag}C)\big)V^\top,\qquad\alpha_t=g\Big(\tfrac1r\sum_i\widehat{\rm SNR}_{ii}\Big),\ \beta_t=1
@@ -295,7 +307,7 @@ $$
 
 ## M3. Contribution-Aware Spectral Regularizer
 
-**触发**：H7。
+**触发**：H7。【H7 已按 14 天实验预算剪除——本方法留作 future work,不进主文】
 **规则**：SCA 贡献 \(c_i\)，\(\lambda_i\propto|c_i|\)，
 $$
 \mathcal R(W)=\sum_i\lambda_i\big(\sigma_i(W)-\sigma_i(W_0)\big)^2
@@ -507,6 +519,6 @@ Phase 1 的数据在 E3 里被第二次使用：这是分析与方法之间的�
 
 - **已证（Part I）**：Prop.1、2、3、6、7，Lemma 4、8，推论 4.1，Prop.9、10。
 - **已证（Part II）**：Lemma 11（Wiener 收缩）、Prop.12（SSD-Wiener 的 Bayes 最优性）、推论 12.1（Muon 效率 \(\sqrt{2r_1/\pi r}\)）、Prop.13（M2 谱漂移界与下降性）、Prop.14（M3 遗忘界）。Part II 的证明依赖"谱基在一步内稳定 + 高斯先验"两个假设，前者由 E2 的 mode 对齐消融检验。
-- **假设**：H-RLVR。§4 给出其精确 covariance 形式与可证伪量；Prop.7 说明它不是平凡的。若 Phase 1 支持，尝试在简化模型下证明。
+- **假设**：H-RLVR。【H-RLVR 已被证伪,见 §4 判定;Prop.7 对称性转为正结果】§4 给出其精确 covariance 形式与可证伪量；Prop.7 说明它不是平凡的。若 Phase 1 支持，尝试在简化模型下证明。
 - **近似**：Prop.9 的闭式依赖联合高斯；不依赖近似的是 \(\mu_s=\rho_s\sigma_s\) 与 \(\operatorname{SNR}\propto K\rho_s^2\)。Prop.6 在 Transformer 中对单矩阵近似成立。
-- **独立性**：即使 H1/H3 被证伪，§5 SNR 理论 + M1 仍构成一篇完整 paper。
+- **独立性**：即使 H1/H3 被证伪，§5 SNR 理论 + M1 仍构成一篇完整 paper。【该预案已正式启用(2026-09-08):H3 证伪、H1 仅方向成立,主线 = §5 SNR 理论 + M1 + H5/H6 因果干预 + H2】
