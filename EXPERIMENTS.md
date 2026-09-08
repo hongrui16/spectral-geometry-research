@@ -25,7 +25,7 @@
 - gated 模型审批等只有 A 能做的账号操作
 
 **作者B(批量 + 多卡,全部可并行)**
-- **Phase 2 全部 10 个 run**:详细步骤见 `PHASE2_RUNBOOK.md`,现在即可开跑
+- **全部任务的逐条命令清单:`TASKS_B.md`(P0-P6 按优先级)**;Phase 2 细节另见 `PHASE2_RUNBOOK.md`
 - 4B:Phase 1 AdamW×3 + E1 RLVR 行({adamw, muon, ssd})+ 4B 基线评测
 - 9B:Phase 1 AdamW×3(`--device-map auto`,见 SCALING.md)
 - E1 SSD 行 ×4、E2 消融 ×4、E3 分层 ×4、E4 ×3、补 seed 批量(SSD 相关项等
