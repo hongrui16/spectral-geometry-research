@@ -38,7 +38,13 @@ Prop.7 对称性在真实模型成立;frame-dominance 归因唯一化到 SNR 通
 - 结论:H4(SNR 通道)跨家族复现且在标准注意力上更强;H1 排序在活跃 RLVR
   阶段跨家族复现(幅度均温和)。写作时注明饱和窗口的处理
 - |ρ^Σ| med 0.325(192 captures)——σ/frame 对称性待同样检查
-- OPD 格待跑:______
+- 3B OPD 在跑:______
+
+家族轴主证据(Llama-3.2-1B,无饱和;teacher=3B):
+- SFT:R_enrich 1.067,spearman 0.846
+- OPD:R_enrich 1.073,spearman 0.818(稠密端与 SFT 基本持平,与 0.8B 结论一致)
+- RLVR(关键格,无饱和环境):______
+- 1B 与 3B 的 SFT 几乎同型(1.067 vs 1.073)——Llama 家族内尺度稳定
 
 分家族(Qwen 0.8B,三范式一致):linear_attn 富集 ~0.65 **低于随机**,
 mlp ~0.98,self_attn ~0.87-0.89。
