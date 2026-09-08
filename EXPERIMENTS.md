@@ -25,7 +25,7 @@
 - gated 模型审批等只有 A 能做的账号操作
 
 **作者B(批量 + 多卡,全部可并行)**
-- **全部任务的逐条命令清单:`TASKS_B.md`(P0-P6 按优先级)**;Phase 2 细节另见 `PHASE2_RUNBOOK.md`
+- **唯一执行文档:`TASKS_B.md`(P0-P6,含环境、命令、健康自检、交付)**
 - 4B:Phase 1 AdamW×3 + E1 RLVR 行({adamw, muon, ssd})+ 4B 基线评测
 - 9B:Phase 1 AdamW×3(`--device-map auto`,见 SCALING.md)
 - E1 SSD 行 ×4、E2 消融 ×4、E3 分层 ×4、E4 ×3、补 seed 批量(SSD 相关项等
@@ -82,9 +82,8 @@ H2 三对齐全:G 侧 optimizer 不变性在 SFT/OPD/RLVR 全部成立(RLVR 对:
 (作者B,PHASE2_RUNBOOK.md)升级为全文关键证据;H3 结果作为"可证伪量按设计工作"呈现。
 
 ### Phase 2 — 干预实验,H5-H6(任务 #4)|主责:**作者B**
-10 个 run(8 干预 + 2 对照),300 步 + GSM8K-500 评测,全部单卡可并行。
-**完整执行手册:`PHASE2_RUNBOOK.md`**(环境、命令、健康自检、交付物)。
-不依赖 Phase 1 收尾,现在即可开跑。产出:Fig.6、Fig.7(作者A 出图)。
+10 个 run(8 干预 + 2 对照),300 步 + GSM8K-500 评测。命令:`TASKS_B.md` P0。
+产出:Fig.6、Fig.7(作者A 出图)。
 
 ### E1 — optimizer × 范式主表(任务 #5)|✅ SSD 试跑通过,作者B 可开跑
 AdamW/Muon 六格复用 Phase 1(seed 0);作者B 新跑以下 16 个(0.8B,单卡/run,全可并行):
@@ -123,8 +122,8 @@ python scripts/train.py --objective rlvr --optimizer ssd-routed --ssd-layer-rang
 横轴用 Phase 1 测得的按层 1−Spearman(|C|,SNR),纵轴该组启用 SSD 的增益。产出:Fig.9。
 
 ### E4 — M2 自适应 α(任务 #5 内)
-{sft,opd,rlvr} × adaptive_alpha(`--intervention adaptive_alpha`),300-500 步 + 评测;
-对照 full(α=1)与 ISO 型(spectrum 冻结)。产出:Fig.10 (α_t 轨迹 + 性能/遗忘)。
+{sft,opd,rlvr} × adaptive_alpha,300 步 + 评测;对照复用 Phase 2 的 none/frame_only。
+命令:`TASKS_B.md` P4。产出:Fig.10 (α_t 轨迹 + 性能/遗忘)。
 
 ### 砍掉/降级(20 天范围)
 - M3/E6(contribution regularizer)、E7(continued pretraining sanity):时间富余才做
