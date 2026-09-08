@@ -94,5 +94,5 @@ Qwen/Qwen3.5-9B、teacher 换成 Qwen/Qwen3.5-27B(先 hf download),
 
 ## 交付方式
 每 run 完成后跑:`$PY analysis/compute_metrics.py $RUNS/<run>` 然后
-`$PY scripts/summary.py $RUNS/<run>`,**把打印出的那行文字发给作者A**(微信即可)。
-capture/ 等大文件留在本机不删。
+然后把每 run 的 4 个小文件发给作者A:`log.jsonl、args.json、eval*.json、metrics.csv`
+(或发 `$PY scripts/summary.py $RUNS/<run>` 打印的文字也行)。大文件留在本机不删。

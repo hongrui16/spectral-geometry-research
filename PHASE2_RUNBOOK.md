@@ -119,8 +119,8 @@ CUDA_VISIBLE_DEVICES=1 ~/envs_spectral/bin/python scripts/train.py \
 
 ## 6. 交付物
 每 run 完成后跑:`$PY analysis/compute_metrics.py $RUNS/<run>` 然后
-`$PY scripts/summary.py $RUNS/<run>`,**把打印出的那行文字发给作者A**。
-capture/ 留在本机不删;不要改 analysis/ 代码。
+然后把每 run 的 4 个小文件发给作者A:`log.jsonl、args.json、eval*.json、metrics.csv`。
+大文件留在本机不删;不要改 analysis/ 代码。
 
 ## 7. 时间线
 
