@@ -92,13 +92,7 @@ Qwen/Qwen3.5-9B、teacher 换成 Qwen/Qwen3.5-27B(先 hf download),
 
 ---
 
-## 交付方式(git push 回本仓库,只推小文件)
-每 run 完成后:
-```bash
-$PY analysis/compute_metrics.py $RUNS/<run>          # 生成 metrics.csv
-mkdir -p results_B/<run>
-cp $RUNS/<run>/{log.jsonl,args.json,metrics.csv} $RUNS/<run>/eval*.json results_B/<run>/
-git add results_B && git commit -m "results_B: <run>" && git push
-```
-**capture/ 大文件留在你机器上不删**(>10MB 的文件禁止入库)。
-每批开跑 30 分钟内先 push 一次 log.jsonl,作者A 核对健康度。
+## 交付方式
+每 run 完成后跑:`$PY analysis/compute_metrics.py $RUNS/<run>` 然后
+`$PY scripts/summary.py $RUNS/<run>`,**把打印出的那行文字发给作者A**(微信即可)。
+capture/ 等大文件留在本机不删。
