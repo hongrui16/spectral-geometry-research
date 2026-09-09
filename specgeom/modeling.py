@@ -43,6 +43,20 @@ def load_model(model_id, dtype=torch.float32, device="cuda", trainable=True,
     return model, tok, n_layers
 
 
+def stop_token_ids(tok):
+    """All turn-end ids: saved checkpoints regenerate generation_config with a
+    single eos (endoftext), dropping the chat-template terminator — greedy
+    decoding then never stops. Pass this list to generate(eos_token_id=...)."""
+    ids = set()
+    if tok.eos_token_id is not None:
+        ids.add(tok.eos_token_id)
+    for t in ("<|im_end|>", "<|endoftext|>", "<|eot_id|>"):
+        tid = tok.convert_tokens_to_ids(t)
+        if tid is not None and tid >= 0 and tid != getattr(tok, "unk_token_id", -1):
+            ids.add(tid)
+    return sorted(ids)
+
+
 def decoder_param_groups(model, weight_decay=0.0, with_names=False):
     """Split params: 2D decoder matrices (Muon-eligible) vs everything else."""
     matrix, other = [], []

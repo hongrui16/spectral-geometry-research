@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from specgeom.data import PromptSampler, build_prompt, load_gsm8k, reward_fn
 from specgeom.instrument import Instrumenter
 from specgeom.intervene_engine import InterventionEngine
-from specgeom.modeling import decoder_param_groups, load_model
+from specgeom.modeling import decoder_param_groups, load_model, stop_token_ids
 from specgeom.muon import Muon
 
 
@@ -181,6 +181,7 @@ class Trainer:
                 top_k=0 if not greedy else None,
                 max_new_tokens=self.args.max_new_tokens,
                 num_return_sequences=num_return_sequences,
+                eos_token_id=stop_token_ids(self.tok),
                 pad_token_id=self.tok.pad_token_id,
             )
         prompt_len = enc["input_ids"].shape[1]

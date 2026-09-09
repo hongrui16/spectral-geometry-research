@@ -11,7 +11,7 @@ import torch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from specgeom.data import build_prompt, load_gsm8k, reward_fn
-from specgeom.modeling import load_model
+from specgeom.modeling import load_model, stop_token_ids
 
 
 def main():
@@ -39,6 +39,7 @@ def main():
         with torch.no_grad():
             gen = model.generate(**enc, do_sample=False,
                                  max_new_tokens=args.max_new_tokens,
+                                 eos_token_id=stop_token_ids(tok),
                                  pad_token_id=tok.pad_token_id)
         texts = tok.batch_decode(gen[:, enc["input_ids"].shape[1]:],
                                  skip_special_tokens=True)
