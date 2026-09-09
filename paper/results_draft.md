@@ -43,7 +43,10 @@ Prop.7 对称性在真实模型成立;frame-dominance 归因唯一化到 SNR 通
 家族轴主证据(Llama-3.2-1B,无饱和;teacher=3B):
 - SFT:R_enrich 1.067,spearman 0.846
 - OPD:R_enrich 1.073,spearman 0.818(稠密端与 SFT 基本持平,与 0.8B 结论一致)
-- RLVR(关键格,无饱和环境):______
+- RLVR(无饱和 ✓,reward 全程 53-57%):R_enrich 1.057(三范式最低),spearman 0.806
+- **家族轴终判**:H4 排序 SFT>OPD>RLVR 三模型全中(0.880/0.874/0.848、0.863/0.809/0.785、
+  0.846/0.818/0.806);H1 修正为"稠密>RLVR"(SFT-OPD 子排序仅 Qwen 成立);
+  H3 对称性在 Llama 复现(0.309 vs 0.307)
 - 1B 与 3B 的 SFT 几乎同型(1.067 vs 1.073)——Llama 家族内尺度稳定
 
 分家族(Qwen 0.8B,三范式一致):linear_attn 富集 ~0.65 **低于随机**,
