@@ -21,6 +21,8 @@ def main():
     ap.add_argument("--batch", type=int, default=32)
     ap.add_argument("--max-new-tokens", type=int, default=512)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--dump-samples", type=int, default=0,
+                    help="save first N generations alongside --out for debugging")
     args = ap.parse_args()
 
     model, tok, _ = load_model(args.model, dtype=torch.bfloat16, trainable=False)
@@ -43,7 +45,10 @@ def main():
         for ex, t in zip(chunk, texts):
             r = reward_fn(t, ex["gold"])
             correct += r
-            results.append({"gold": ex["gold"], "reward": r})
+            rec = {"gold": ex["gold"], "reward": r}
+            if len(results) < args.dump_samples:
+                rec["text"] = t
+            results.append(rec)
         print(f"{i + len(chunk)}/{len(data)} acc={correct / len(results):.4f}",
               flush=True)
 
@@ -51,7 +56,10 @@ def main():
     print(f"FINAL pass@1 = {acc:.4f} on {len(results)} examples")
     if args.out:
         with open(args.out, "w") as f:
-            json.dump({"model": args.model, "n": len(results), "pass@1": acc}, f)
+            payload = {"model": args.model, "n": len(results), "pass@1": acc}
+            if args.dump_samples:
+                payload["samples"] = [r for r in results if "text" in r]
+            json.dump(payload, f, ensure_ascii=False, indent=1)
 
 
 if __name__ == "__main__":
