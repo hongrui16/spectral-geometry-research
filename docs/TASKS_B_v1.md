@@ -118,7 +118,7 @@ $PY scripts/train.py --objective rlvr --model Qwen/Qwen3.5-4B --optimizer muon -
 $PY scripts/train.py --objective rlvr --model Qwen/Qwen3.5-4B --optimizer ssd  --lr 2e-6 --muon-lr 2e-5 --steps 500 --save-every 25 --prompts-per-step 8 --rollouts 8 --max-new-tokens 384 --seqs-per-microbatch 1 --seed 0 --out $RUNS/e1_4b_rlvr_ssd
 ```
 
-## P6:9B —— 3 run(4B 收尾后;多卡 `--device-map auto`,配方见 SCALING.md)
+## P6:9B —— 3 run(4B 收尾后;多卡 `--device-map auto`,配方见 docs/SCALING_v1.md)
 P5 的三个 Phase 1 命令把 `--model` 换成 Qwen/Qwen3.5-9B、teacher 换成
 Qwen/Qwen3.5-27B(先 hf download),加 `--device-map auto`,给 3-4 张卡。
 

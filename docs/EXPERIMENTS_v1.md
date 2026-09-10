@@ -27,7 +27,7 @@
 **作者B(批量 + 多卡,全部可并行)**
 - **唯一执行文档:`TASKS_B.md`(P0-P6,含环境、命令、健康自检、交付)**
 - 4B:Phase 1 AdamW×3 + E1 RLVR 行({adamw, muon, ssd})+ 4B 基线评测
-- 9B:Phase 1 AdamW×3(`--device-map auto`,见 SCALING.md)
+- 9B:Phase 1 AdamW×3(`--device-map auto`,见 docs/SCALING_v1.md)
 - E1 SSD 行 ×4、E2 消融 ×4、E3 分层 ×4、E4 ×3、补 seed 批量(SSD 相关项等
   作者A 试跑验证通过后开跑;各项的具体命令届时由作者A 更新到本文档)
 - 交付物:每 run 跑 `scripts/summary.py`,把打印的一行文字发给作者A(B 无法回传文件)
@@ -37,8 +37,8 @@
 | 模型 | 范围 | 谁跑 | 备注 |
 |---|---|---|---|
 | Qwen3.5-0.8B | 全量主线(下表全部) | 作者A | |
-| Qwen3.5-4B | Phase 1 (AdamW×3) + E1 RLVR 行 | 作者B | 开箱即用,可并行(见 SCALING.md) |
-| Qwen3.5-9B | Phase 1 (AdamW×3) 复现 Fig.2/4 | 作者B | `--device-map auto`,配置见 SCALING.md |
+| Qwen3.5-4B | Phase 1 (AdamW×3) + E1 RLVR 行 | 作者B | 开箱即用,可并行(见 docs/SCALING_v1.md) |
+| Qwen3.5-9B | Phase 1 (AdamW×3) 复现 Fig.2/4 | 作者B | `--device-map auto`,配置见 docs/SCALING_v1.md |
 | Llama-3.2-3B-Instruct | 家族轴(补充材料,带饱和窗口分析) | 作者A | SFT/RLVR ✅ 判定已出;OPD 排队 |
 | Llama-3.2-1B-Instruct | 家族轴主证据(无饱和,AdamW×3) | 作者A | 三格已提交 MIG(9693553),teacher=3B |
 | Qwen3.5-2B | 仅作 0.8B 的 OPD teacher(bf16 推理) | — | |
