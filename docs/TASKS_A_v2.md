@@ -6,12 +6,12 @@
 ## 版本管理
 
 - tag `v1` = 产生 `results/v1` 的代码;`docs/unified_paper_document_v1.md`、`docs/TASKS_B_v1.md`、`docs/EXPERIMENTS_v1.md` 为其文档。
-- 分支 `v2` = 本轮开发。v2 功能一律放新文件,不改 v1 文件:
+- main = 本轮开发(只有 main 一个分支)。v2 功能一律放新文件,不改 v1 文件:
   `specgeom/interventions_v2.py`、`specgeom/intervene_engine_v2.py`、`analysis/compute_metrics_v2.py`、`scripts/summary_v2.py`、`analysis/unit_test_cpu_v2.py`。
   `scripts/train.py` 只加了向后兼容的分发:v1 的 `--intervention` 值仍走 v1 引擎,四个新值走 v2 引擎。
-- 合并到 main 前跑 `analysis/unit_test_cpu.py`(v1)与 `analysis/unit_test_cpu_v2.py`(v2)都必须 PASS。
+- 每次提交前跑 `analysis/unit_test_cpu.py`(v1)与 `analysis/unit_test_cpu_v2.py`(v2)都必须 PASS。
 
-## A0:代码(已完成 2026-09-09,分支 v2)
+## A0:代码(已完成 2026-09-09,已在 main)
 
 | 项 | 文件 | 状态 |
 |---|---|---|

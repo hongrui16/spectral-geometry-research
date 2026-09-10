@@ -1,10 +1,10 @@
 # 作者B 任务清单 v2(唯一入口,逐条命令版)
 
 对应企划书 `docs/unified_paper_document_v2.md`(§9.4、§11 E4a、§14 优先级),结果交付到 `results/v2/result_B/`。
-v1 清单 `docs/TASKS_B_v1.md` 已完成,不再执行。**代码用分支 `v2`**;v1 结果对应 tag `v1`。
+v1 清单 `docs/TASKS_B_v1.md` 已完成,不再执行。**代码用 main 分支最新提交**;v1 结果对应 tag `v1`。
 
 ```bash
-cd spectral-geometry-research && git fetch && git checkout v2 && git pull && git rev-parse --short HEAD
+cd spectral-geometry-research && git checkout main && git pull && git rev-parse --short HEAD
 ```
 每个 shell 的环境变量与 v1 相同(`HF_HOME`、`HF_HUB_OFFLINE=1`、`RUNS`、`PY`);铁律不变:除 `--out`/`CUDA_VISIBLE_DEVICES`/`--seqs-per-microbatch 1` 外不改参数。
 本轮优先级:P0 → P1 → P2 → P3 → P4 → P5 → P6。**P3 是论文主结果的唯一缺口,P0–P2 都是小活,请先做掉。**
