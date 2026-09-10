@@ -3,7 +3,7 @@
 # for runs whose v2 metrics have been written to results/v2/result_A/<run>/
 # and whose v1 small files are archived in results/v1/result_A/<run>/.
 # Small files (args/log/eval/metrics) stay on scratch. Intended to be chained:
-#   sbatch --dependency=afterok:<recompute job id> slurm/purge_v1_bulk.sbatch
+#   sbatch --dependency=afterok:<recompute job id> slurm_v2/purge_v1_bulk.sbatch
 #SBATCH --job-name=spec-purge
 #SBATCH --partition=normal
 #SBATCH --cpus-per-task=2
@@ -11,7 +11,7 @@
 #SBATCH --time=6:00:00
 #SBATCH --output=/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/runs/slurm-%x-%j.out
 
-source /home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/slurm/common.sh
+source /home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/slurm_v2/common.sh
 
 for d in $RUNS/*/; do
   run=$(basename $d)

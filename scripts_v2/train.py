@@ -20,11 +20,11 @@ import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from specgeom.data import PromptSampler, build_prompt, load_gsm8k, reward_fn
-from specgeom.instrument import Instrumenter
-from specgeom.intervene_engine import InterventionEngine
-from specgeom.modeling import decoder_param_groups, load_model, stop_token_ids
-from specgeom.muon import Muon
+from specgeom_v2.data import PromptSampler, build_prompt, load_gsm8k, reward_fn
+from specgeom_v2.instrument import Instrumenter
+from specgeom_v2.intervene_engine import InterventionEngine
+from specgeom_v2.modeling import decoder_param_groups, load_model, stop_token_ids
+from specgeom_v2.muon import Muon
 
 
 def parse_args():
@@ -61,8 +61,14 @@ def parse_args():
     p.add_argument("--save-ckpt-every", type=int, default=250)
     p.add_argument("--intervention", default="none",
                    choices=["none", "spectrum_only", "frame_only",
-                            "mag_topq", "snr_topq", "adaptive_alpha"])
+                            "mag_topq", "snr_topq", "adaptive_alpha",
+                            # v2 (docs/unified_paper_document_v2.md E4a):
+                            # equal-Frobenius-step modes
+                            "spectrum_matched", "frame_matched",
+                            "random_ext", "exact_iso"])
     p.add_argument("--intervention-q", type=float, default=0.1)
+    p.add_argument("--intervention-seed", type=int, default=None,
+                   help="v2 random_ext dictionary seed (default: --seed)")
     p.add_argument("--ssd-k", type=int, default=256)
     p.add_argument("--ssd-tail-coef", type=float, default=0.1)
     p.add_argument("--ssd-no-align", action="store_true",
@@ -105,7 +111,7 @@ class Trainer:
         elif args.optimizer == "ssd-routed":
             # E3: SSD on one layer range, Muon elsewhere
             import re as _re
-            from specgeom.ssd import SSD
+            from specgeom_v2.ssd import SSD
             lo, hi = (int(x) for x in args.ssd_layer_range.split("-"))
             named, _ = decoder_param_groups(self.model, with_names=True)
             layer_no = _re.compile(r"layers\.(\d+)\.")
@@ -115,7 +121,7 @@ class Trainer:
             self.opt2 = Muon(out_r, lr=args.muon_lr, momentum=0.95)
             self.opt_other = torch.optim.AdamW(other, lr=args.lr, betas=(0.9, 0.95))
         else:  # ssd / ssd-muon (M1)
-            from specgeom.ssd import SSD
+            from specgeom_v2.ssd import SSD
             variant = "wiener" if args.optimizer == "ssd" else "muon"
             self.opt = SSD(matrix, lr=args.muon_lr, momentum=0.95,
                            k=args.ssd_k, variant=variant,
@@ -127,8 +133,10 @@ class Trainer:
 
         self.engine = None
         if args.intervention != "none":
-            self.engine = InterventionEngine(self.model, args.intervention,
-                                             q=args.intervention_q)
+            iseed = args.intervention_seed
+            self.engine = InterventionEngine(
+                self.model, args.intervention, q=args.intervention_q,
+                seed=args.seed if iseed is None else iseed)
 
         if args.objective == "opd":
             self.teacher, _, _ = load_model(args.teacher, dtype=torch.bfloat16,
@@ -409,6 +417,10 @@ class Trainer:
             if save and self.engine and self.engine.alpha_log:
                 vals = list(self.engine.alpha_log.values())
                 rec["alpha_mean"] = sum(vals) / len(vals)
+            if save and getattr(self.engine, "scale_log", None):
+                vals = list(self.engine.scale_log.values())
+                rec["scale_mean"] = sum(vals) / len(vals)
+                rec["scale_max"] = max(vals)
             self.log(rec)
             if step % 10 == 0:
                 print(f"[{args.objective}] step {step} "

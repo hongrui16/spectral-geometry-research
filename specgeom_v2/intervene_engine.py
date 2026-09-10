@@ -22,7 +22,7 @@ import re
 
 import torch
 
-from .interventions_v2 import match_norm, random_basis
+from .interventions import match_norm, random_basis
 
 
 class InterventionEngine:

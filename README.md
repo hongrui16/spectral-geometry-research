@@ -8,8 +8,10 @@ Versioning (docs, results, tasks and code share the same version label):
   results in `results/v1/{result_A,result_B}`, code at git tag `v1`.
 - **v2** — `docs/unified_paper_document_v2.md` (conditional value of spectral
   motion; live document), `docs/TASKS_A_v2.md`, `docs/TASKS_B_v2.md`,
-  results in `results/v2/{result_A,result_B}`, code on `main`
-  (`*_v2.py` modules; v1 files untouched). Single branch: `main`.
+  results in `results/v2/{result_A,result_B}`, code in the suffixed folders
+  `specgeom_v2/ analysis_v2/ scripts_v2/ slurm_v2/` (self-contained copies of
+  the v1 folders plus the v2 changes; the v1 folders stay byte-identical to
+  tag `v1`). Single branch: `main`.
 
 ## Layout
 - `specgeom/` — library: metrics (R_spectrum, SNR, rho), instrumentation,

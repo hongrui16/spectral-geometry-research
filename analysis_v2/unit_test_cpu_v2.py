@@ -11,7 +11,7 @@
                      (documents the v1 coupling); H self-check passes on a
                      synthetic spectrum_only capture and fails on a raw one
 
-Run: ~/envs_spectral/bin/python analysis/unit_test_cpu_v2.py
+Run: ~/envs_spectral/bin/python analysis_v2/unit_test_cpu_v2.py
 """
 
 import json
@@ -24,9 +24,9 @@ import torch
 from torch import nn
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from specgeom import metrics
-from specgeom.interventions_v2 import (MATCHED, project_update, random_basis)
-from specgeom.intervene_engine_v2 import InterventionEngine
+from specgeom_v2 import metrics
+from specgeom_v2.interventions import (MATCHED, project_update, random_basis)
+from specgeom_v2.intervene_engine import InterventionEngine
 
 torch.manual_seed(0)
 m, n = 64, 48
@@ -135,7 +135,7 @@ def _fake_capture(run, intervention, B=8, planted="diag", seed=0):
     planted: "diag" (signal only on the spectral diagonal), "dense" (signal on
     a random half of the entries of C), or None (pure noise).
     """
-    from analysis import compute_metrics_v2 as cm
+    from analysis_v2 import compute_metrics as cm
     g = torch.Generator().manual_seed(seed)
     os.makedirs(os.path.join(run, "capture"), exist_ok=True)
     json.dump({"intervention": intervention}, open(os.path.join(run, "args.json"), "w"))

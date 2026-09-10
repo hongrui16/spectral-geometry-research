@@ -32,7 +32,7 @@ import time
 import torch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from specgeom import metrics
+from specgeom_v2 import metrics
 
 SPECTRUM_MODES = ("spectrum_only", "spectrum_matched")
 
