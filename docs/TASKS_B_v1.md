@@ -1,6 +1,8 @@
+> **v1 归档文档(2026-09-06 → 09-09,已冻结,只改了文件名引用)。** 当前版本见 `docs/unified_paper_document_v2.md`、`docs/TASKS_A_v2.md`、`docs/TASKS_B_v2.md`。本文中的 `scripts/ analysis/ specgeom/ slurm/` 指 **v1 代码文件夹**(git tag `v1`);v2 代码在 `*_v2/` 文件夹。本文提到的 run 结果归档在 `results/v1/result_A/`(作者A)与 `results/v1/result_B/`(作者B)。
+
 # 作者B 任务清单(唯一入口,逐条命令版)
 
-按 P0→P6 优先级执行。实验的科学设计与产出见 `EXPERIMENTS.md`(总账,不用照它跑)。
+按 P0→P6 优先级执行。实验的科学设计与产出见 `docs/EXPERIMENTS_v1.md`(总账,不用照它跑)。
 
 ## 0. 环境(一次性,约 20 分钟)
 ```bash

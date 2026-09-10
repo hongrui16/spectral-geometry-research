@@ -13,8 +13,8 @@ cd spectral-geometry-research && git checkout main && git pull && git rev-parse 
 
 ## P0:三个先决问题(不跑训练,当天回复)
 
-1. **代码版本**:v1 批次跑的是哪个 commit?`git log -1 --format=%h` 于当时的工作目录,或 `args.json` 旁若有记录。特别要确认 `scripts/eval_gsm8k.py` 是否含 commit `adf1786`(greedy 非终止修复,加显式 stop ids)。这决定所有 SFT 行(0.412、0.418、4B 0.818 等,均低于 base)是否可用。
-2. **捕获顺序**:在你 v1 批次所用的 `scripts/train.py` 中确认 `self.engine.post_step()` 在 `self.instr.post_optimizer()` **之前**(v1 tag 中即如此)。然后用新脚本对一个 spectrum_only run 做自检,把打印的 `H self-check` 行发给 A:
+1. **代码版本**:v1 批次跑的是哪个 commit?`git log -1 --format=%h` 于当时的工作目录,或 `args.json` 旁若有记录。特别要确认你当时用的 v1 代码 `scripts/eval_gsm8k.py` 是否含 commit `adf1786`(greedy 非终止修复,加显式 stop ids)。这决定所有 SFT 行(0.412、0.418、4B 0.818 等,均低于 base)是否可用。
+2. **捕获顺序**:在你 v1 批次所用的 v1 代码 `scripts/train.py` 中确认 `self.engine.post_step()` 在 `self.instr.post_optimizer()` **之前**(v1 tag 中即如此)。然后用新脚本对一个 spectrum_only run 做自检,把打印的 `H self-check` 行发给 A:
    ```bash
    $PY analysis_v2/compute_metrics.py $RUNS/phase2_sft_spectrum_only --out-root $RUNS/results_B_v2
    ```

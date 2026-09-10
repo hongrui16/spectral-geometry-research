@@ -1,3 +1,5 @@
+> **v1 归档文档(2026-09-06 → 09-09,已冻结,只改了文件名引用)。** 当前版本见 `docs/unified_paper_document_v2.md`、`docs/TASKS_A_v2.md`、`docs/TASKS_B_v2.md`。本文中的 `scripts/ analysis/ specgeom/ slurm/` 指 **v1 代码文件夹**(git tag `v1`);v2 代码在 `*_v2/` 文件夹。本文提到的 run 结果归档在 `results/v1/result_A/`(作者A)与 `results/v1/result_B/`(作者B)。
+
 # When Should LLM Training Change the Spectrum?
 ## Credit Assignment Determines the Spectral–Frame Geometry of Gradients — 统一文档
 

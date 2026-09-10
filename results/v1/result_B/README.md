@@ -1,8 +1,8 @@
-# results_B/ — 作者B 交付的小文件(每 run:log.jsonl、args.json、eval*.json、metrics.csv、summary.txt)
+# results/v1/result_B/ — 作者B 的 v1 交付小文件（原目录名 results_B/，2026-09-09 归档）(每 run:log.jsonl、args.json、eval*.json、metrics.csv、summary.txt)
 
 硬件:0.8B 训练在 1×H100 80GB/run(P0、E1 大部分)或 1×A100 80GB/run(E2、E3、E4、E1 SFT/OPD s1、4B);
 Qwen3.5 linear-attn 走 transformers 的 torch fallback,RLVR 约 30 s/step(H100)/40 s/step(A100)。
-参数与 `TASKS_B.md` 完全一致,未改动。评测口径:GSM8K test 前 500 题 greedy pass@1(`--limit 500`);
+参数与 `docs/TASKS_B_v1.md` 完全一致,未改动。评测口径:GSM8K test 前 500 题 greedy pass@1(`--limit 500`);
 MMLU 为 1000 题 zero-shot letter-logit。**base(0.8B,同口径 500 题)= 0.546**(A 的前 200 题口径为 0.575);base MMLU 见 `eval_base_0.8b/eval_mmlu.json`。
 
 ## 已完成(2026-09-09 15:45)

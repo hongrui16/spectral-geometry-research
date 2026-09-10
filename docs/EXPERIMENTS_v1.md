@@ -1,3 +1,5 @@
+> **v1 归档文档(2026-09-06 → 09-09,已冻结,只改了文件名引用)。** 当前版本见 `docs/unified_paper_document_v2.md`、`docs/TASKS_A_v2.md`、`docs/TASKS_B_v2.md`。本文中的 `scripts/ analysis/ specgeom/ slurm/` 指 **v1 代码文件夹**(git tag `v1`);v2 代码在 `*_v2/` 文件夹。本文提到的 run 结果归档在 `results/v1/result_A/`(作者A)与 `results/v1/result_B/`(作者B)。
+
 # 实验总账(Run Matrix)
 
 **硬 deadline:全部实验 14 天内跑完(至 2026-09-20)。**
@@ -25,7 +27,7 @@
 - gated 模型审批等只有 A 能做的账号操作
 
 **作者B(批量 + 多卡,全部可并行)**
-- **唯一执行文档:`TASKS_B.md`(P0-P6,含环境、命令、健康自检、交付)**
+- **唯一执行文档:`docs/TASKS_B_v1.md`(P0-P6,含环境、命令、健康自检、交付)**
 - 4B:Phase 1 AdamW×3 + E1 RLVR 行({adamw, muon, ssd})+ 4B 基线评测
 - 9B:Phase 1 AdamW×3(`--device-map auto`,见 docs/SCALING_v1.md)
 - E1 SSD 行 ×4、E2 消融 ×4、E3 分层 ×4、E4 ×3、补 seed 批量(SSD 相关项等
@@ -79,10 +81,10 @@ H2 三对齐全:G 侧 optimizer 不变性在 SFT/OPD/RLVR 全部成立(RLVR 对:
 - **新发现**:linear_attn 梯度对角富集仅 0.65(低于随机),MLP ≈1.0,三范式一致
 
 **主线调整**:机制叙事以 §5 SNR 理论 + C3 为核心(文档 §附 预案);Phase 2 因果干预
-(作者B,TASKS_B.md P0)升级为全文关键证据;H3 结果作为"可证伪量按设计工作"呈现。
+(作者B,docs/TASKS_B_v1.md P0)升级为全文关键证据;H3 结果作为"可证伪量按设计工作"呈现。
 
 ### Phase 2 — 干预实验,H5-H6(任务 #4)|主责:**作者B**
-10 个 run(8 干预 + 2 对照),300 步 + GSM8K-500 评测。命令:`TASKS_B.md` P0。
+10 个 run(8 干预 + 2 对照),300 步 + GSM8K-500 评测。命令:`docs/TASKS_B_v1.md` P0。
 产出:Fig.6、Fig.7(作者A 出图)。
 
 ### E1 — optimizer × 范式主表(任务 #5)|✅ SSD 试跑通过,作者B 可开跑
@@ -123,7 +125,7 @@ python scripts/train.py --objective rlvr --optimizer ssd-routed --ssd-layer-rang
 
 ### E4 — M2 自适应 α(任务 #5 内)
 {sft,opd,rlvr} × adaptive_alpha,300 步 + 评测;对照复用 Phase 2 的 none/frame_only。
-命令:`TASKS_B.md` P4。产出:Fig.10 (α_t 轨迹 + 性能/遗忘)。
+命令:`docs/TASKS_B_v1.md` P4。产出:Fig.10 (α_t 轨迹 + 性能/遗忘)。
 
 ### 砍掉/降级(20 天范围)
 - M3/E6(contribution regularizer)、E7(continued pretraining sanity):时间富余才做

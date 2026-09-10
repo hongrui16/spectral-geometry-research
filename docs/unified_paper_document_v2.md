@@ -867,7 +867,7 @@ PGSU 的基础研究版本使用加性候选，frame 候选满足 \(\Pi_\Sigma\d
 
 ## 9.1 来源与追溯
 
-以下数字转录自原项目的 unified_paper_document.md 和 paper/results_draft.md，日期均为 2026-09-08。本次重写没有重新运行实验或独立重算这些数字。它们用于设计确认性实验，不作为 v2 新命题的实证验证。
+以下数字转录自 docs/unified_paper_document_v1.md 和 paper/results_draft.md（v1 登记处），日期均为 2026-09-08。本次重写没有重新运行实验或独立重算这些数字。它们用于设计确认性实验，不作为 v2 新命题的实证验证。
 
 原数值登记文档记载主设置：Qwen3.5-0.8B，GSM8K，同 prompt 流，主训练 seed 0，500 步；对 27 个矩阵与 50 个保存点进行中位数聚合。重复矩阵和保存点并非独立 training seeds。
 
@@ -878,7 +878,7 @@ PGSU 的基础研究版本使用加性候选，frame 候选满足 \(\Pi_\Sigma\d
 | 观察 | 原登记数字 | 当前可支持的表述 |
 |---|---|---|
 | Qwen raw-gradient 谱富集 | SFT 0.886，OPD 0.869，RLVR 0.839 | 这组探索性结果存在温和 ordering；不推出普遍规律或 credit 因果性 |
-| Qwen 幅值—SNR 秩相关 | 0.880 / 0.874 / 0.848 | ordering 存在，但三者绝对相关均高。原因是统计量本身耦合：analysis/compute_metrics.py 中 \(\widehat{\rm SNR}=\bar C^2/\widehat{\rm Var}\) 与 \(|\bar C|\) 取自同一组 8 个微批次，\(|\bar C|\) 同时出现在两侧，秩相关不可能低；且 RLVR 每微批次仅 2 条序列、同组 advantage 经组归一化，微批次并非独立单位。作者B 的 E1 各 run（任意 optimizer × 范式）该值均落在 0.845–0.890。此指标须按 §5.4 改为独立 Design/Probe 样本的交叉估计后重算 |
+| Qwen 幅值—SNR 秩相关 | 0.880 / 0.874 / 0.848 | ordering 存在，但三者绝对相关均高。原因是统计量本身耦合：v1 代码 analysis/compute_metrics.py 中 \(\widehat{\rm SNR}=\bar C^2/\widehat{\rm Var}\) 与 \(|\bar C|\) 取自同一组 8 个微批次，\(|\bar C|\) 同时出现在两侧，秩相关不可能低；且 RLVR 每微批次仅 2 条序列、同组 advantage 经组归一化，微批次并非独立单位。作者B 的 E1 各 run（任意 optimizer × 范式）该值均落在 0.845–0.890。此指标须按 §5.4 改为独立 Design/Probe 样本的交叉估计后重算（已实现于 analysis_v2/compute_metrics.py 的 spearman_absC_snr_cross / R_sigma_cross，结果进 results/v2/result_A） |
 | Llama-3B SFT/RLVR 全程秩相关 | 0.863 / 0.785 | 两设置有差异；需控制训练饱和与估计偏差 |
 | Llama-3B 谱富集 | 全程 1.073 / 1.072；step≤100 为 1.084 / 1.060；OPD 1.082 | 对阶段选择敏感；活跃窗口为探索性事后分析，需独立确认 |
 | Llama-1B（无饱和，reward 全程 53–57%）谱富集 / 秩相关 | SFT 1.067 / 0.846；OPD 1.073 / 0.818；RLVR 1.057 / 0.806 | OPD 富集高于 SFT，SFT>OPD 子排序不成立；三模型上仅“稠密 > RLVR”方向一致，且跨度 ≤2% |
