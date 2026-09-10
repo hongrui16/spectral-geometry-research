@@ -885,6 +885,7 @@ PGSU 的基础研究版本使用加性候选，frame 候选满足 \(\Pi_\Sigma\d
 | Llama-1B（无饱和，reward 全程 53–57%）谱富集 / 秩相关 | SFT 1.067 / 0.846；OPD 1.073 / 0.818；RLVR 1.057 / 0.806 | OPD 富集高于 SFT，SFT>OPD 子排序不成立；三模型上仅“稠密 > RLVR”方向一致，且跨度 ≤2% |
 | 加强采样的 \(|\rho^\Sigma|,|\rho^{\rm frame}|\) 中位数 | 0.1314 / 0.1308；匹配 null 0.1305 | 当前统计未显示预测中的显著分离；不等于总体相关性完全相等 |
 | 相同实验 \(|\rho|>0.3\) 的占比 | 13.0% / 12.9%；null 11.4% | 是观测超阈率，不是“真实相关 mode 比例” |
+| **有限步 KL 探针（新，v2 A5，fp32）** | η∈[1e-3,1e-2] 上 KL∝η^2.01；单位能量 KL 代价 spec_rand/frame_rot 逐矩阵中位 0.95、范围 [0.26, 5.2]；q_proj 0.27–0.31、o_proj 1.6–2.4；k_proj 缩放方向 KL≈0 | 局部二次假设成立；谱/frame 功能代价的各向异性是矩阵级的、无全局符号（§6.3 成立）；等 Frobenius 与等 KL 匹配在个别矩阵上差 3 倍，E4a 两种匹配都要报告 |
 | Qwen 架构分组谱富集 | linear attention 约 0.65，MLP 约 0.98 | 提示结构异质性；架构因果归因仍需匹配 shape/head 结构等对照 |
 | Muon 的 H/G 谱富集比 | SFT 约 1.13，OPD 1.10，RLVR 约 1.0 | optimizer 的单步/轨迹调制可能依赖设置；不证明噪声机制 |
 
@@ -1142,7 +1143,7 @@ Fisher 与 loss Hessian 独立估计，不以其中一个替代另一个。采�
 - 真实有限步 KL 对二次预测的误差；
 - **投影干预的自洽核查**：对 spectrum_only / frame_only 的每个捕获步，在捕获 \(W_{\rm before}\) 的奇异基下重算 \(R_\Sigma(H)\)，spectrum_only 必须接近 1、frame_only 必须接近 0。作者B 的捕获（§9.4 第 5 条）在 spectrum_only 下仅为基线的 1.3–9 倍。用真实 k_proj 权重做的检查排除了两个解释：bf16 存储 \(W\) 后重算基（读数 ≥0.996）与 engine 基相对捕获步滞后 9 步（AdamW 类低秩相干更新 lr \(10^{-5}\)×9 步读数 0.957）。剩余待查项是作者B 侧 engine.post_step 与 instr.post_optimizer 的调用顺序，以及 tracked 参数对象是否与 engine 投影的对象一致。**2026-09-10 作者A 的 v2 smoke（results/v2/result_A/smoke_v2_sft_*）：spectrum_matched 捕获 H 的 \(R_\Sigma\) 中位数 0.967、frame_matched 1e-5、random_ext 为基线的 1.07 倍，均与理论值一致；A 侧代码路径无此问题，待查项仅剩 B 侧。**
 
-**精度要求（2026-09-10 实测，results/v2/result_A/kl_probe_0.8b_bf16）**：训练循环使用的 bf16 autocast 前向不能用于有限步 KL 或 Fisher 的估计。相对扰动 \(\le 10^{-2}\) 低于 bf16 权重分辨率（ulp \(2^{-8}\)），纯缩放方向的 KL 恰为 0，其它方向的 KL 停在约 \(2.4\times10^{-4}\) nats/token 的舍入底噪且与步长无关。E2、E4a 的等 KL 匹配与 §12.4 的所有 KL 项一律用 fp32 前向并关闭 TF32。
+**精度要求（2026-09-10 实测，results/v2/result_A/kl_probe_0.8b_bf16）**：训练循环使用的 bf16 autocast 前向不能用于有限步 KL 或 Fisher 的估计。相对扰动 \(\le 10^{-2}\) 低于 bf16 权重分辨率（ulp \(2^{-8}\)），纯缩放方向的 KL 恰为 0，其它方向的 KL 停在约 \(2.4\times10^{-4}\) nats/token 的舍入底噪且与步长无关。E2、E4a 的等 KL 匹配与 §12.4 的所有 KL 项一律用 fp32 前向并关闭 TF32。fp32 下有效窗口为 \(\eta\ge 3\times10^{-4}\)（相对 Frobenius 步长），此窗口内 27 个矩阵 × 4 个方向的 KL 对 \(\eta\) 斜率均为 2.01 ± 0.1（results/v2/result_A/kl_probe_0.8b_fp32）。
 
 经验 Fisher 小矩阵可由独立 score outer product 得到 PSD 估计，但“采样自模型”与“使用真实标签”必须区分。固定估计矩阵上的代数保证不意味着它准确估计真实参考 Fisher。
 

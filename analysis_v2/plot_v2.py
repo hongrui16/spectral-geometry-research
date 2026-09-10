@@ -6,6 +6,7 @@ Fig.A  equal-norm H5 main figure         <- results/v2/result_B/e4a_*  (P3; draw
 Fig.B  adaptive-alpha convergence        <- results/v1/result_B/e4_{sft,opd,rlvr}_alpha/log.jsonl
 Fig.C  split-half signal/noise energy    <- results/v2/result_A/phase1_*/metrics.csv
 Fig.D  v1 coupled Spearman vs split-half <- results/v2/result_A/phase1_*/metrics.csv
+Fig.E  finite-step KL probe (E0/E2)       <- results/v2/result_A/kl_probe_0.8b_fp32
 All panels use medians over matrices with IQR bands; nothing is smoothed.
 """
 
@@ -173,6 +174,48 @@ def fig_a_equal_norm(root, out):
     plt.close(fig)
 
 
+def fig_e_kl_probe(root, out):
+    """E0/E2: KL vs eta (log-log) per direction, and per-matrix spectral/frame sensitivity ratio."""
+    d = os.path.join(root, "results/v2/result_A/kl_probe_0.8b_fp32")
+    p = os.path.join(d, "kl_probe.csv")
+    if not os.path.exists(p):
+        return
+    df = pd.read_csv(p)
+    df = df[df.eta >= 3e-4]          # eta=1e-4 sits at the fp32 floor (KL ~1e-11, sign-indefinite)
+    fig, axes = plt.subplots(1, 2, figsize=(8.6, 3.1))
+    cols = {"spec_rand": "tab:red", "spec_scale": "tab:orange", "frame_rot": "tab:blue", "gauss": "0.4"}
+    ax = axes[0]
+    for dn, g in df.groupby("direction"):
+        med = g.groupby("eta").kl.median()
+        lo = g.groupby("eta").kl.quantile(0.25)
+        hi = g.groupby("eta").kl.quantile(0.75)
+        ax.plot(med.index, med.values, "-o", ms=3, color=cols[dn], label=dn)
+        ax.fill_between(med.index, lo.values, hi.values, color=cols[dn], alpha=0.12, lw=0)
+    e = np.array([3e-4, 3e-2])
+    ax.plot(e, 8e-8 * (e / 1e-3) ** 2, "k:", lw=0.8, label=r"$\propto\eta^2$")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel(r"relative step $\eta$  ($\|\delta W\|_F=\eta\|W\|_F$)")
+    ax.set_ylabel("KL (nats / token), median over 27 matrices")
+    ax.set_title("fp32 forward: exact quadratic regime", fontsize=9)
+    ax.legend(frameon=False, fontsize=7)
+    ax = axes[1]
+    q = df[df.eta == 1e-3].pivot(index="matrix", columns="direction", values="kl_per_step2")
+    r = (q["spec_rand"] / q["frame_rot"]).sort_values()
+    lab = [m.replace("model.layers.", "L").replace(".weight", "") for m in r.index]
+    fam = [("tab:green" if ".mlp." in m else "tab:purple" if "linear_attn" in m else "tab:brown") for m in r.index]
+    ax.barh(np.arange(len(r)), r.values, color=fam)
+    ax.axvline(1, color="k", lw=0.8)
+    ax.set_xscale("log")
+    ax.set_yticks(np.arange(len(r)))
+    ax.set_yticklabels(lab, fontsize=5.5)
+    ax.set_xlabel("KL cost of a random spectral step / frame-rotation step\n(equal Frobenius norm, eta=1e-3)")
+    ax.set_title("matrix-specific anisotropy, no global sign", fontsize=9)
+    fig.tight_layout()
+    fig.savefig(os.path.join(out, "figE_kl_probe.pdf"))
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -184,4 +227,5 @@ if __name__ == "__main__":
     fig_b_alpha(a.root, out)
     fig_c_signal_noise(a.root, out)
     fig_d_spearman(a.root, out)
+    fig_e_kl_probe(a.root, out)
     print("figures in", out, sorted(os.listdir(out)))

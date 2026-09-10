@@ -1,0 +1,17 @@
+{
+ "args": {
+  "model": "Qwen/Qwen3.5-0.8B",
+  "out": "/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/results/v2/result_A/kl_probe_0.8b_fp32",
+  "n_prompts": 32,
+  "batch": 8,
+  "etas": "1e-4,3e-4,1e-3,3e-3,1e-2,3e-2",
+  "max_matrices": 0,
+  "max_len": 512,
+  "seed": 0,
+  "cpu": false,
+  "precision": "fp32"
+ },
+ "n_answer_tokens": 3991,
+ "n_matrices": 27,
+ "elapsed_s": 1107.1086485385895
+}
