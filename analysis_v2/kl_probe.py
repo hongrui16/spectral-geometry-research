@@ -98,8 +98,17 @@ def build_reference(tok, n_prompts, seed, device, max_len=512):
 
 @torch.no_grad()
 def logp_batch(model, input_ids, attn, use_autocast):
-    ctx = torch.autocast("cuda", dtype=torch.bfloat16) if use_autocast else torch.autocast("cpu", enabled=False)
-    with ctx:
+    """use_autocast=True runs the bf16 autocast forward of the train loop.
+
+    NOT suitable for this probe: a relative weight perturbation of 1e-3 is
+    below bf16 resolution (ulp 2^-8 ~ 4e-3), so the perturbation is rounded
+    away (spec_scale gives KL == 0) while unrelated rounding flips give a
+    constant KL floor ~2e-4 nats/token (see results/v2/result_A/kl_probe_0.8b_bf16).
+    Default is a full fp32 forward (TF32 disabled)."""
+    if use_autocast:
+        with torch.autocast("cuda", dtype=torch.bfloat16):
+            out = model(input_ids=input_ids, attention_mask=attn)
+    else:
         out = model(input_ids=input_ids, attention_mask=attn)
     return F.log_softmax(out.logits.float()[:, :-1], dim=-1)  # predicts token t+1
 
@@ -118,12 +127,17 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--n-prompts", type=int, default=32)
     ap.add_argument("--batch", type=int, default=8)
-    ap.add_argument("--etas", default="1e-3,3e-3,1e-2,3e-2")
+    ap.add_argument("--etas", default="1e-4,3e-4,1e-3,3e-3,1e-2,3e-2")
     ap.add_argument("--max-matrices", type=int, default=0, help="0 = all tracked")
     ap.add_argument("--max-len", type=int, default=512)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--cpu", action="store_true")
+    ap.add_argument("--precision", choices=["fp32", "bf16"], default="fp32",
+                    help="fp32 (default, required for eta<=1e-2) or bf16 autocast (train-loop forward)")
     a = ap.parse_args()
+    torch.backends.cuda.matmul.allow_tf32 = False
+    torch.backends.cudnn.allow_tf32 = False
+    use_ac = (a.precision == "bf16") and not a.cpu
     os.makedirs(a.out, exist_ok=True)
     device = "cpu" if a.cpu else "cuda"
     etas = [float(x) for x in a.etas.split(",")]
@@ -140,7 +154,7 @@ def main():
 
     batches = [(input_ids[i:i + a.batch], attn[i:i + a.batch], ans[i:i + a.batch])
                for i in range(0, input_ids.shape[0], a.batch)]
-    base = [logp_batch(model, ii, am, not a.cpu) for ii, am, _ in batches]
+    base = [logp_batch(model, ii, am, use_ac) for ii, am, _ in batches]
     gen = torch.Generator().manual_seed(a.seed)
     rows = []
     t0 = time.time()
@@ -154,7 +168,7 @@ def main():
                 W.copy_(W0 + eta * wnorm * d.to(W.dtype))
                 num, den = 0.0, 0.0
                 for (ii, am, an), lp0 in zip(batches, base):
-                    lp1 = logp_batch(model, ii, am, not a.cpu)
+                    lp1 = logp_batch(model, ii, am, use_ac)
                     m = an[:, 1:].float().sum().item()
                     num += kl_tokens(lp0, lp1, an).item() * m
                     den += m
