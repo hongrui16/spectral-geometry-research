@@ -35,9 +35,17 @@ sbatch --dependency=afterok:<jobid> slurm_v2/purge_v1_bulk.sbatch   # 成功后�
 完成标准:九个 run 的 `manifest.json` 存在;登记每个 run 的 `R_sigma_cross`、`sig_energy_total` 与 `noise_energy` 中位数。
 初步观察(login 节点单矩阵抽查,SFT step 10 的 L7 q_proj):`sig_energy_total ≈ -3e-4`,`noise_energy ≈ 0.47`,即 4 vs 4 微批次下**平均梯度的信号能量不可分辨**。若全表如此,H-A 成立且 v1 的 R_enrich 全部是噪声主导,这要写进 §9.2。
 
-## A2:v2 模式 GPU smoke(唯一的 GPU 项,4 × 20 步 SFT,单 A100.40gb,约 15 分钟/个)—— ⏳ 作业 9770003(A100.40gb)与 9773379(3g.40gb MIG)自 09-09 21:30 起在 gpuq 排队
+## A2:v2 模式 GPU smoke —— ✅ 通过 2026-09-10(MIG 3g.40gb 与 contrib-gpuq A100.80gb 各跑一遍,结果一致;`results/v2/result_A/smoke_v2_sft_*`)
 
-不再作为 B 开 P3 的前置:B 按 `TASKS_B_v2.md` P0.4 自行 smoke。A 的 smoke 拿到卡后仍跑,作为独立复核。
+| 模式 | 20 步 SFT loss(step 1 → 20) | 秒/步 | scale_mean / scale_max | 捕获 H 的 R_Σ(H) 中位数 |
+|---|---|---|---|---|
+| spectrum_matched | 1.121 → 0.653 | 6.7 | 50 / 91 | 0.967(自检 OK,基线的 3.4e3 倍) |
+| frame_matched | 1.121 → 0.537 | 6.8 | 1.0 / 1.0 | 1e-5(≈0,应为 0) |
+| random_ext | 1.121 → 0.649 | 7.3 | 52 / 82 | 1.07× 基线(随机字典与 W 基无关,应为基线) |
+| exact_iso | 1.121 → 0.540 | 19.4(每步 SVD) | — | 24× 基线(重置奇异值的谱修正项) |
+
+四个模式无 NaN,scale 在预期范围,三个投影模式的 H 自检与理论值一致。**这同时证明 A 侧代码路径下捕获的 H 就是投影后的更新**,§12.4 待查项缩小为 B 侧问题。
+早期迹象(仅 20 步,不作结论):等范数下 spectrum_matched 与 random_ext 的 loss 下降幅度相同(0.65),都明显慢于 frame_matched 与 full(0.54)。P3 会回答这是否持续。
 
 ```bash
 sbatch --array=0-3 slurm_v2/smoke.sbatch

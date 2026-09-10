@@ -20,7 +20,7 @@ cd spectral-geometry-research && git checkout main && git pull && git rev-parse 
    ```
    期望 `median R_sigma(H)` 接近 1。v1 交付的 metrics 里它只有随机基线的 1.3–9 倍,A 已排除 bf16 存储和基漂移两种解释,剩下的在你那边。
 3. **硬件与 wall-clock**:每类 run 的实际 秒/步(H100 与 A100 各一行),写进交付 README。
-4. **自己做 P3 的 smoke,不要等 A**(A 的 gpuq 排队严重)。四个新模式各跑 20 步 SFT,约 15 分钟/个,四个可并行:
+4. **P3 的 smoke。A 侧已于 09-10 通过**(四模式 20 步 SFT 无 NaN;spectrum_matched/random_ext 的 scale 约 50,frame 约 1;H 自检 OK;exact_iso 每步约 3 倍耗时),P3 可以直接开。B 仍建议先跑一遍下面的 smoke 核对自己机器的 scale 与 H 自检:四个新模式各跑 20 步 SFT,约 15 分钟/个,四个可并行:
    ```bash
    for INT in spectrum_matched frame_matched random_ext exact_iso; do
      $PY scripts_v2/train.py --objective sft --steps 20 --save-every 10 --prompts-per-step 8 --max-new-tokens 384 --seed 0 \

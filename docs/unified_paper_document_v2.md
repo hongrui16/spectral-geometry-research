@@ -1140,7 +1140,7 @@ Fisher 与 loss Hessian 独立估计，不以其中一个替代另一个。采�
 - Fisher 小矩阵的对称性和 PSD 检查；
 - 求解残差及预测步长；
 - 真实有限步 KL 对二次预测的误差；
-- **投影干预的自洽核查**：对 spectrum_only / frame_only 的每个捕获步，在捕获 \(W_{\rm before}\) 的奇异基下重算 \(R_\Sigma(H)\)，spectrum_only 必须接近 1、frame_only 必须接近 0。作者B 的捕获（§9.4 第 5 条）在 spectrum_only 下仅为基线的 1.3–9 倍。用真实 k_proj 权重做的检查排除了两个解释：bf16 存储 \(W\) 后重算基（读数 ≥0.996）与 engine 基相对捕获步滞后 9 步（AdamW 类低秩相干更新 lr \(10^{-5}\)×9 步读数 0.957）。剩余待查项是作者B 侧 engine.post_step 与 instr.post_optimizer 的调用顺序，以及 tracked 参数对象是否与 engine 投影的对象一致。
+- **投影干预的自洽核查**：对 spectrum_only / frame_only 的每个捕获步，在捕获 \(W_{\rm before}\) 的奇异基下重算 \(R_\Sigma(H)\)，spectrum_only 必须接近 1、frame_only 必须接近 0。作者B 的捕获（§9.4 第 5 条）在 spectrum_only 下仅为基线的 1.3–9 倍。用真实 k_proj 权重做的检查排除了两个解释：bf16 存储 \(W\) 后重算基（读数 ≥0.996）与 engine 基相对捕获步滞后 9 步（AdamW 类低秩相干更新 lr \(10^{-5}\)×9 步读数 0.957）。剩余待查项是作者B 侧 engine.post_step 与 instr.post_optimizer 的调用顺序，以及 tracked 参数对象是否与 engine 投影的对象一致。**2026-09-10 作者A 的 v2 smoke（results/v2/result_A/smoke_v2_sft_*）：spectrum_matched 捕获 H 的 \(R_\Sigma\) 中位数 0.967、frame_matched 1e-5、random_ext 为基线的 1.07 倍，均与理论值一致；A 侧代码路径无此问题，待查项仅剩 B 侧。**
 
 经验 Fisher 小矩阵可由独立 score outer product 得到 PSD 估计，但“采样自模型”与“使用真实标签”必须区分。固定估计矩阵上的代数保证不意味着它准确估计真实参考 Fisher。
 
