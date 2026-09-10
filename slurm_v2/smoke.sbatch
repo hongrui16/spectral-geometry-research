@@ -4,6 +4,8 @@
 # Submit: sbatch --array=0-3 slurm_v2/smoke.sbatch
 #SBATCH --job-name=spec-smk2
 #SBATCH --partition=gpuq
+# any GPU partition is fine (user 2026-09-10): override at submit time, e.g.
+#   sbatch --partition=contrib-gpuq --gres=gpu:A100.80gb:1 --array=0-3 slurm_v2/smoke.sbatch
 #SBATCH --qos=gpu
 #SBATCH --gres=gpu:A100.40gb:1
 #SBATCH --cpus-per-task=8

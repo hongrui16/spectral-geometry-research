@@ -18,9 +18,13 @@
 | 新 intervention 值、`--intervention-seed`、`scale_mean/scale_max` 日志 | `scripts_v2/train.py` | ✅ |
 | 交叉样本 SNR、`R_sigma_cross`、split-half Spearman、H 自检、manifest | `analysis_v2/compute_metrics.py` | ✅ CPU 测试通过 |
 | 交付摘要含新列 | `scripts_v2/summary.py` | ✅ |
-| slurm:v2 指标重算(CPU)、v1 大文件清理(依赖前者成功)、v2 模式 GPU smoke | `slurm_v2/recompute.sbatch`、`slurm_v2/purge_v1_bulk.sbatch`、`slurm_v2/smoke.sbatch` | ✅ 已提交 / 待提交 |
+| slurm:v2 指标重算(CPU)、v1 大文件清理(依赖前者成功)、v2 模式 GPU smoke | `slurm_v2/recompute.sbatch`、`slurm_v2/purge_v1_bulk.sbatch`、`slurm_v2/smoke.sbatch` | ✅ 重算与清理已完成(09-10);smoke 在 gpuq 排队 |
+| v2 出图脚本(Fig.A 等范数 H5、Fig.B α 收敛、Fig.C 信号/噪声能量、Fig.D v1 耦合 vs split-half) | `analysis_v2/plot_v2.py` → `figs/v2/` | ✅ B/C/D 已出图;A 等 P3 数据 |
 
-## A1:用 v2 指标重算 scratch 上的 v1 捕获(CPU,`normal` 分区)
+## A1:用 v2 指标重算 scratch 上的 v1 捕获(CPU,`normal` 分区)—— ✅ 完成 2026-09-10
+
+结果:`results/v2/result_A/phase1_{sft,opd,rlvr}_{adamw,muon}/`,数字登记在 `paper/results_draft.md` v2 登记处 A1,判定写入 v2 §9.2 与 §10.1。
+h3power 与 Llama RLVR 的 capture 早已删除(只剩 rho_hist),无法重算。0.8B 六格的 capture/ckpt 已按 `purge_v1_bulk.sbatch` 删除(释放 360G),两个 RLVR run 的 rho 张量留在 scratch 的 `rho_hist_v2.pt`。
 
 0.8B 六格(seed 0,各 50 保存步 × 27 矩阵,含 8 微批次 G_b)、h3power、Llama-1B/3B RLVR 的捕获仍在 `/scratch/rhong5/spectral_runs/`。
 这批数据可以直接给出 §9.2 H4 行的替换值(交叉样本 SNR)和 H-A 的第一手证据(信号能量是否可分辨),**不需要 B 重新捕获**。
@@ -31,7 +35,9 @@ sbatch --dependency=afterok:<jobid> slurm_v2/purge_v1_bulk.sbatch   # 成功后�
 完成标准:九个 run 的 `manifest.json` 存在;登记每个 run 的 `R_sigma_cross`、`sig_energy_total` 与 `noise_energy` 中位数。
 初步观察(login 节点单矩阵抽查,SFT step 10 的 L7 q_proj):`sig_energy_total ≈ -3e-4`,`noise_energy ≈ 0.47`,即 4 vs 4 微批次下**平均梯度的信号能量不可分辨**。若全表如此,H-A 成立且 v1 的 R_enrich 全部是噪声主导,这要写进 §9.2。
 
-## A2:v2 模式 GPU smoke(唯一的 GPU 项,4 × 20 步 SFT,单 A100.40gb,约 15 分钟/个)
+## A2:v2 模式 GPU smoke(唯一的 GPU 项,4 × 20 步 SFT,单 A100.40gb,约 15 分钟/个)—— ⏳ 作业 9770003(A100.40gb)与 9773379(3g.40gb MIG)自 09-09 21:30 起在 gpuq 排队
+
+不再作为 B 开 P3 的前置:B 按 `TASKS_B_v2.md` P0.4 自行 smoke。A 的 smoke 拿到卡后仍跑,作为独立复核。
 
 ```bash
 sbatch --array=0-3 slurm_v2/smoke.sbatch
@@ -49,9 +55,9 @@ sbatch --array=0-3 slurm_v2/smoke.sbatch
 
 ## A4:分析与写作
 
-- 新出图脚本 `analysis_v2/plot_v2.py`(待写):Fig.A 等范数 H5 主图(两范式 × 四模式,带 CI);Fig.B 三范式 α 收敛曲线(e4_*);Fig.C 交叉样本信号/噪声能量随步数(A1 输出);Fig.D v1 H4 耦合指标 vs 交叉指标对比。
-- `paper/results_draft.md` 增加"v2 登记处"小节;v1 登记处保留不改。
-- v2 文档:§9.2 H4 行改为交叉指标数值;§9.4 按 P3 结果改写;§10.1 当前状态更新;§14 优先级完成情况打勾。
+- ✅ `analysis_v2/plot_v2.py`:Fig.B α 收敛、Fig.C 信号/噪声能量、Fig.D v1 耦合 vs split-half 已出图(`figs/v2/`);Fig.A 等范数 H5 主图在 P3 数据到达后自动生成(脚本已写好,读 `results/v2/result_B/e4a_*`)。
+- ✅ `paper/results_draft.md` 已加"v2 登记处"(A1 数字 + B 待填项)。
+- ✅ v2 文档 §9.2 H4 行改为交叉指标并新增信号/噪声行;§10.1 当前状态更新(H-A 成立);§14 第 3 项打勾。⏳ §9.4 等 P3 结果改写。
 
 ## A5:E0 数值校验中与现有数据直接相关的部分(CPU)
 
