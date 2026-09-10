@@ -1,8 +1,15 @@
 # Spectral Geometry of Post-Training Gradients
 
-Code for "When Should LLM Training Change the Spectrum?" — see
-`unified_paper_document.md` for theory, hypotheses (H1–H7) and experiment
-design (E1–E7).
+Code for "When Should Post-Training Change the Spectrum?".
+
+Versioning (docs, results, tasks and code share the same version label):
+- **v1** — `docs/unified_paper_document_v1.md` (credit-assignment + SSD
+  narrative, H1–H7), `docs/TASKS_B_v1.md`, `docs/EXPERIMENTS_v1.md`,
+  results in `results/v1/{result_A,result_B}`, code at git tag `v1`.
+- **v2** — `docs/unified_paper_document_v2.md` (conditional value of spectral
+  motion; live document), `docs/TASKS_A_v2.md`, `docs/TASKS_B_v2.md`,
+  results in `results/v2/{result_A,result_B}`, code on branch `v2`
+  (`*_v2.py` modules; v1 files untouched).
 
 ## Layout
 - `specgeom/` — library: metrics (R_spectrum, SNR, rho), instrumentation,

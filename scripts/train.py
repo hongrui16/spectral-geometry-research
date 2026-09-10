@@ -23,6 +23,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from specgeom.data import PromptSampler, build_prompt, load_gsm8k, reward_fn
 from specgeom.instrument import Instrumenter
 from specgeom.intervene_engine import InterventionEngine
+
+V2_MODES = ("spectrum_matched", "frame_matched", "random_ext", "exact_iso")
 from specgeom.modeling import decoder_param_groups, load_model, stop_token_ids
 from specgeom.muon import Muon
 
@@ -61,8 +63,15 @@ def parse_args():
     p.add_argument("--save-ckpt-every", type=int, default=250)
     p.add_argument("--intervention", default="none",
                    choices=["none", "spectrum_only", "frame_only",
-                            "mag_topq", "snr_topq", "adaptive_alpha"])
+                            "mag_topq", "snr_topq", "adaptive_alpha",
+                            # v2 (docs/unified_paper_document_v2.md E4a):
+                            # equal-Frobenius-step modes, served by
+                            # specgeom.intervene_engine_v2
+                            "spectrum_matched", "frame_matched",
+                            "random_ext", "exact_iso"])
     p.add_argument("--intervention-q", type=float, default=0.1)
+    p.add_argument("--intervention-seed", type=int, default=None,
+                   help="v2 random_ext dictionary seed (default: --seed)")
     p.add_argument("--ssd-k", type=int, default=256)
     p.add_argument("--ssd-tail-coef", type=float, default=0.1)
     p.add_argument("--ssd-no-align", action="store_true",
@@ -126,7 +135,14 @@ class Trainer:
             self.opt2 = None
 
         self.engine = None
-        if args.intervention != "none":
+        if args.intervention in V2_MODES:
+            from specgeom.intervene_engine_v2 import InterventionEngine as EngineV2
+            iseed = args.intervention_seed
+            self.engine = EngineV2(self.model, args.intervention,
+                                   q=args.intervention_q,
+                                   seed=args.seed if iseed is None else iseed)
+        elif args.intervention != "none":
+            # v1 engine, byte-identical behaviour to tag v1 (results/v1)
             self.engine = InterventionEngine(self.model, args.intervention,
                                              q=args.intervention_q)
 
@@ -409,6 +425,10 @@ class Trainer:
             if save and self.engine and self.engine.alpha_log:
                 vals = list(self.engine.alpha_log.values())
                 rec["alpha_mean"] = sum(vals) / len(vals)
+            if save and getattr(self.engine, "scale_log", None):
+                vals = list(self.engine.scale_log.values())
+                rec["scale_mean"] = sum(vals) / len(vals)
+                rec["scale_max"] = max(vals)
             self.log(rec)
             if step % 10 == 0:
                 print(f"[{args.objective}] step {step} "
