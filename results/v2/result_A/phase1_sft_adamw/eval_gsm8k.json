@@ -1,0 +1,32 @@
+{
+ "model": "/scratch/rhong5/spectral_runs/phase1_sft_adamw/ckpt_000500",
+ "n": 500,
+ "pass@1": 0.35,
+ "samples": [
+  {
+   "gold": "18",
+   "reward": 0.0,
+   "text": "First find the total number of eggs she eats every day: 16 eggs / 3 eggs = <<16/3=5.33>>5.33 eggs\nThen find the total number of eggs she bakes every day: 16 eggs / 4 eggs = <<16/4=4>>4 eggs\nThen subtract the number of eggs she eats and bakes from the total number of eggs she lays: 16 eggs - 5.33 eggs - 4 eggs = <<16-5.33-4=7.67>>7.67 eggs\nThen multiply the number of eggs by the price per egg to find the total amount she makes: 7.67 eggs * $2 = $<<7.67*2=15.34>>15.34\n#### 15.34"
+  },
+  {
+   "gold": "3",
+   "reward": 1.0,
+   "text": "The robe takes 2/2=<<2/2=1>>1 white bolt.\nSo, it takes 2+1=<<2+1=3>>3 total bolts.\n#### 3"
+  },
+  {
+   "gold": "70000",
+   "reward": 0.0,
+   "text": "The house was sold for 80000+50000=$<<80000+50000=130000>>130000\nSo the profit was 130000-80000=$<<130000-80000=50000>>50000\n#### 50000"
+  },
+  {
+   "gold": "540",
+   "reward": 0.0,
+   "text": "He runs 3*60=<<3*60=180>>180 meters a week\n#### 180"
+  },
+  {
+   "gold": "20",
+   "reward": 0.0,
+   "text": "Wendi feeds 15 cups of feed in the morning and 25 cups of feed in the afternoon for a total of 15+25 = <<15+25=40>>40 cups of feed.\nIf the size of Wendi's flock is 20 chickens, then she needs to feed each chicken 40/20 = <<40/20=2>>2 cups of feed each day.\nIn the final meal of the day, she needs to feed each chicken 2 cups of feed, for a total of 2*20 = <<2*20=40>>40 cups of feed.\n#### 40"
+  }
+ ]
+}

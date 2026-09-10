@@ -4,3 +4,6 @@ __pycache__/
 runs/
 *.out
 .claude/
+
+# large per-run tensors never enter git (kept on /scratch/rhong5/spectral_runs/<run>/)
+results/**/*.pt

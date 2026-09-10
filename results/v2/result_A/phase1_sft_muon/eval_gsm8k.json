@@ -1,0 +1,32 @@
+{
+ "model": "/scratch/rhong5/spectral_runs/phase1_sft_muon/ckpt_000500",
+ "n": 500,
+ "pass@1": 0.276,
+ "samples": [
+  {
+   "gold": "18",
+   "reward": 0.0,
+   "text": "First find the number of eggs Janet eats: 3 eggs/day * 24 hours = <<3*24=90>>90 eggs\nThen subtract the number of eggs she eats from the number she lays: 16 eggs - 90 eggs = <<16-90=74>>74 eggs\nThen multiply that number by the number of eggs she bakes muffins: 74 eggs * 4 = <<74*4=296>>296 eggs\nThen multiply the number of eggs by the number of eggs she sells each day: 296 eggs * 2 = <<296*2=592>>592 eggs\n#### 592"
+  },
+  {
+   "gold": "3",
+   "reward": 1.0,
+   "text": "The robe takes 2/2=<<2/2=1>>1 bolt of white fiber.\nSo it takes 2+1=<<2+1=3>>3 bolts of blue and white fiber in total.\n#### 3"
+  },
+  {
+   "gold": "70000",
+   "reward": 0.0,
+   "text": "The value of the house increased by 80,000*1.5=$<<80000*1.5=120000>>120,000\nSo the value of the house is now 80,000+120,000=$<<80000+120000=200000>>200,000\nSo he made a profit of 200,000-80,000=$<<200000-80000=120000>>120,000\n#### 120,000"
+  },
+  {
+   "gold": "540",
+   "reward": 0.0,
+   "text": "He runs 3*60=<<3*60=180>>180 meters per week\n#### 180"
+  },
+  {
+   "gold": "20",
+   "reward": 0.0,
+   "text": "In the morning, she feeds 15 cups of feed to each chicken, and she feeds 20 chickens, for a total of 15*20 = <<15*20=300>>300 cups of feed.\nIn the afternoon, she feeds 25 cups of feed to each chicken, and she feeds 20 chickens, for a total of 25*20 = <<25*20=500>>500 cups of feed.\nIn total, she feeds 300+500 = <<300+500=800>>800 cups of feed to the chickens.\n#### 800"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "model": "/scratch/rhong5/spectral_runs/phase1_opd_muon/ckpt_000500",
+ "n": 500,
+ "pass@1": 0.306,
+ "samples": [
+  {
+   "gold": "18",
+   "reward": 1.0,
+   "text": "To solve this problem, we need to determine the total number of eggs Janet produces and then calculate the revenue based on the selling price.\n\n**Step 1: Calculate the number of eggs produced per day.**\nJanet eats 3 eggs for breakfast and bakes muffins for her friends.\n*   Eggs for breakfast: 3\n*   Eggs for muffins: 4\n*   Total eggs eaten: $3 + 4 = 7$\n\n**Step 2: Calculate the number of eggs produced per day.**\nThe problem states she lays 16 eggs per day.\n*   Total eggs: 16\n\n**Step 3: Calculate the number of eggs remaining.**\nSubtract the eggs eaten from the total number of eggs.\n*   Remaining eggs: $16 - 7 = 9$\n\n**Step 4: Calculate the total revenue per day.**\nShe sells the remainder at $2 per fresh duck egg.\n*   Revenue = (Remaining eggs) $\\times$ (Price per egg)\n*   Revenue = $9 \\times 2 = 18$\n\n**Step 5: Convert the revenue to dollars.**\nThe question asks for the answer in dollars. Since there are 100 dollars in 1 dollar, we divide the total revenue by 100.\n*   Total in dollars = $\\$18$\n\n####18"
+  },
+  {
+   "gold": "3",
+   "reward": 1.0,
+   "text": "To solve this problem, we need to break down the process of creating the robe and calculate the total number of bolts required for each step.\n\n**Step 1: Determine the number of bolts of blue fiber.**\nThe problem states that a robe takes 2 bolts of blue fiber.\n$$ \\text{Blue bolts} = 2 $$\n\n**Step 2: Determine the number of bolts of white fiber.**\nThe problem states that the robe takes \"half that much\" white fiber. \"Half that much\" refers to the 2 bolts of blue fiber.\n$$ \\text{White bolts} = \\frac{1}{2} \\times 2 $$\n$$ \\text{White bolts} = 1 $$\n\n**Step 3: Calculate the total number of bolts.**\nTo find the total number of bolts, we add the number of blue bolts and the number of white bolts together.\n$$ \\text{Total bolts} = \\text{Blue bolts} + \\text{White bolts} $$\n$$ \\text{Total bolts} = 2 + 1 $$\n$$ \\text{Total bolts} = 3 $$\n\n####3"
+  },
+  {
+   "gold": "70000",
+   "reward": 0.0,
+   "text": "To find the profit Josh made, we need to determine the final selling price of the house and then subtract the total cost of the house and repairs.\n\n**Step 1: Calculate the new value of the house.**\nThe problem states that the house's value was increased by 150%.\n*   Original value = $80,000\n*   Increase amount = $50,000\n*   New value = $80,000 + $50,000 = $130,000\n\n**Step 2: Calculate the profit.**\nThe profit is the difference between the new value and the original cost.\n*   Cost of repairs = $50,000\n*   New selling price = $130,000\n*   Profit = New selling price - Cost of repairs\n*   Profit = $130,000 - $50,000 = $80,000\n\nAlternatively, you can think of it as:\n*   The house was worth $80,000.\n*   The value increased by 150%.\n*   The new value is $80,000 + (150% of $80,000) = $80,000 + $50,000 = $130,000.\n*   The cost of repairs is $50,000.\n*   Profit = $130,000 - $50,000 = $80,000.\n\n####80000"
+  },
+  {
+   "gold": "540",
+   "reward": 0.0,
+   "text": "To solve this problem, we need to break it down into steps:\n\n**Step 1: Calculate the total number of sprints James runs in a week.**\nJames runs 3 sprints per week.\n$$ \\text{Sprints} = 3 $$\n\n**Step 2: Calculate the total number of meters run in one sprint.**\nHe runs 60 meters each sprint.\n$$ \\text{Meters per sprint} = 60 \\text{ meters} $$\n\n**Step 3: Calculate the total number of meters run in a week.**\nTo find the total, multiply the number of sprints by the distance per sprint.\n$$ \\text{Total meters} = \\text{Sprints} \\times \\text{Meters per sprint} $$\n$$ \\text{Total meters} = 3 \\times 60 \\text{ meters} $$\n$$ \\text{Total meters} = 180 \\text{ meters} $$\n\n**Final Answer:**\nJames runs 180 meters a week.\n\n####180"
+  },
+  {
+   "gold": "20",
+   "reward": 0.0,
+   "text": "To solve this problem, we need to determine the total amount of feed Wendi provides in the morning and afternoon, and then calculate the total amount of feed she needs for the final meal.\n\n**Step 1: Calculate the total feed given in the morning.**\nWendi gives 15 cups of feed in the morning.\n$$ \\text{Morning Feed} = 15 \\text{ cups} $$\n\n**Step 2: Calculate the total feed given in the afternoon.**\nWendi gives 25 cups of feed in the afternoon.\n$$ \\text{Afternoon Feed} = 25 \\text{ cups} $$\n\n**Step 3: Calculate the total feed given in the day.**\nAdd the morning and afternoon feeds together.\n$$ \\text{Daily Total} = 15 + 25 = 40 \\text{ cups} $$\n\n**Step 4: Calculate the total feed needed for the final meal.**\nThe problem states that the flock has 20 chickens. We need to find out how much feed is required for 20 chickens.\n$$ \\text{Final Meal Feed} = \\text{Daily Total} \\times \\text{Number of Chickens} $$\n$$ \\text{Final Meal Feed} = 40 \\times 20 $$\n$$ \\text{Final Meal Feed} = 800 \\text{ cups} $$\n\nAlternatively, we can calculate the feed per chicken:\n$$ \\text{Feed per Chicken} = 15 \\text{ cups} $$\n$$ \\text{Total for 20 chickens} = 20 \\times 15 = 300 \\text{ cups} $$\nWait, let's re-read the phrasing carefully. \"She gives the chickens their feed in three separate meals.\"\nThe total amount of feed is 40 cups.\nIf the flock has 20 chickens, the total amount of feed for the flock is 40 cups.\nThe question asks \"How many cups of feed does she need to give her chickens in the final meal of the day\". This implies we are looking for the total amount of feed available for the flock.\n\nLet's re-read the specific phrasing: \"She gives the chickens their feed in three separate meals. In the morning... In the afternoon... How many cups of feed does she need to give her chickens in the final meal of the day...\"\n\nThis phrasing is"
+  }
+ ]
+}

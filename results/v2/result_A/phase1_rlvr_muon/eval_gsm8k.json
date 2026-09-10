@@ -1,0 +1,32 @@
+{
+ "model": "/scratch/rhong5/spectral_runs/phase1_rlvr_muon/ckpt_000500",
+ "n": 500,
+ "pass@1": 0.714,
+ "samples": [
+  {
+   "gold": "18",
+   "reward": 1.0,
+   "text": "Janet's ducks lay **16 eggs per day.**\n\nFirst, she eats **three** for breakfast every morning.  \nSo, eaten: **3 eggs.**\n\nNext, she bakes muffins for her friends every day with **four** (meaning 4 muffins).  \nSo, baked: **4 eggs.**\n\nTotal eggs laid: **16.**  \nTotal eaten: **3 + 4 = **7.**  \nRemaining: **16 - 7 = **9 eggs.**\n\nShe sells the remainder at **$2 per fresh duck egg.**  \nTotal revenue from remaining: **9 * $2 = **$18.**"
+  },
+  {
+   "gold": "3",
+   "reward": 1.0,
+   "text": "Based on the problem description:\n\nThe robe takes **2 bolts** of blue fiber.\n\nFor the white fiber, it takes **half** of that much blue fiber. Since it takes **2 bolts** of blue fiber, half of that is **1 bolt**.\n\nSo, the total for white fiber is **1 bolt.**\n\nTotal cost calculation:\nBlue fiber: **2 bolts.**\nWhite fiber: **half of 2 = 1 bolt.**\n\n**Total:** 2 + 1 = **3 bolts.**"
+  },
+  {
+   "gold": "70000",
+   "reward": 0.0,
+   "text": "First, the initial purchase price of the house is **$80,000.**\n\nNext, he puts in **$50,000** for repairs.\n\nThe problem states the total value increased by **150%.** This means the new value is the original price multiplied by (1 + 1.50) = **2.50.**\n\nHowever, to calculate the profit, we need to determine the total current value and subtract the original purchase price.\n\nThe total initial value is **$80,000.**\n\nAdding the repair investment: **$80,000 + $50,000 = **$130,000.**\n\nThe problem states the total value increased by **150%** of the original price. So, the new total value is:\n$80,000 * (1 + 1.50) = $80,000 * 2.50 = **$200,000.**\n\nSo, the total current value is **$200,000.**\n\nThe profit is the total current value minus the original purchase price: **$200,000 - $80,000 = **$120,000.**"
+  },
+  {
+   "gold": "540",
+   "reward": 1.0,
+   "text": "James runs **3 sprints** a week. \n\nEach sprint is **60 meters.**\n\nFirst, calculate the total run for one week: He runs **3 times** a week.\n\nTotal runs per week: **3 sprints.**\n\nTotal distance per week: (3 sprints) × (60 meters/sprint) = **180 meters per sprint.**\n\nSince he runs **3 times** a week: 180 × 3 = **540 meters.**\n\nCalculation:\nJames runs **3** times a week.\nEach run: **60 meters.**\nTotal weekly run: (3 × 60) × 3 = **180 × 3 = **540 meters.**"
+  },
+  {
+   "gold": "20",
+   "reward": 0.0,
+   "text": "Based on the problem description, here is the step-by-step calculation:\n\n**Total daily feed given:**\nThe total amount given in three separate meals is:\n1. **Morning:** **15 cups**\n2. **Afternoon:** **25 cups**\n\n**Total daily feed given:** 15 + 25 = **40 cups.\n\n**The problem asks for the amount of feed given in the **final meal** of the day.**\n\nThe total daily feed given is **40 cups.**\n\nThe flock consists of **20 chickens.**\n\n**Feed per chicken per day:** The total daily feed is **40 cups**, and there are **20 chickens.**\n\n**Feed per chicken per day:** 40 cups / 20 chickens = **2 cups per chicken per day.**\n\n**Total daily feed needed for 20 chickens:** 20 chickens × (Total daily feed per chicken) = 20 × 2 = **40 cups.**\n\nHowever, we need to find the specific amount for the **final meal.**\n\nThe total daily feed given is **40 cups.**\nThe morning meal is **15 cups.**\nThe afternoon meal is **25 cups.**\n\nThe remaining feed for the final meal: Total (40) - (Morning 15 + Afternoon 25) = 40 - 40 = **0?** Wait, that doesn't seem right. Let's look at the structure.\n\nTotal daily feed given: **15 + 25 = 40 cups.**\n\nThe total daily feed needed is **40 cups.**\n\nThe question asks for the amount of feed in the **final meal.**\n\nThe total daily feed given is **40 cups.**\nThe remaining feed after the two known meals is **0?** That implies the total is already accounted for.\n\nLet's re-read carefully: \"How many cups of feed does she need to give her chickens in the final meal of the day?\"\n\nTotal daily feed given: **15 + 25 = 40 cups.**\n\nThe total daily feed needed is **40 cups.**\n\nThe remaining feed after the known meals is **0.**\n\nSo, the final meal must be **0 cups?** That seems odd, but mathematically correct based on the given numbers.\n\nWait, is it possible the total daily feed given is **40 cups**, and we need to find the remaining?"
+  }
+ ]
+}
