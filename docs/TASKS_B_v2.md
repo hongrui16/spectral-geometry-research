@@ -7,7 +7,7 @@ v1 清单 `docs/TASKS_B_v1.md` 已完成,不再执行。**代码用 main 最新�
 cd spectral-geometry-research && git checkout main && git pull && git rev-parse --short HEAD
 ```
 每个 shell 的环境变量与 v1 相同(`HF_HOME`、`HF_HUB_OFFLINE=1`、`RUNS`、`PY`);铁律不变:除 `--out`/`CUDA_VISIBLE_DEVICES`/`--seqs-per-microbatch 1` 外不改参数。
-本轮优先级:P0 → P1 → P2 → P3 → P4 → P5 → P6。**P3 是论文主结果的唯一缺口,P0–P2 都是小活,请先做掉。**
+本轮优先级:P0 → P1 → P2 → P3 → P4 → P5 → P6。**P3 是论文主结果的唯一缺口,P0–P2 都是小活,请先做掉;P0.4 的 smoke 通过后 P3 即可开跑。**
 
 ---
 
@@ -20,6 +20,17 @@ cd spectral-geometry-research && git checkout main && git pull && git rev-parse 
    ```
    期望 `median R_sigma(H)` 接近 1。v1 交付的 metrics 里它只有随机基线的 1.3–9 倍,A 已排除 bf16 存储和基漂移两种解释,剩下的在你那边。
 3. **硬件与 wall-clock**:每类 run 的实际 秒/步(H100 与 A100 各一行),写进交付 README。
+4. **自己做 P3 的 smoke,不要等 A**(A 的 gpuq 排队严重)。四个新模式各跑 20 步 SFT,约 15 分钟/个,四个可并行:
+   ```bash
+   for INT in spectrum_matched frame_matched random_ext exact_iso; do
+     $PY scripts_v2/train.py --objective sft --steps 20 --save-every 10 --prompts-per-step 8 --max-new-tokens 384 --seed 0 \
+       --intervention $INT --out $RUNS/smoke_v2_sft_$INT
+     $PY analysis_v2/compute_metrics.py $RUNS/smoke_v2_sft_$INT --out-root $RUNS/results_B_v2
+     $PY scripts_v2/summary.py $RUNS/smoke_v2_sft_$INT
+   done
+   ```
+   通过标准:四个都跑完 20 步无 NaN/Traceback;log 里 `scale_mean` spectrum_matched 与 random_ext 约 30–80、frame_matched 约 1.0;
+   `compute_metrics` 对 spectrum_matched 打印的 `H self-check` 为 OK。把四行 summary 输出和 H self-check 行发给 A,**通过即可直接开 P3,不必再等 A 确认**。
 
 ## P1:补评测(只评测,不训练)
 
