@@ -93,9 +93,19 @@ $PY scripts_v2/train.py --objective sft            --steps 300 --save-every 20 -
 ```
 评测与交付同 P3。
 
-## P5:4B RLVR 三行(v1 P5 已排队的,照跑;不再新增)
+## P5:v1 未完成任务的处置(2026-09-09 定)
 
-`p1_4b_rlvr_adamw`、`e1_4b_rlvr_muon`、`e1_4b_rlvr_ssd` 命令见 `docs/TASKS_B_v1.md` P5,不变。**4B OPD 与 9B 全部取消。**
+v1 清单里还没跑完的项,按下面处理,**不要再按 v1 清单往下跑**:
+
+| v1 项 | 处置 | 原因 |
+|---|---|---|
+| `p1_4b_rlvr_adamw`(4B RLVR AdamW,Phase 1) | **保留**。已在跑就跑完;未开始也要跑 | 尺度轴唯一的 RLVR 点,v2 §9.2 的 4B 行需要它与 `p1_4b_sft_adamw` 配对 |
+| `e1_4b_rlvr_muon`、`e1_4b_rlvr_ssd` | **取消**。已在跑的可以跑完并交付,未开始的不启动 | E1 optimizer 主表已降级,SSD 在 0.8B 三 seed 均为阴性,4B 复现无信息量 |
+| `p1_4b_opd_adamw`(需 9B teacher、2 卡) | 取消 | 同上,且成本最高 |
+| 9B 全部(v1 P6) | 取消 | 见 v2 §14 |
+| `phase2_rlvr_none` 的 MMLU(v1 写"评测中") | 保留,归入本清单 P1 | 遗忘对照 |
+
+命令见 `docs/TASKS_B_v1.md` P5,参数不变。
 
 ## P6(可选,有空卡再做):SSD 学习率扫描 —— 3 run
 
