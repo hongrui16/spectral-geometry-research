@@ -15,8 +15,9 @@ Code, documents and results for "When Should Post-Training Change the Spectrum?"
 | 作者A 任务清单 | (无单独文档;A 的 v1 工作记录在 `EXPERIMENTS_v1.md`) | `docs/TASKS_A_v2.md`:代码、CPU 重算、GPU smoke、分析与写作 |
 | 作者B 任务清单 | `docs/TASKS_B_v1.md`(P0–P6,已全部交付) | `docs/TASKS_B_v2.md`:P0 先决问题、P1 补评测、P2 重算指标、P3 等范数 H5、P4 exact_iso、P5 4B、P6 可选 |
 | 作者A 结果 | `results/v1/result_A/`(Phase 1 六格、Llama 六格、h3power、ssd_trial) | `results/v2/result_A/`(v2 指标重算、smoke) |
-| 作者B 结果 | `results/v1/result_B/`(Phase 2、E1–E4、4B,36 条) | `results/v2/result_B/`(B 交付的 `results_B_v2.zip` 解压于此) |
+| 作者B 结果 | `results/v1/result_B/`(Phase 2、E1–E4、4B,36 条) | `results/v2/result_B/`(B 交付的 `results_B_v2.zip` 解压于此;B 的文字答复也放这里,如 `B_P0_answers_v2.md`) |
 | 数值登记处 | `paper/results_draft.md`(v1 登记处) | `paper/results_draft.md`(追加"v2 登记处"小节) |
+| 文档索引 | `docs/INDEX.md`(所有文档、交付说明与登记处的入口,含每份 B 答复的一行摘要) | 同左 |
 | 代码 | `specgeom/ analysis/ scripts/ slurm/`,与 git tag `v1` 逐字节一致 | `specgeom_v2/ analysis_v2/ scripts_v2/ slurm_v2/`:从 v1 复制后叠加 v2 改动,自包含,不引用 v1 文件夹 |
 
 分工原则(2026-09-09 定):Hopper GPU 紧张,**作者A 只做代码、CPU 计算、极小的
@@ -43,7 +44,26 @@ v2 相对 v1 的代码改动(其余文件为原样复制):
 - `runs/` — slurm logs;训练输出在 `/scratch/rhong5/spectral_runs/<run>`
 
 ## Environment
-- venv: `~/envs_spectral` (python 3.10, torch 2.8 cu128, transformers 5.x)
+- venv: `~/envs_spectral`。主要库的版本固定如下(`requirements.txt` 同步维护;作者B 的机器需对齐):
+
+| 库 | 版本 | 备注 |
+|---|---|---|
+| python | 3.10.13 | |
+| torch | 2.11.0+cu128 | |
+| transformers | 5.16.1 | **必须 ≥5.16**。B 实测 5.9.0 忽略 `from_pretrained(dtype=torch.float32)`,模型以 bf16 加载,master 权重变成 bf16,捕获的 H 与谱型干预都被舍入污染(见 `results/v2/result_B/B_P0_answers_v2.md` Q2)。`specgeom_v2/modeling.py` 在加载后断言参数 dtype,不符即报错 |
+| tokenizers | 0.23.2 | |
+| safetensors | 0.8.0 | |
+| huggingface_hub | 1.30.0 | |
+| datasets | 5.0.1 | |
+| accelerate | 1.14.0 | |
+| trl | 1.12.0 | 未在训练循环中使用,仅作依赖 |
+| triton | 3.6.0 | |
+| numpy | 2.2.6 | |
+| pandas | 2.3.3 | |
+| matplotlib | 3.10.9 | |
+| tqdm | 4.70.0 | |
+
+- 数值约定:fp32 master 权重 + bf16 autocast 前向/反向;KL 类功能代价测量必须 fp32 前向且关闭 TF32(v2 §12.4)。
 - HF cache: `/scratch/rhong5/dataset/hf_home` (models pre-downloaded;
   jobs run with `HF_HUB_OFFLINE=1`)
 - Models: Qwen/Qwen3.5-0.8B (main), Qwen/Qwen3.5-2B (OPD teacher);

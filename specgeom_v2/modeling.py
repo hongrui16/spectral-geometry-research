@@ -27,6 +27,17 @@ def load_model(model_id, dtype=torch.float32, device="cuda", trainable=True,
     except Exception:
         from transformers import AutoModelForMultimodalLM  # transformers >= 5
         model = AutoModelForMultimodalLM.from_pretrained(model_id, **kwargs)
+    # transformers 5.9.0 was observed to ignore `dtype=` (and the deprecated
+    # `torch_dtype=`) and load Qwen3.5 in bf16, silently turning the master
+    # weights into bf16 (B's P0 answers, 2026-09-10). Cast explicitly and fail
+    # loudly if any parameter still disagrees, instead of degrading quietly.
+    model = model.to(dtype=dtype)
+    bad = {n: str(p.dtype) for n, p in model.named_parameters() if p.dtype != dtype}
+    if bad:
+        raise RuntimeError(
+            f"load_model: {len(bad)} parameters are not {dtype} after loading "
+            f"(e.g. {next(iter(bad.items()))}); check the transformers version "
+            f"(>=5.16 required, see README)")
     if not device_map:
         model = model.to(device)
     if not trainable:
