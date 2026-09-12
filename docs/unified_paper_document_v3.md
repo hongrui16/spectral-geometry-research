@@ -1,128 +1,127 @@
-# When Should Post-Training Change the Spectrum? — v3 企划书(草案)
+# When Should Post-Training Change the Spectrum?
+## Changing the Spectrum Is Neither Necessary Nor Sufficient: A Double Dissociation Between Spectral Motion and Forgetting
 
-> 状态:**草案,2026-09-11,待用户确认后生效。** 生效后 v2 文档冻结(只改引用),
-> 代码进 `*_v3/`,结果进 `results/v3/`,任务清单为 `TASKS_A_v3.md` / `TASKS_B_v3.md`。
-> 本文只写 v3 相对 v2 的实质变化、证据总账、新的核心问题与实验设计;
-> 符号、恒等式、C1 测量框架(v2 §3–§5、§7 的可证明部分)不重复,按需引用 v2。
-> 数字的唯一来源仍是 `paper/results_draft.md`(v2 登记处,2026-09-11 已登记 B 的全部 v2 交付)。
+**中文题目:后训练何时值得改变权重谱?——谱变化与遗忘的双重分离**
 
----
-
-# 0. 一句话结论与 v3 的核心问题
-
-**v2 的 P3 主实验(fp32、等 Frobenius 步长、0.8B、RLVR 与 SFT、各 2 seed)给出两条清楚的经验事实:**
-
-1. **权重奇异基不特殊。** 把更新限制在 r 个秩一方向上并匹配步长范数时,用权重的
-   奇异基(spectrum_matched)与用同维数的随机正交字典(random_ext)得到的任务收益
-   与能力保持几乎相同(RLVR GSM8K 0.634 vs 0.593,MMLU 0.474 vs 0.475;SFT 0.387 vs 0.393,
-   0.478 vs 0.466)。
-2. **分界线在自由度与有效步长,不在 spectrum 与 frame。** 三种 mn 维更新(full、frame_matched、
-   exact_iso)在两个范式上都把 MMLU 打到四选一随机(0.23–0.26),GSM8K 也不高于或低于 base;
-   两种 r 维更新都保住 MMLU(≈0.47,base 0.483)且 GSM8K 更高。
-
-但第 2 条有一个 v2 协议自带的混淆:等 Frobenius 步长不等于等推进。
-投影后再放大 s≈50 倍的更新与原更新的余弦恰为 1/s≈0.02(§2.2),
-即 r 维干预每步沿优化器方向只推进 full 的 2%,其余 98% 的能量在正交方向上。
-所以 P3 目前只能支持第 1 条,第 2 条需要在"等推进"或"整条收益—代价前沿"上重做。
-
-**v3 的核心问题**改为:
-
-> **在 LLM post-training 中,权重的奇异基是否是一个有特权的更新坐标系?
-> 若不是,决定任务收益与能力保持折中的是什么:更新的自由度、沿梯度的有效步长,还是二者的组合?**
-
-v2 §0.1 的问题("frame 可用时额外开放 spectrum 是否值得")在 P3 之后已经有了答案的方向:
-在同维随机字典也能做到的意义上,"开放 spectrum"没有独立价值。v3 把这一阴性结论写成主结果,
-并把混淆变量(有效步长、自由度)做成可控实验,这是 v2 §14"阴性结果的论文路径"第 1、3 条的落地。
+版本:v3 草案,2026-09-11(重写稿;首稿同日上午,已被本稿替换)
+文档类型:统一研究文档。只写 v3 相对 v2 的实质变化、证据总账、核心问题、理论骨架与实验裁决协议;
+v2 §3–§7 中可证明的测量框架(符号、outer-product 恒等式、维数基线、信号/噪声分解、交叉样本估计)原样继承,不重复。
+状态:草案,待用户确认后生效。生效后 v2 冻结(只改引用),代码进 `*_v3/`,结果进 `results/v3/`,任务清单为 `TASKS_A_v3.md` / `TASKS_B_v3.md`。
+数字的唯一来源是 `paper/results_draft.md`(v2 登记处,2026-09-11 已登记 B 的全部 v2 交付)。
 
 ---
 
-# 1. v2 证据总账(2026-09-11)
+# 前一版本(v2)的状况
 
-| 编号 | v2 的主张或假设 | 证据 | 判定 |
+**v2 的主线是"frame 更新可用时,额外开放 spectrum 方向是否有可靠、不可替代、值得功能代价的增益"(v2 §0.1),
+提出 C1 测量框架、C2 条件谱增益、C3 probe 门控。经 2026-09-10/11 的 A1/A2/A5 与 B 的 P0–P5 交付检验:**
+
+| | 结论 |
+|---|---|
+| **成立** | C1 测量框架:B=8 下可复现梯度能量 <1% 噪声,v1 的 G 侧谱几何与 H4 是耦合产物(A1;B 侧 24 run 复现)。A5 fp32 KL 探针:谱/frame 方向单位步长功能代价逐矩阵各向异性(0.26–5.2),无全局符号。P3 等范数干预(fp32,两范式 × 2 seed):奇异基字典 ≈ 同维随机字典。 |
+| **推翻** | v2 主线本身:P3 显示"开放 spectrum"能做到的,同维随机字典同样能做到,C2 要预测的增益在该设置下为零 → C2 降附录,C3 删除。v1 B 侧全部训练结局(Phase 2 H5、E1–E3 SSD、E4 α 的训练结局、4B):B 机器 transformers 5.9.0 忽略 dtype,master 权重为 bf16,更新大半被舍入;v1 的 RLVR full(0.636/0.477)与 fp32 的 spectrum_matched(0.634/0.474)几乎相同,说明 v1 运行在隐式小步长区间,数字不可与 fp32 混排。 |
+| **v2 没预设、P3 给出的新事实** | mn 维更新(full、frame_matched、exact_iso)在 RLVR 与 SFT 上都把 MMLU 打到随机(0.23–0.26);r 维更新(spectrum_matched、random_ext)保住 MMLU(≈0.47)且 GSM8K 更高。精确保谱(exact_iso)不防遗忘;只改谱(spectrum_matched)不引起遗忘。 |
+| **v2 协议的缺陷** | 等 Frobenius 步长 ≠ 等推进:投影后放大 s≈50 倍的更新与原更新余弦为 1/s≈0.02(§3.1)。但 SFT 的训练 loss 从第 51 步起五种模式完全相同(§2.3),所以"r 维干预只是步长小"不能解释全部;需要 v3 的前沿实验分开步长与自由度。 |
+| **主线是否还成立** | **v2 的主线不成立,改写为 v3 主线。** v2 §14 预先写好的阴性路径第 1、3 条("ordering 消失但测量校正改变既有解释""简单规律优于复杂控制器")即为 v3 的论文路径。 |
+
+---
+
+# 0. 核心问题、主张与证据边界
+
+## 0.1 核心问题
+
+> **权重的奇异基是否是 LLM post-training 的特权坐标系?谱的变化与通用能力的丢失是否有因果联系?
+> 若二者都否,决定"任务收益—能力保持"折中的是什么?**
+
+谱继承、ISO 类保谱训练与 SVD 型 PEFT(PiSSA、MiLoRA、SVFT)都隐含"奇异基有特殊地位"或"保谱即保能力"。v3 直接检验这两个前提。
+
+## 0.2 主张(按证据强度排序)
+
+| 编号 | 主张 | 现有证据 | v3 需补 |
 |---|---|---|---|
-| C1 / H-A | 观测梯度能量混有主导性采样噪声;v1 的 G 侧 ordering 与 H4 是耦合产物 | A1 分半重算(6 格,信号能量 <1% 噪声);P2 在 B 的 24 个 run 上复现(G 侧) | **成立,进主文** |
-| v1 H5(bf16) | frame_only≈full,spectrum_only 失败 | v1 批次 master 为 bf16,谱型干预写回时被舍入,H 侧指标为量化噪声 | **作废**(不能作为证据,只在附录说明) |
-| v1 E1–E3(SSD、Muon、消融、分层) | SSD 最差,消融不可分 | 同上,bf16 master;且 SSD 等效步长远小于对照 | **作废为主证据**;附录以"未做步长扫描 + bf16"注记,不再引用 |
-| v1 E4(自适应 α → 0.05) | 三范式 α 收敛到接近关谱 | α 由 G 侧对角 SNR 决定(可信);训练结果 bf16 | α 的**数值**可保留为 C1 的一个旁证(对角 SNR 极低),训练结局不引用 |
-| v1 4B(SFT、RLVR、Muon) | 规模趋势 | bf16 master | 只在附录报告,不作主张 |
-| §9.4 caveat 3(SFT 评测脚本) | SFT 低于 base 是否评测 artifact | P0 Q1:6 个 ckpt 重评差 ≤1.6 点 | **关闭**:真实效应 |
-| §9.4 caveat 4(OPD α MMLU 0.262) | 缺 OPD none 对照 | P1:OPD full 本身 MMLU 0.247 | **关闭**:OPD 自身摧毁 MMLU,与 α 无关 |
-| §9.4 caveat 5 / §12.4(H 自检失败) | 捕获顺序或基错误 | P0 Q2:根因 bf16 master;fp32 后自检 0.935 | **关闭**;剩余 6.5% 为捕获中 W 以 bf16 存储,v3 改存 fp32 |
-| A5(fp32 KL 探针) | 谱/frame 方向单位步长的 KL 代价 | 逐矩阵各向异性 0.26–5.2,中位 0.95,无全局符号 | **成立**;与 P3"基不特殊"一致,进主文 |
-| C2(条件谱增益) | 开放谱方向相对 frame 的增益可预测干预收益 | P3:谱字典 ≈ 随机字典 ⇒ 被预测的量在该设置下为零;c 在 B=8 下不可分辨 | **降为附录**(可证明的代数保留,不做实证主张) |
-| C3(PGSU 门控) | probe 门控改善折中 | 无实现;被预测的增益为零 | **删除** |
-| v2 §14 第 1 项(E4a 等范数) | 把 H5 提升为主结果 | P3 完成,但协议混淆(§2.2) | **部分达成**:字典比较成立;dense vs r 维需 v3 重做 |
-| v1 全部"RLVR 提升到 0.636"类数字 | 训练有效 | fp32 下同 lr 的 full 为 0.453,而 fp32 spectrum_matched 为 0.634 ≈ v1 bf16 full | v1 的 full 实际运行在**隐式截断的小有效步长区间**,不能与 fp32 数字混排 |
+| C1 | 在权重奇异基下,可复现平均梯度的谱方向能量处于随机字典基线,观测到的谱几何由采样噪声主导(v2 C1 原样保留) | A1、P2 G 侧;30 个 run | 无(fp32 W 捕获后的 H 侧复核为可选) |
+| C2 | **双重分离**:只改谱(spectrum_matched)学会任务且不遗忘;精确保谱(exact_iso)与 full 一样遗忘。谱变化既非遗忘的必要条件,也非充分条件 | P3:RLVR 0.634/0.474 vs exact_iso 0.600/0.255;SFT 0.387/0.478 vs 0.290/0.240 | exact_iso 加 seed;两者在等推进点上的复核(E-v3-2、E-v3-4) |
+| C3 | **基不特殊**:同维随机秩一字典与奇异基字典在任务收益与能力保持上不可分;单位步长 KL 代价无全局谱/frame 符号 | P3(2 seed);A5 | 第 3 个 seed;至少两个步长档位上复现(E-v3-1、E-v3-3) |
+| C4 | **决定折中的是自由度与推进量,不是谱/frame**:在(训练目标推进,MMLU)平面上,r 维字典的前沿与 dense 的学习率前沿的关系由 E-v3 裁决;结果两个方向都可报告 | SFT 训练 loss 等推进下遗忘不等(§2.3);RLVR reward 曲线 | E-v3-1、E-v3-3 前沿;E-v3-0 位移/KL 账目;E-v3-5 字典大小 |
+| C5 | 协议与数值贡献:等范数 ≠ 等推进的算术;bf16 master 的精度事故及其对"训练有效"判断的影响 | §3.1;v1/v2 对照 | 无 |
 
-结论:v2 的测量框架(C1)与 KL 代价测量(A5)成立并被加强;v2 的方法主张(C2、C3)与 v1 的所有训练结局作废或降级;
-P3 产生了一个 v2 没有预设的、跨两范式复现的主结果(奇异基 ≈ 随机字典),同时暴露了等范数协议的缺陷。
+## 0.3 明确不作的推断
+
+- 奇异基 ≈ 随机字典只在本文设置(0.8B、GSM8K、300 步、r 维秩一字典)内主张,不推广到所有低秩方法或规模。
+- "r 维更新不遗忘"在 C4 裁决前不写成"低自由度防遗忘"的普遍规律。
+- MMLU 降到随机在格式检查(E-v3-0b)前不写成"知识丢失"。
+- SFT 在本文数据(GSM8K 短解)上降低 GSM8K 是数据格式效应,SFT 行只度量"损伤",不度量"任务收益"。
+- 不提出新优化器、门控或 PEFT 方法;不把 v1 的任何训练结局当证据。
 
 ---
 
-# 2. 对 P3 的解读
+# 1. 与相关工作的可检验差异
 
-## 2.1 结果(均值,2 seed;完整表见登记处)
-
-| | 自由度 | RLVR GSM8K / MMLU | SFT GSM8K / MMLU |
-|---|---|---|---|
-| base | — | 0.546 / 0.483 | 0.546 / 0.483 |
-| full | mn | 0.453 / 0.234 | 0.301 / 0.239 |
-| frame_matched(scale 1.00) | mn | 0.528 / 0.238 | 0.283 / 0.236 |
-| exact_iso(1 seed) | mn | 0.600 / 0.255 | 0.290 / 0.240 |
-| spectrum_matched(scale 50) | r | 0.634 / 0.474 | 0.387 / 0.478 |
-| random_ext(scale 52) | r | 0.593 / 0.475 | 0.393 / 0.466 |
-
-RLVR 训练 reward:mn 维三种在 100–150 步达峰(0.59–0.63)后回落到 0.41–0.52;r 维两种单调上升,
-末窗 0.53–0.58 为全程最高。SFT 训练 loss 五种无差异(末窗 0.49–0.51),但测试 GSM8K 与 MMLU 差异巨大。
-
-## 2.2 等范数协议的算术
-
-设 P 为到 r 维秩一字典的正交投影,干预为 Hp = s·P(H),s 使 ‖Hp‖_F = ‖H‖_F。则
-
-- s = ‖H‖/‖PH‖,实测 ≈50(能量比 ≈1/2500,与 §4.5 的维数基线 r/(mn) 一致);
-- cos(Hp, H) = ‖PH‖/‖H‖ = 1/s ≈ 0.02;
-- 沿 H 的推进 ⟨Hp,H⟩/‖H‖² = 1/s ≈ 0.02。
-
-即 r 维干预每步沿优化器方向的推进只有 full 的 2%,其余 98% 的步长能量在与 H 正交、但限于字典内的方向上。
-一个更一般的写法:令 s_rel = s/s_match(s_match 为等范数所需的 s),则沿 H 推进 = s_rel/50,
-步长范数 = s_rel·‖H‖。v2 的 P3 只测了 s_rel = 1 这一点,而 full 只测了 lr×1 这一点。
-
-## 2.3 三个候选机制(v3 要分开)
-
-- **M1 有效步长。** 在 fp32、当前 lr(RLVR 2e-6,SFT 1e-5)、300 步下,dense 更新推进过快:
-  reward 先升后落,GSM8K 与 MMLU 一起下降。r 维干预相当于 lr/50 的 dense 训练加上正交噪声;
-  它的"更好"可能只是步长更小。**预测**:full 在 lr/50 下复现 r 维干预的 GSM8K/MMLU。
-- **M2 自由度。** 把每步更新限制在 r 个秩一方向(mn 的 1/2000)本身保护通用能力,与步长无关。
-  **预测**:在等推进(s_rel/50 = lr_mult)下,r 维前沿仍优于 dense 前沿;随字典大小(r/4、r、4r)单调变化。
-- **M3 评测格式漂移。** MMLU 用 letter-logit 读首 token;若 dense 训练改变了输出格式
-  (先输出推理文本),字母 logits 失去信息,"随机水平"是格式而非知识丢失。
-  **预测**:dense ckpt 在答案位置对 {A,B,C,D} 的概率质量显著下降。这不改变 GSM8K 结论,但改变 MMLU 的解释。
-
-三者不互斥。v3 的实验按能区分它们来设计(§5)。
-
-## 2.4 与 v1 的对照
-
-v1 在 bf16 master 下,每步更新元素(~1e-5)与 bf16 量化步长(~2e-5)同量级,大部分更新被舍入丢弃,
-等价于一个未受控的隐式截断/小步长。v1 的 RLVR full(0.636 / 0.477)与 fp32 的 spectrum_matched(0.634 / 0.474)
-几乎相同,这进一步支持 M1:v1 的"训练有效且不遗忘"来自小有效步长,而非任何几何性质。
-v1 与 v2/v3 的数字不可混排;v1 数据只在附录作为"精度事故"案例。
+- **谱继承 / ISO 类保谱训练**:主张后训练应保谱或天然保谱。本文 exact_iso(每步把奇异值精确重置为预训练谱)在两范式上与 full 同样遗忘 → 保谱不是能力保持的机制。
+- **SVD 型 PEFT(PiSSA、MiLoRA、SVFT、只训奇异值)**:主张奇异基是好的适配坐标。本文 random_ext(随机正交秩一字典,同维)与 spectrum_matched 不可分 → 收益来自约束本身而非基。
+- **"LoRA learns less, forgets less" 与 intrinsic dimension**:与 C4 同向。差异:本文按每步 Frobenius 范数匹配并扫描步长画前沿,而非各自调 lr;字典是逐矩阵 r 维秩一方向,不是低秩乘积;并给出精确保谱对照。
+- **"RL forgets less than SFT"类主张**:本文等范数下 RLVR full 与 SFT full 的 MMLU 同为随机(0.234 / 0.239),只在讨论中提及,不作主张(lr 与每步范数不同)。
 
 ---
 
-# 3. v3 的贡献目标与不作的推断
+# 2. 已有证据(v1 fp32 部分 + v2)
 
-| 编号 | 内容 | 性质 | 成功标准 |
-|---|---|---|---|
-| C1 | 奇异基下的可复现梯度 / 采样噪声分解与维数校正(v2 C1 原样保留) | 测量框架,已成立 | 已达成(A1、P2);v3 只补 fp32 W 捕获后的 H 侧复核 |
-| C2′ | **奇异基不特殊**:同维随机秩一字典在任务收益与能力保持上与奇异基等价;A5 的 KL 代价无全局符号 | 主经验结果 | 在 ≥3 seed、两范式、整条 scale 前沿上,spectral 与 random 字典的前沿不可分(non-inferiority margin 预先锁定为 GSM8K 0.03、MMLU 0.02) |
-| C3′ | **决定折中的是有效步长与自由度**:等 Frobenius ≠ 等推进;给出 dense 与 r 维更新在(GSM8K,MMLU)平面上的前沿比较 | 主经验结果 + 协议贡献 | 用 lr 扫描与 s_rel 扫描画出的前沿,能判定 M1/M2 各自的贡献;结果无论哪个方向都可报告 |
+## 2.1 测量(C1)
 
-**不作的推断。**
-- 奇异基 ≈ 随机字典,不等于任何低秩方法都等价,也不等于谱在其它规模/任务上不特殊;只在本文设置(0.8B、GSM8K、300 步)内主张。
-- r 维更新保住 MMLU,在 M1/M2 未分开前不写成"低自由度防遗忘"。
-- MMLU 降到随机在 M3 检查前不写成"知识丢失"。
-- v1 的所有训练结局不作为证据。
-- 不提出新的优化器或门控方法。
+A1:0.8B 六格,B=8,交叉信号能量/噪声能量 0.0004–0.0073;R_enrich 0.84–0.89(观测 G 的谱能量略低于随机基线);
+split-half Spearman ≈ 0.06 而同样本 Spearman ≈ 0.85 → v1 H4 为耦合产物。P2 在 B 的 24 个 run 上复现 G 侧。
+
+## 2.2 功能代价(A5)
+
+fp32 前向、TF32 关闭,η∈[1e-3,1e-2] 四类单位范数方向斜率 2.01 → 局部二次成立;谱/frame KL 代价比逐矩阵 0.26–5.2,中位 0.95;
+q_proj 谱步便宜 3 倍,o_proj 谱步贵 2 倍;k_proj 纯缩放方向 KL≈0。
+
+## 2.3 等范数干预(P3 + P4)
+
+| 干预 | 改变什么 | 自由度 | RLVR GSM8K / MMLU | SFT GSM8K / MMLU |
+|---|---|---|---|---|
+| base | — | — | 0.546 / 0.483 | 0.546 / 0.483 |
+| full | 谱 + frame | mn | 0.453 / 0.234 | 0.301 / 0.239 |
+| frame_matched(scale 1.00) | frame(去掉谱分量,能量 −0.04%) | mn−r | 0.528 / 0.238 | 0.283 / 0.236 |
+| exact_iso(1 seed) | frame,谱精确固定为预训练谱 | mn−r | 0.600 / 0.255 | 0.290 / 0.240 |
+| spectrum_matched(scale 50) | **只改奇异值**(当前步精确基,U/V 不变) | r | 0.634 / 0.474 | 0.387 / 0.478 |
+| random_ext(scale 52) | r 个固定随机秩一方向 | r | 0.593 / 0.475 | 0.393 / 0.466 |
+
+训练曲线:
+- RLVR reward(50 步窗):mn 维三种在 101–150 步达峰 0.59–0.63 后回落到 0.41–0.52;r 维两种单调上升到 0.53–0.58(末窗最高)。
+- **SFT 训练 loss:五种模式从第 51 步起逐窗相同**(0.53 → 0.49–0.51;r 维只在前 50 步高 0.1)。
+  即在 SFT 上,r 维干预对训练目标的推进与 dense 相同,而遗忘相差 0.24。这是现成的"等推进、不等遗忘"证据,
+  也是 C4 的出发点;它同时说明 §3.1 的一阶算术不能预测实际推进。
+
+## 2.4 精度事故(v1)
+
+B 机器 master 权重 bf16,每步更新元素(~1e-5)与量化步长(~2e-5)同量级。v1 的 full 结局与 fp32 的 r 维干预几乎相同。
+写进方法论警示(附录),不作证据。
+
+---
+
+# 3. 理论骨架(新增部分;其余继承 v2)
+
+## 3.1 等范数投影的一阶算术
+
+设 P 为到 r 维秩一字典的正交投影,Hp = s·P(H),‖Hp‖_F = ‖H‖_F ⇒ s = ‖H‖/‖PH‖(实测 ≈50,能量比 ≈ r/(mn))。
+cos(Hp,H) = 1/s;沿 H 的推进 ⟨Hp,H⟩/‖H‖² = 1/s。更一般地令 s_rel = s/s_match:步长范数 = s_rel‖H‖,沿 H 推进 = s_rel/s_match。
+**结论:等 Frobenius 步长不是等一阶推进;任何单点等范数比较都混淆了推进量。** v2 P3 只测了 s_rel=1 与 lr×1 两点。
+
+## 3.2 局部二次模型下累计 KL 与字典无关
+
+在参考分布 Fisher F 的局部二次模型下,T 步独立零均值步 δ_t 的累计 KL 期望为 ½Σ_t E[δ_tᵀFδ_t] = T × 单步 KL(交叉项为零)。
+A5 表明单步单位范数 KL 在谱/frame 方向无全局差异 → **若步是随机游走,r 维与 mn 维更新在 300 步后的累计 KL 应相同**。
+P3 中二者的 MMLU 相差 0.24,故差异必须来自相干漂移(步之间正相关)或局部模型之外。
+**可检验预测**:累计位移 ‖W_300−W_0‖_F 与累计 KL(W_0→W_300)相对 √T·单步值的比,dense 显著大于 r 维(E-v3-0a);
+若不成立,则遗忘差异来自非局部效应,C4 的机制段改为纯经验报告。
+
+## 3.3 自由度与相干漂移
+
+对任意固定方向 d,随机 r 维字典的投影只保留 ‖P d‖² ≈ ‖d‖²/s_match² 的能量,放大 s 后沿 d 的推进为 1/s_match。
+因此 r 维干预对一切"固定方向的相干漂移"(包括遗忘方向)一律削弱 s_match 倍,而对任务的实际推进(§2.3)并未削弱同样倍数——
+这意味着任务学习不是沿某个固定方向的一阶推进,而是在受限族内由训练动力学(on-policy 采样、非线性)找到的路径。
+这是 intrinsic-dimension 类现象在"逐步等范数"协议下的表现;v3 只把它写成经验命题并用 E-v3-5(字典大小)检验单调性,不做进一步理论主张。
 
 ---
 
@@ -130,105 +129,114 @@ v1 与 v2/v3 的数字不可混排;v1 数据只在附录作为"精度事故"案�
 
 | 假设 | 预测 | 拒绝或降级条件 |
 |---|---|---|
-| H-1 字典等价 | 在 s_rel ∈ {0.14, 1, 7} 与 ≥3 seed 上,spectral 与 random 字典的 GSM8K、MMLU 差异都在 margin 内 | 任一 s_rel 上差异 >margin 且跨 seed 同向 → 报告"奇异基在该步长区间有可测优势",C2′ 改写为条件性 |
-| H-2 有效步长解释 dense 的崩溃 | full 在 lr/50、lr/7 下的(GSM8K,MMLU)落在 r 维干预的前沿附近 | full 在任何 lr 下都无法同时达到 r 维干预的 GSM8K 与 MMLU → M2 有独立贡献 |
-| H-3 自由度有独立贡献 | 等推进配对(lr_mult = s_rel/50)下,r 维点的 MMLU 高于 dense 点;随字典大小 r/4 → r → 4r 单调 | 等推进下二者不可分 → 自由度无独立作用,C3′ 只剩协议贡献 |
-| H-4 MMLU 崩溃含格式漂移 | dense ckpt 在答案位置的 {A,B,C,D} 概率质量 < base 的一半 | 质量不变 → 崩溃为真实能力损失 |
+| H-1 基不特殊(C3) | 在 s_rel ∈ {1, 3, 10}、≥3 seed(s_rel=1)上,spectral 与 random 字典的 GSM8K、MMLU 差异 < margin(GSM8K 0.03、MMLU 0.02) | 任一档位差异 > margin 且跨 seed 同向 → C3 改写为条件性,并用 A5 逐矩阵代价做关联分析 |
+| H-2 保谱不防遗忘(C2 上半) | exact_iso 在 lr×1 与 lr/10 上的 MMLU 与同 lr 的 full 不可分 | exact_iso 在某 lr 上 MMLU 高于 full 超 margin → 改写为"保谱在小步长区间有可测保护",C2 降级 |
+| H-3 只改谱不遗忘(C2 下半) | spectrum_matched 在 s_rel=3、10 上 MMLU 仍 ≥ base−0.05,且 GSM8K 不低于 s_rel=1 | s_rel=3 即开始遗忘 → C2 下半改写为"在推进量匹配 dense 之前不遗忘",并与 dense 前沿比较 |
+| H-4 dense 的崩溃可由步长解释(C4) | full 在 lr/10 或 lr/30 下,在等训练推进(SFT loss、RLVR reward)点上 MMLU 接近 r 维干预 | full 任一 lr 都无法在等推进点达到 r 维的 MMLU → 自由度有独立贡献,C4 写为正结果 |
+| H-5 自由度单调(C4) | random_ext 的 MMLU 随字典大小 r/4 → r → 4r 单调下降,GSM8K 单调上升 | 无单调性 → C4 只保留前沿描述 |
+| H-6 MMLU 崩溃含格式漂移 | dense ckpt 在答案位置 {A,B,C,D} 概率质量 < base 一半 | 质量不变 → 崩溃为真实能力损失;否则主文改报 generation-based MMLU |
+| H-7 相干漂移(§3.2) | dense 的累计位移/累计 KL 相对 √T·单步值的比 ≥ 3× r 维 | 不成立 → §3.2 的机制段改为阴性报告 |
 
-**裁决规则(数据解封前锁定):**
-- 所有比较用 2–3 seed 合并的均值,报告二项 SE;"不可分"= 差异 < margin 且 |t| < 2。
-- 前沿比较用 300 步终点为主,100/200 步中间 ckpt 为辅(同一 run 内的轨迹不作独立样本)。
-- RLVR 同时报告训练 reward 末窗与 GSM8K,二者矛盾时以 GSM8K 为准并写明。
-- MMLU 若 H-4 成立,主文改报 generation-based 或 chat-template MMLU,letter-logit 版本进附录。
+裁决规则(数据解封前锁定):
+- 所有比较用 seed 合并均值,报告二项 SE;"不可分"= 差异 < margin 且 |t| < 2。
+- 前沿以 300 步终点为主;每 50 步的中间 ckpt 用于画轨迹,不作独立样本。
+- "等推进点"的定义:SFT 用训练 loss 末 50 步均值;RLVR 用训练 reward 末 50 步均值。二者与 GSM8K 矛盾时以 GSM8K 为准并写明。
+- MMLU 主指标:letter-logit;若 H-6 成立,主文改报 generation-based(200 题),letter-logit 进附录。
+- non-inferiority 主张按 margin 报告,不用"无显著差异"替代。
 
 ---
 
-# 5. 实验设计(作者B;0.8B,300 步,fp32,其余参数与 P3 相同)
+# 5. 实验设计(作者B;0.8B,fp32,300 步,其余参数与 P3 相同,每 50 步存 ckpt 并评测 GSM8K 500 / MMLU 1000)
 
-## E-v3-0 零训练诊断(先做,当天)
+## E-v3-0 零训练诊断(当天,优先级最高)
 
-- **0a 累计位移。** 对 18 个 e4a run,用 base 与 ckpt_000300 逐矩阵算 ‖W_300 − W_0‖_F,
-  并除以 √300 × 该 run 各保存步 ‖H_t‖_F 的中位数(随机游走比)。预期:r 维 run 的比值明显小于 dense
-  (正交噪声在固定字典内相消),这是 M2 的机制证据。交付一个 csv(run, matrix, disp, ratio)。
-- **0b MMLU 格式检查。** 对 base、e4a_rlvr_full_s0、e4a_rlvr_spectrum_matched_s0、e4a_sft_full_s0,
-  在 200 道 MMLU 题的答案位置记录 {A,B,C,D} 四个 token 的概率质量之和与 argmax 是否落在四者之内;
-  另各存 20 条 greedy 生成(max_new_tokens 64)。交付 json + 文本。
-- **0c 等推进核对。** 任取一个 spectrum_matched run 的一步捕获,算 cos(Hp, H_full)(需 H_full,
-  用 v3 代码在 smoke 中打印);预期 = 1/scale。A 侧在 smoke 上做,B 不用做。
+- **0a 累计位移与累计 KL。** 对 18 个 e4a run 的 ckpt_000300 与 base:逐矩阵 ‖W_300−W_0‖_F,以及在 A5 的 32 条 GSM8K 参考序列上
+  KL(base ‖ ckpt)(fp32 前向,TF32 关闭;A 提供脚本 `analysis_v3/cum_kl.py`)。交付 csv(run, matrix, disp, kl_total)。
+- **0b MMLU 格式检查。** base、e4a_rlvr_full_s0、e4a_rlvr_spectrum_matched_s0、e4a_sft_full_s0、e4a_sft_spectrum_matched_s0:
+  200 题答案位置 {A,B,C,D} 概率质量之和、argmax 是否在四者内;各存 20 条 greedy 生成(64 token)。
+- **0c 单步 KL 对照(A 做)。** 在 A 的 smoke 捕获(同 prompt 流、同 seed 的 full 与四模式,第 10/20 步)上算 KL(W_0+H) 与 KL(W_0+Hp):
+  直接测每种模式"每步的功能步长"。若 KL(Hp) ≈ KL(H),则 M1(小功能步)在单步层面被排除。
 
-## E-v3-1 dense 学习率扫描(检验 H-2)
+## E-v3-1 dense 学习率扫描(H-4)
 
-full,lr × {1/50, 1/7} × {RLVR, SFT} × 2 seed = **8 run**。lr×1 已有(P3 full)。
-每 100 步存 ckpt 并评测 GSM8K(500)与 MMLU(1000)。
+full,lr × {1/3, 1/10, 1/30} × {RLVR, SFT} × 1 seed = 6 run;lr×1/10 加 seed 1 = 2 run。**共 8。**
 
-## E-v3-2 r 维字典的步长扫描(检验 H-1、H-3)
+## E-v3-2 精确保谱加 seed 与降 lr(H-2)
 
-spectrum_matched 与 random_ext,新增 `--intervention-scale s_rel`,s_rel ∈ {0.14, 7} × {RLVR, SFT} × 1 seed = **8 run**;
-s_rel = 1 已有(P3)。等推进配对:s_rel 7 ↔ lr×1/7,s_rel 1 ↔ lr×1/50。
-s_rel = 50(等推进配 lr×1,步长范数 50 倍)作为探索性单 run 只跑 RLVR spectrum:**1 run**。
+exact_iso:lr×1 seed 1(RLVR、SFT)= 2 run;lr×1/10 seed 0(RLVR、SFT)= 2 run。**共 4。**
 
-## E-v3-3 字典比较加 seed(检验 H-1 的 margin)
+## E-v3-3 r 维字典的步长扫描与加 seed(H-1、H-3)
 
-spectrum_matched 与 random_ext,s_rel = 1,seed 2 × {RLVR, SFT} = **4 run**(合计 3 seed)。
-RLVR 上 P3 的 +0.041 GSM8K 差(≈2.6 SE)由此裁决。
+spectrum_matched 与 random_ext,新参数 `--intervention-scale s_rel`:
+- s_rel ∈ {3, 10} × 2 字典 × {RLVR, SFT} × 1 seed = 8 run;
+- s_rel = 1 seed 2 × 2 字典 × {RLVR, SFT} = 4 run(合计 3 seed);
+- s_rel = 0.3,spectrum_matched,RLVR,1 seed = 1 run(低端锚点)。
+**共 13。**
 
-## E-v3-4 字典大小(检验 H-3,若 E-v3-1/2 后仍需要)
+## E-v3-4 第三范式(C2/C4 的跨范式复现,可选但便宜)
 
-random_ext,`--dict-mult k`,k ∈ {0.25, 4}(自由度 r/4 与 4r),s_rel = 1,RLVR,1 seed = **2 run**。
-只在 H-3 在 E-v3-2 上出现正信号后再跑。
+OPD(teacher 2B):full、spectrum_matched、random_ext,lr×1,seed 0 = **3 run**(OPD 约 20 s/步)。
+v1 显示 OPD full 把 MMLU 打到 0.247;若 r 维保住 MMLU,则 C4 在三范式成立。
 
-## 预算
+## E-v3-5 字典大小(H-5;在 E-v3-1/3 出结果后决定)
 
-RLVR run 约 2.5–3.5 h/卡(A100),SFT 约 0.5–1.2 h/卡;E-v3-1 至 E-v3-3 共 21 run,
-其中 RLVR 11 个;8 卡并行约 1.5 天,含每 100 步评测。捕获保留(fp32 W 版本体积 +9%)。
-frame_matched 与 exact_iso 不再新增(两者与 full 同为 mn 维,P3 已给出结果)。
+random_ext,`--dict-mult k`,k ∈ {0.25, 4},s_rel=1,RLVR,seed 0 = **2 run**。
+
+## 预算与优先级
+
+E-v3-0 → E-v3-1 → E-v3-3(s_rel=1 加 seed 优先)→ E-v3-2 → E-v3-3(扫描)→ E-v3-4 → E-v3-5。
+不含 E-v3-5 共 28 run:RLVR 14 个(约 2.5–3.5 h/卡)、SFT 11 个(0.5–1.2 h/卡)、OPD 3 个(约 1.7 h/卡);
+8 卡并行约 2 天,含每 50 步评测(GSM8K+MMLU 约 10 min/ckpt)。frame_matched 不再新增。
+若 09-15 前算力不足,砍序:E-v3-5 → E-v3-4 → E-v3-3 的 s_rel=10 → E-v3-1 的 lr×1/3。
 
 ---
 
 # 6. 作者A 的工作
 
-- **代码 `*_v3/`(从 v2 复制后叠加):**
-  - `intervene_engine.py`:`--intervention-scale s_rel`(在等范数 s 上再乘 s_rel);`--dict-mult k` 的 random_ext
-    (k<1 取前 k·r 列;k>1 用 ⌈k⌉ 个独立正交字典的投影之和,自由度 k·r);smoke 时打印 cos(Hp, H_full)。
-  - `instrument.py`:捕获中 W 改存 fp32(关闭 6.5% 自检缺口)。
-  - `train.py`:`--eval-every 100`(存 ckpt 并调用两个评测脚本)。
-  - `modeling.py` 的 dtype 断言已在 v2(680fa78)。
-- **分析 `analysis_v3/`:**
-  - `frontier.py`:从 results/v3 读全部 run,画(GSM8K, MMLU)前沿:dense lr 扫描一条线、spectral 与 random 各一条线,
-    等推进配对用连线标出;RLVR 与 SFT 两幅。这是主图 Fig.1。
-  - 等推进算术与 E-v3-0a 的随机游走比的图(Fig.2)。
-  - A5 的 KL 代价表并入 Fig.3(谱/frame 逐矩阵代价比,说明无全局符号)。
-  - C1 的信号/噪声图(v2 Fig.C/D)保留为 Fig.4。
-- **写作:** 按 §8 结构重写 §0/§1/§9/§10;v2 §3–§7 的理论压缩为一节"测量框架"加附录。
+- **代码 `specgeom_v3/ scripts_v3/ analysis_v3/ slurm_v3/`(从 v2 复制后叠加):**
+  - `intervene_engine.py`:`--intervention-scale s_rel`(在等范数 s 上再乘);`--dict-mult k`(k<1 取前 k·r 列;k>1 用 ⌈k⌉ 个独立正交字典之和);
+    smoke 打印 cos(Hp, H_full) 与 ‖Hp‖/‖H‖。
+  - `instrument.py`:捕获中 W 存 fp32(关闭 6.5% 自检缺口)。
+  - `train.py`:`--eval-every 50`(存 ckpt 并调用两个评测脚本,评测结果写 `eval_step{n}.json`)。
+  - `analysis_v3/cum_kl.py`:base 与 ckpt 之间的 KL 与逐矩阵位移(复用 A5 的参考序列与 fp32 前向)。
+  - `analysis_v3/step_kl.py`:E-v3-0c,在 smoke 捕获上算单步 KL(A 侧一次 GPU 前向,约 20 分钟)。
+  - `analysis_v3/mmlu_format.py`:E-v3-0b 的字母概率质量与生成 dump。
+- **分析与图:**
+  - Fig.1 前沿:(训练推进, MMLU)与(GSM8K, MMLU)两幅 × {RLVR, SFT}:dense lr 扫描一条线、spectral 与 random 各一条、exact_iso 两点;等推进配对连线。
+  - Fig.2 双重分离:spectrum_matched 与 exact_iso 的 MMLU/GSM8K 随 seed 与步长的分布。
+  - Fig.3 账目:累计位移与累计 KL 相对 √T·单步值(E-v3-0a、0c);§3.2 的预测线。
+  - Fig.4 KL 代价各向异性(A5,已有)与 Fig.5 信号/噪声分解(v2 Fig.C/D,已有)。
+- **写作:** 按 §8 结构;v2 §3–§7 压缩为"测量框架"一节 + 附录。
 
 ---
 
-# 7. 数值与工程要求(继承 v2 §12.4 并补充)
+# 7. 数值与工程要求(继承 v2 §12.4)
 
-1. master 权重 fp32,加载后断言(已实现);ckpt safetensors 头必须为 F32,交付 README 逐 run 核实。
-2. 捕获中 G、H、W 全部 fp32(v3 起);H 自检目标 ≥0.99。
-3. KL 类测量 fp32 前向、TF32 关闭(A5 结论)。
-4. 交付 README 必须写:transformers 版本、代码 commit、每 run 秒/步、评测口径、base 同口径数字。
-5. 所有 run 共享同一 prompt 流;seed 只改初始化与采样。
-6. 评测:GSM8K 500 题 greedy pass@1(含 stop-ids 修复);MMLU 1000 题 letter-logit;若 H-4 成立加 generation-based MMLU(200 题)。
+1. master fp32,加载后断言(已在 680fa78);交付 README 逐 run 核实 ckpt safetensors 为 F32。
+2. 捕获 G、H、W 全 fp32(v3 起);H 自检目标 ≥0.99。
+3. 所有 KL 测量 fp32 前向、TF32 关闭。
+4. 交付 README 必须写:transformers 版本、代码 commit、秒/步、评测口径、同口径 base。
+5. 所有 run 共享同一 prompt 流;seed 只改初始化与采样;random_ext 的字典 seed 与训练 seed 分开记录。
+6. 评测:GSM8K 500 题 greedy pass@1(含 stop-ids 修复);MMLU 1000 题 letter-logit;E-v3-0b 决定是否加 generation-based MMLU。
 
 ---
 
-# 8. 论文结构与主图(拟)
+# 8. 论文结构与主图
 
 题目候选:
-- *The Spectrum Is Not Special: Random Rank-One Dictionaries Match the Weight SVD Basis in LLM Post-Training*
-- *When Should Post-Training Change the Spectrum? Equal-Norm Interventions Say: The Basis Doesn't Matter, the Step Does*
+1. *Changing the Spectrum Is Neither Necessary Nor Sufficient: A Double Dissociation Between Spectral Motion and Forgetting in LLM Post-Training*
+2. *The SVD Basis Is Not Special: Random Rank-One Dictionaries Match Spectral Updates in LLM Post-Training*
 
 正文顺序:
-1. 问题:谱继承文献隐含"奇异基有特权";我们直接检验。
-2. 测量:奇异基下的可复现梯度与噪声(C1);结论:可复现梯度在谱方向的能量处于随机字典基线(A1/P2)。
-3. 功能代价:单位步长 KL 在谱/frame 方向无全局符号(A5)。
-4. 干预:等范数下奇异基 ≈ 随机字典(P3 + E-v3-3);等范数协议的算术缺陷;前沿比较(E-v3-1/2)。
-5. 什么决定折中:有效步长与自由度的分解(E-v3-1/2/4、E-v3-0a)。
-6. 讨论:对谱继承/ISO 类解释的含义;精度事故(v1 bf16)作为方法论警示;局限。
+1. 问题与前提:谱继承 / ISO / SVD-PEFT 隐含"基有特权、保谱即保能力";我们直接检验。
+2. 测量框架与 C1:可复现梯度在谱方向不富集;观测谱几何由噪声主导。
+3. 功能代价:单位步长 KL 无全局谱/frame 符号(A5)。
+4. 双重分离(C2)与基不特殊(C3):P3 + E-v3-2/3。
+5. 什么决定折中(C4):前沿(E-v3-1/3)、账目(E-v3-0a/0c)、字典大小(E-v3-5)、第三范式(E-v3-4)。
+6. 协议与数值(C5):等范数 ≠ 等推进;bf16 master 事故。
+7. 讨论与局限。
 
-主图:Fig.1 前沿(RLVR/SFT);Fig.2 等推进算术 + 随机游走比;Fig.3 KL 代价各向异性;Fig.4 信号/噪声分解。
+主图:Fig.1 前沿;Fig.2 双重分离;Fig.3 账目;Fig.4 KL 代价;Fig.5 信号/噪声。
 
 ---
 
@@ -236,18 +244,17 @@ frame_matched 与 exact_iso 不再新增(两者与 full 同为 mn 维,P3 已给�
 
 | 日期 | A | B |
 |---|---|---|
-| 09-12 | v3 代码(scale、dict-mult、fp32 W、eval-every)+ smoke;TASKS_A/B_v3 | E-v3-0a/0b 诊断交付 |
-| 09-13 → 09-15 | frontier.py、Fig.2–4 脚本;§0/§1 初稿 | E-v3-1、E-v3-2、E-v3-3 全部开跑并交付 |
-| 09-16 → 09-18 | 登记数字、出图、裁决 H-1 至 H-4;决定是否跑 E-v3-4 | E-v3-4(若需要);补评测 |
+| 09-12 | v3 代码 + smoke + TASKS_A/B_v3;`cum_kl.py`、`mmlu_format.py` 交 B | E-v3-0a/0b 交付 |
+| 09-13 → 09-15 | E-v3-0c;frontier 与账目脚本;§0–§3 初稿 | E-v3-1、E-v3-3(加 seed)、E-v3-2、E-v3-3(扫描)、E-v3-4 开跑并陆续交付 |
+| 09-16 → 09-18 | 登记、出图、裁决 H-1 … H-7;决定 E-v3-5 | E-v3-5(若需要);补评测 |
 | 09-19 → 09-23 | 正文 | 交付 README、复核 |
 | 09-24 → 09-26 | 定稿 | — |
 
 停止条件:
-- 若 E-v3-1 显示 full 在 lr/50 下完全复现 r 维干预(H-2 成立且 H-3 不成立),论文主张收缩为 C2′ + 协议警示,
-  自由度一节改为阴性报告;仍可投。
-- 若 E-v3-3 显示 spectral 在 RLVR 上稳定优于 random(H-1 被拒),题目改为条件性表述,C2′ 改写,
-  并把 A5 的逐矩阵代价与该优势做关联分析。
-- 若 B 的算力在 09-15 前无法完成 E-v3-1/2,优先级:E-v3-1(RLVR)> E-v3-3 > E-v3-2 > E-v3-1(SFT)。
+- H-4 成立且 H-5 不成立(dense 降 lr 即可复现 r 维的前沿):C4 收缩为"前沿不可分 + 协议警示",C2/C3 仍为主结果,论文可投。
+- H-1 被拒(奇异基在某档位稳定优于随机):题目改用候选 1,C3 改条件性,加 A5 关联分析。
+- H-2 被拒(exact_iso 在小 lr 下防遗忘):C2 上半改写,论文主线变为"保谱在小步长下有保护、在大步长下无",仍可投。
+- B 算力不足:按 §5 砍序;C2、C3 的加 seed 与 E-v3-1 为最低必需集合(12 run)。
 
 ---
 
@@ -255,19 +262,20 @@ frame_matched 与 exact_iso 不再新增(两者与 full 同为 mn 维,P3 已给�
 
 | 数据 | 处置 |
 |---|---|
-| v1 Phase 1 六格 G 侧(A,fp32) | 保留,C1 主证据(经 A1 分半重算) |
-| v1 Phase 1 H 侧 | A 侧 fp32,可用但无新主张;不进主文 |
-| v1 B 侧全部训练结局(Phase 2、E1–E4、4B) | bf16 master;只在附录"精度事故"一节以一张表报告,标明不可与 fp32 混排 |
-| v1 α 收敛数值 | 作为对角 SNR 极低的旁证进 C1 一节脚注 |
+| v1 Phase 1 六格 G 侧(A,fp32)+ Llama 六格 | C1 主证据(经 A1 分半重算);Llama 只作附录复现 |
+| v1 Phase 1 H 侧(A,fp32) | 可用,无新主张,不进主文 |
+| v1 B 侧全部训练结局 | 附录"精度事故"一节一张表,标明 bf16 master、不可与 fp32 混排 |
+| v1 α 收敛数值 | 对角 SNR 极低的旁证,C1 一节脚注 |
 | v2 A1、A5、smoke | 主文 |
-| v2 P3、P4 | 主文(字典比较)+ 前沿图的 s_rel = 1 / lr×1 点 |
-| v2 P1、P2 | P1 进附录;P2 的 G 侧作为 C1 在 B 侧的复现进主文一句 |
+| v2 P3、P4 | 主文:C2/C3 的 s_rel=1、lr×1 点;前沿图的锚点 |
+| v2 P1、P2 | P1(OPD full MMLU 0.247)进 E-v3-4 的动机;P2 G 侧作为 C1 在 B 侧复现进主文一句 |
 
 # 附录 B. v2 → v3 的实质变化
 
-- 核心问题从"何时开放谱方向"改为"奇异基是否有特权;若无,什么决定折中"。
-- C2、C3 撤出主线;新增 C2′(字典等价)与 C3′(有效步长/自由度前沿)。
-- 干预协议从单点等 Frobenius 改为 s_rel 与 lr 双扫描的前沿比较,并显式报告等推进配对。
-- 新增 M3(评测格式)检查;MMLU 的解释以此为准。
-- 数值要求新增:捕获 W 存 fp32;交付 README 必须核实 ckpt dtype。
+- 核心问题从"何时开放谱方向"改为"奇异基是否有特权;谱变化与遗忘是否有因果联系;若都否,什么决定折中"。
+- C2(条件谱增益)、C3(门控)撤出;新 C2(双重分离)、C3(基不特殊)、C4(自由度与推进量)、C5(协议与数值)。
+- 干预协议从单点等 Frobenius 改为 s_rel 与 lr 双扫描的前沿比较,并定义"等推进点"。
+- 新增理论预测 §3.2(局部二次下累计 KL 与字典无关)及其检验 E-v3-0a/0c。
+- 新增 OPD 第三范式、字典大小轴、MMLU 格式检查。
+- 数值要求新增:捕获 W 存 fp32;README 核实 ckpt dtype。
 - v1 全部训练结局降为附录案例。
