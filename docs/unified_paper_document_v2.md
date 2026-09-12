@@ -1,3 +1,5 @@
+> **v2 归档文档(2026-09-09 → 09-11,已冻结,只改文件名引用)。** 当前版本见 `docs/unified_paper_document_v3.md`、`docs/TASKS_A_v3.md`、`docs/TASKS_B_v3.md`。本文中的 `*_v2/` 指 v2 代码文件夹(保留不改);v3 代码在 `*_v3/`。
+
 # When Should Post-Training Change the Spectrum?
 ## Reliable Gradient Geometry and the Conditional Value of Spectral Motion
 

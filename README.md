@@ -8,9 +8,9 @@ Code, documents and results for "When Should Post-Training Change the Spectrum?"
 每个版本下按人分 A / B。规则:旧版本的文件夹和文档一律不再改动,新版本
 用后缀新建。
 
-| | v1(2026-09-06 → 09-09,已完结) | v2(2026-09-09 起,进行中) |
+| | v1(2026-09-06 → 09-09,已完结) | v2(2026-09-09 → 09-11,已冻结) |
 |---|---|---|
-| **v3 草案** | — | `docs/unified_paper_document_v3.md`(2026-09-11,待确认;生效后 v2 冻结,代码 `*_v3/`,结果 `results/v3/`) |
+| **v3(2026-09-11 起,进行中)** | 企划书 `docs/unified_paper_document_v3.md`;任务 `docs/TASKS_A_v3.md` / `docs/TASKS_B_v3.md`;结果 `results/v3/{result_A,result_B}`;代码 `specgeom_v3/ analysis_v3/ scripts_v3/ slurm_v3/`(从 v2 复制后叠加:`--intervention-scale`、每步刷新基、fp32 捕获、`--eval-every`、`--kl-beta`、E-v3-0 诊断脚本)。**v2 自此冻结。** | 主线:奇异基不是特权坐标系;dense 先找健康 lr\*,三个小批次 |
 | 企划书(理论 + 实验设计,唯一叙事来源) | `docs/unified_paper_document_v1.md`(credit-assignment 决定谱几何 + SSD 优化器,H1–H7) | `docs/unified_paper_document_v2.md`(谱更新的条件增益;§9.4 登记 v1 结果与判定;§14 优先级) |
 | 实验总账 | `docs/EXPERIMENTS_v1.md` | 并入企划书 §11、§14 |
 | 作者A 任务清单 | (无单独文档;A 的 v1 工作记录在 `EXPERIMENTS_v1.md`) | `docs/TASKS_A_v2.md`:代码、CPU 重算、GPU smoke、分析与写作 |
@@ -70,7 +70,16 @@ v2 相对 v1 的代码改动(其余文件为原样复制):
 - Models: Qwen/Qwen3.5-0.8B (main), Qwen/Qwen3.5-2B (OPD teacher);
   family axis Llama-3.2-1B/3B-Instruct; scale axis Qwen3.5-4B (作者B)
 
-## Quick start (v2)
+## Quick start (v3)
+```bash
+~/envs_spectral/bin/python analysis_v3/unit_test_cpu.py && \
+~/envs_spectral/bin/python analysis_v3/unit_test_cpu_v2.py && \
+~/envs_spectral/bin/python analysis_v3/unit_test_cpu_v3.py            # all three must PASS
+sbatch --partition=contrib-gpuq --gres=gpu:A100.80gb:1 --array=0-3 slurm_v3/smoke.sbatch
+python analysis_v3/health.py $RUNS/v3_*_full_lr*_s* --base-gsm8k 0.546 --base-mmlu 0.483   # batch-1 gate
+```
+
+## Quick start (v2, frozen)
 ```bash
 ~/envs_spectral/bin/python analysis_v2/unit_test_cpu.py && \
 ~/envs_spectral/bin/python analysis_v2/unit_test_cpu_v2.py      # both must PASS
