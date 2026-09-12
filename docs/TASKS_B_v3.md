@@ -86,7 +86,10 @@ $PY analysis_v3/health.py $RUNS/v3_rlvr_full_lr*_s* $RUNS/v3_sft_full_lr*_s* --b
 
 ---
 
-## 批次二(主结果,在 lr\* 上;命令待 A 在批次一裁决后填入本节)
+## 批次二(主结果,在 lr\* 上)
+
+> **SFT 侧已裁决(2026-09-12):SFT lr\* = 1e-6(×1/10)。SFT 的批次二 8 个 run 由 A 在本地跑(`slurm_v3/batch2_sft.sbatch`,已提交),B 不用跑 SFT。**
+> RLVR 侧的 lr\* 等 B 的 6 个 RLVR run 交付后由 A 裁决,再填 RLVR 的批次二命令。预计 RLVR lr\* 也在 ×1/10(2e-7)档(E-v3-0c 的预测与 SFT 结果一致),B 若卡有富余可先起 `--seed 2` 的 RLVR lr×1/10。
 
 预告内容(不要提前跑):
 - E-v3-2:frame_matched、exact_iso × {RLVR, SFT} × 2 seed = 8 run(`--lr lr*`,`--eval-every 50`)。
