@@ -41,6 +41,8 @@ $PY analysis_v3/mmlu_format.py --model Qwen/Qwen3.5-0.8B --out $RUNS/results_B_v
 
 ### 1.1 E-v3-1 dense 学习率扫描(12 run,全可并行)
 
+> **分工更新(2026-09-12):SFT 的 6 个 run 由 A 在本地集群空闲的 A100.40gb 上跑(`slurm_v3/batch1_sft.sbatch`,已提交),B 只跑下面 RLVR 的 6 个。** 若 B 的卡有富余,可加跑 RLVR 的第 3 个 seed(`--seed 2`)而不是重复 SFT。
+
 lr×1 = RLVR 2e-6 / SFT 1e-5(P3 用的值)。三档 × 两范式 × 2 seed。**每 run 都加 `--eval-every 50`。**
 
 RLVR 6 个(模板;按下表替换 `--lr`、`--seed`、`--out`):

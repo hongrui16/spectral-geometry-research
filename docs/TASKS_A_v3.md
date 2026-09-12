@@ -19,6 +19,8 @@ v3 = `docs/unified_paper_document_v3.md` + `TASKS_A_v3 / TASKS_B_v3` + `results/
 ## A1:GPU smoke —— ✅ 通过 2026-09-12(jobs 9913754 / 9914443,contrib-gpuq;五路:sft spectrum s_rel=3、sft random、sft none、rlvr none+kl-beta、rlvr spectrum)
 通过标准:四路无 NaN;`scale_mean` 谱/随机约 50、`cos_mean` ≈ 0.02;s_rel=3 的 run 里 `‖Hp‖/‖H‖` 应为 3(compute_metrics 的 H 自检仍 OK);`eval_step000008_*.json` 与 `eval_gsm8k.json` 生成;kl-beta 路径不报错;捕获 W/H 为 fp32(sbatch 末尾断言);`resp_len_mean/trunc_frac` 出现在 rlvr 日志。第一次 RLVR 两路因 128 token 全截断、末步无有效 group 而跳过评测 → 已修 train.py(跳过步也执行 ckpt/eval)。五路复跑全过:cos_mean 0.021–0.024、scale≈50、s_rel=3 记录正确、H 自检 1.0、捕获 fp32、eval_step/eval_* 齐全、kl-beta 路径正常。已 push(da2d160 起),B 可开批次一。
 
+## A1b:批次一 SFT 六个 run 由 A 跑(2026-09-12 提交 gpuq A100.40gb,`slurm_v3/batch1_sft.sbatch`;交付到 `results/v3/result_A/v3_sft_full_lr*_s*`)
+
 ## A2:批次一裁决(B 交付当天)
 1. `analysis_v3/health.py` 跑 12 个 dense run → 定 lr\*(最大的 HEALTHY 档);写进 `TASKS_B_v3.md` 批次二并 push。
 2. E-v3-0a:累计位移/KL 相对 √T·单步值的比(单步值用 A5 或 E-v3-0c),判 H-5 初值;E-v3-0b:判 H-4(字母概率质量)。
