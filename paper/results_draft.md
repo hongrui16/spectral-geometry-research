@@ -158,3 +158,10 @@ e1_4b_rlvr_ssd 停在 378 步未交付;p1_4b_opd_adamw 未跑。P6 未跑。
 
 **v1 对照(bf16 master,隐式截断更新)。** phase2_rlvr_none 0.636 / 0.477;phase2_sft_none 0.412 / 0.366。
 fp32 spectrum_matched(0.634 / 0.474)与 v1 bf16 full 几乎相同:v1 的 full 实际运行在"小有效步长"区间。
+
+**dense lr×1 崩溃态诊断(A,2026-09-11,来自 P3 log.jsonl;RLVR,50 步窗)。**
+有效 group 数(8 个中 reward 不全同)末三窗:full 4.08/3.62/3.53、frame_matched 4.06/4.28/4.44 与 4.30/4.12/3.78、exact_iso 3.96/4.16/4.36;
+spectrum_matched 5.38/5.00/4.90 与 5.48/5.50/5.41、random_ext 5.26/5.40/4.82 与 5.28/5.14/4.82。
+策略梯度 |loss| 首窗→末窗:dense 0.04–0.06 → 0.01–0.02;r 维 0.06 → 0.04–0.05。
+两 seed 最终 GSM8K 差:full 0.082、frame_matched 0.112;spectrum_matched 0.008、random_ext 0.026。
+→ lr×1 dense 为策略退化区,dense 行不能作比较锚点;v3 批次一先扫 lr 找健康 lr\*。
