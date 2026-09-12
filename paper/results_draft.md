@@ -165,3 +165,16 @@ spectrum_matched 5.38/5.00/4.90 与 5.48/5.50/5.41、random_ext 5.26/5.40/4.82 �
 策略梯度 |loss| 首窗→末窗:dense 0.04–0.06 → 0.01–0.02;r 维 0.06 → 0.04–0.05。
 两 seed 最终 GSM8K 差:full 0.082、frame_matched 0.112;spectrum_matched 0.008、random_ext 0.026。
 → lr×1 dense 为策略退化区,dense 行不能作比较锚点;v3 批次一先扫 lr 找健康 lr\*。
+
+## v3 数值登记处(2026-09-12 起;v1/v2 登记处在上,保留不改)
+
+设置沿用 P3:0.8B,fp32 master,300 步,P=8;RLVR lr×1 = 2e-6、K=8;SFT lr×1 = 1e-5;GSM8K 500 题 / MMLU 1000 题,base 0.546 / 0.483;
+每 50 步中间评测。SE:GSM8K 0.022、MMLU 0.016(单 run)。
+
+### A1:v3 smoke(job 9913754,contrib-gpuq)
+- 待填:四路结果、cos_mean、s_rel=3 的 ‖Hp‖/‖H‖、捕获 dtype、eval-every 产物。
+
+### E-v3-0a 累计位移 / 累计 KL(B,18 个 e4a ckpt)—— 待填
+### E-v3-0b MMLU 格式检查(B,base + 4 ckpt)—— 待填
+### E-v3-0c 单步 KL(A,smoke 捕获)—— 待填
+### E-v3-1 dense lr 扫描(B,12 run)—— 待填;lr\* = ______
