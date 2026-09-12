@@ -1,0 +1,1 @@
+{"run": "e4a_sft_exact_iso_s0", "steps": 300, "loss_last": 0.5532, "reward_curve": [], "eval_gsm8k.json": {"model": "/mnt/bn/genai-nebula/kaifan.fk/spectral/runs/e4a_sft_exact_iso_s0/ckpt_000300", "n": 500, "pass@1": 0.29}, "eval_mmlu.json": {"model": "/mnt/bn/genai-nebula/kaifan.fk/spectral/runs/e4a_sft_exact_iso_s0/ckpt_000300", "n": 1000, "mmlu": 0.24}}

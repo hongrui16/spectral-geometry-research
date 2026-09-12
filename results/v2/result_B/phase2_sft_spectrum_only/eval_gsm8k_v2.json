@@ -1,0 +1,5 @@
+{
+ "model": "/mnt/bn/genai-nebula/kaifan.fk/spectral/runs/phase2_sft_spectrum_only/ckpt_000300",
+ "n": 500,
+ "pass@1": 0.344
+}

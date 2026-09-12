@@ -52,7 +52,7 @@ sbatch --array=0-3 slurm_v2/smoke.sbatch
 ```
 通过标准:四个模式都跑完 20 步无 NaN;`scale_mean` 在预期范围(spectrum/random 约 30–80,frame 约 1);`analysis_v2/compute_metrics.py` 的 H 自检对 spectrum_matched 报 OK。**通过后通知 B 开 P3。**
 
-## A3:B 交付的处理
+## A3:B 交付的处理 —— ✅ 2026-09-11 B 交付 P0–P5(`results/v2/result_B/`);A3.1 关闭(SFT 低于 base 为真实效应),A3.2 关闭(根因 bf16 master,fp32 后自检 0.935),A3.3 主表已登记到 `paper/results_draft.md`;§9.4 改写并入 v3 企划书草案(`docs/unified_paper_document_v3.md`),不再改 v2 文档
 
 1. 收到 P0 回答后:若 eval 脚本缺 adf1786,B 需用新脚本重评所有 SFT checkpoint(只评测,不训练);把结论写进 v2 §9.4 caveat 3。
 2. 收到 P2 的 v2 metrics 后:用 H 自检结果关闭或升级 §9.4 caveat 5 与 §12.4 的待查项。

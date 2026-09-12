@@ -10,12 +10,13 @@ Code, documents and results for "When Should Post-Training Change the Spectrum?"
 
 | | v1(2026-09-06 → 09-09,已完结) | v2(2026-09-09 起,进行中) |
 |---|---|---|
+| **v3 草案** | — | `docs/unified_paper_document_v3.md`(2026-09-11,待确认;生效后 v2 冻结,代码 `*_v3/`,结果 `results/v3/`) |
 | 企划书(理论 + 实验设计,唯一叙事来源) | `docs/unified_paper_document_v1.md`(credit-assignment 决定谱几何 + SSD 优化器,H1–H7) | `docs/unified_paper_document_v2.md`(谱更新的条件增益;§9.4 登记 v1 结果与判定;§14 优先级) |
 | 实验总账 | `docs/EXPERIMENTS_v1.md` | 并入企划书 §11、§14 |
 | 作者A 任务清单 | (无单独文档;A 的 v1 工作记录在 `EXPERIMENTS_v1.md`) | `docs/TASKS_A_v2.md`:代码、CPU 重算、GPU smoke、分析与写作 |
 | 作者B 任务清单 | `docs/TASKS_B_v1.md`(P0–P6,已全部交付) | `docs/TASKS_B_v2.md`:P0 先决问题、P1 补评测、P2 重算指标、P3 等范数 H5、P4 exact_iso、P5 4B、P6 可选 |
 | 作者A 结果 | `results/v1/result_A/`(Phase 1 六格、Llama 六格、h3power、ssd_trial) | `results/v2/result_A/`(v2 指标重算、smoke) |
-| 作者B 结果 | `results/v1/result_B/`(Phase 2、E1–E4、4B,36 条) | `results/v2/result_B/`(B 交付的 `results_B_v2.zip` 解压于此;B 的文字答复也放这里,如 `B_P0_answers_v2.md`) |
+| 作者B 结果 | `results/v1/result_B/`(Phase 2、E1–E4、4B,36 条) | `results/v2/result_B/`(与 v1 同构,run 目录直接放这里;B 的文字答复也放这里,如 `B_P0_answers_v2.md`) |
 | 数值登记处 | `paper/results_draft.md`(v1 登记处) | `paper/results_draft.md`(追加"v2 登记处"小节) |
 | 文档索引 | `docs/INDEX.md`(所有文档、交付说明与登记处的入口,含每份 B 答复的一行摘要) | 同左 |
 | 代码 | `specgeom/ analysis/ scripts/ slurm/`,与 git tag `v1` 逐字节一致 | `specgeom_v2/ analysis_v2/ scripts_v2/ slurm_v2/`:从 v1 复制后叠加 v2 改动,自包含,不引用 v1 文件夹 |

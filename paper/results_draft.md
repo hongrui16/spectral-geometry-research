@@ -107,10 +107,54 @@ v1 的 H4 统计量(同一样本的 \|C\| 与 SNR)是耦合产物,换成独立�
 
 **判定**:(1) 有限步 KL 在 η∈[3e-4,3e-2] 内精确二次,§12.4 的局部二次假设成立;(2) 谱方向与 frame 方向的功能代价**按矩阵类型**有 3–4 倍的各向异性,但没有全局符号,家族中位数接近 1 —— v2 §6.3"无通用 frame 对称性定理"成立,同时说明 E4a 的等 Frobenius 匹配与等 KL 匹配在 q_proj/o_proj 上会差 3 倍,P3 结果需用本表做等 KL 换算后再下结论;(3) 训练循环的 bf16 前向不能用于任何 KL/Fisher 估计。
 
-### 待填(作者B v2 交付)
-- P0 三个回答:commit hash ______;H 自检 ______;秒/步 ______
-- P1:OPD none MMLU ______;RLVR none MMLU ______;RLVR frame_only MMLU ______
-- P2:v1 24 个 run 的 v2 指标(H 自检结论)______
-- P3 等范数 H5 主表(GSM8K / MMLU,2 seeds):RLVR full/frame_m/spec_m/rand ______;SFT ______
-- P4 exact_iso:RLVR ______;SFT ______
-- P5 4B RLVR AdamW:R_enrich ______,GSM8K ______
+### B v2 交付登记(2026-09-11;来源 `results/v2/result_B/`,README 与 `B_P0_answers_v2.md`)
+
+**环境。** B:torch 2.6.0+cu124、transformers 5.9.0(忽略 `dtype=fp32`,已加显式转换与断言);
+16 个 P3/P4 run 代码 = 1a1e2f9 内容,2 个补跑 full 对照 = c4582b9。18 个 e4a run 的 ckpt 均核实为 F32。
+与 A 环境(transformers 5.16.1)前向 A/B:权重逐位相同,top-1 一致 100%,KL 3.8e-4。
+
+**P0。** Q1:v1 批次 = e5a25bc,不含 stop-ids 修复;6 个 v1 ckpt 重评差 ≤1.6 点、方向不定 → v1 SFT 行可用,
+SFT 低于 base 为真实效应。Q2:捕获顺序正确;根因 = v1 批次 master 权重为 bf16(见 README §Environment);
+修复后 `e4a_rlvr_spectrum_matched_s0` 的 H 自检 median R_sigma(H) = 0.935(修复前 0.215)。剩余 6.5% 来自捕获中 W 以 bf16 存储。
+Q3 秒/步(A100/H100):RLVR full 27–31;spectrum/frame_matched 43–46(A100);random_ext 33/26;exact_iso 41.5;
+SFT full 5.5/5.1;spectrum/frame_matched 13.5–14(H100);random_ext 4.8–5.0;exact_iso 18.4。
+
+**P1(MMLU,均为 v1 bf16 run)。** e1_opd_adamw_s1(OPD full,500 步)0.247;phase2_rlvr_none 0.477;phase2_rlvr_frame_only 0.482。
+→ OPD full 自身即把 MMLU 打到随机,§9.4 caveat 4 关闭(α 不是原因)。
+
+**P2。** 24 个 v1 run 已用 v2 脚本重算;v1 run 为 bf16 master,**H 侧列不可用**,G 侧列可用。
+
+**P3 + P4 等范数干预(0.8B,300 步,fp32,P=8;RLVR lr 2e-6、K=8;SFT lr 1e-5;GSM8K 500 题 / MMLU 1000 题;base 0.546 / 0.483)**
+
+| objective | 干预 | 自由度 | scale(均值) | GSM8K s0 / s1 | MMLU s0 / s1 | GSM8K 均值 | MMLU 均值 |
+|---|---|---|---|---|---|---|---|
+| RLVR | full | mn | — | 0.412 / 0.494 | 0.237 / 0.232 | 0.453 | 0.234 |
+| RLVR | frame_matched | mn | 1.00 | 0.584 / 0.472 | 0.248 / 0.228 | 0.528 | 0.238 |
+| RLVR | exact_iso | mn | — | 0.600 / — | 0.255 / — | 0.600 | 0.255 |
+| RLVR | spectrum_matched | r | 50.3 | 0.630 / 0.638 | 0.473 / 0.475 | **0.634** | **0.474** |
+| RLVR | random_ext | r | 51.7 | 0.606 / 0.580 | 0.474 / 0.476 | 0.593 | 0.475 |
+| SFT | full | mn | — | 0.298 / 0.304 | 0.239 / 0.239 | 0.301 | 0.239 |
+| SFT | frame_matched | mn | 1.00 | 0.278 / 0.288 | 0.235 / 0.236 | 0.283 | 0.236 |
+| SFT | exact_iso | mn | — | 0.290 / — | 0.240 / — | 0.290 | 0.240 |
+| SFT | spectrum_matched | r | 50.4 | 0.382 / 0.392 | 0.471 / 0.484 | 0.387 | **0.478** |
+| SFT | random_ext | r | 51.9 | 0.378 / 0.408 | 0.467 / 0.466 | **0.393** | 0.466 |
+
+标准误:单次 GSM8K(500)0.022、MMLU(1000)0.016;两 seed 合并 0.016 / 0.011。
+spectrum_matched − random_ext:RLVR GSM8K +0.041(≈2.6 合并 SE,单向、仅一范式),MMLU −0.001;SFT GSM8K −0.006,MMLU +0.012。
+自由度分组差(r 维 vs mn 维):MMLU 两范式均 ≈ +0.24;GSM8K RLVR +0.16,SFT +0.09。
+
+RLVR 训练 reward(50 步窗口均值):full s0 0.505→0.594→**0.628**→0.583→0.555→0.476;full s1 峰 0.594(101–150)→末 0.501;
+frame_matched 峰 0.53/0.61 → 末 0.52/0.41;spectrum_matched 0.354→0.390→0.462→0.486→0.523→0.577(单调,末窗最高);
+random_ext 0.372→…→0.563(单调)。exact_iso 单调至 0.590。
+SFT 训练 loss 末窗:full 0.505/0.494,spectrum_matched 0.496/0.493,random_ext 0.495/0.492(无差异)。
+
+**等范数协议的算术(A,2026-09-11)。** 设 P 为到 r 维字典的正交投影,Hp = s·P(H),‖Hp‖=‖H‖ ⇒ s=‖H‖/‖PH‖。
+则 cos(Hp,H)=‖PH‖/‖H‖=1/s≈0.02,沿优化器步方向的推进 <Hp,H>/‖H‖² = 1/s ≈ 1/50。
+即 spectrum_matched / random_ext 每步沿 H 的推进只有 full 的 2%,其余 98% 能量在与 H 正交、且限于 r 维字典内的方向。
+等 Frobenius 步长 ≠ 等推进。这是 v3 必须修正的协议问题。
+
+**P5(4B,500 步,v1 代码,bf16 master)。** base 0.862;p1_4b_sft_adamw 0.818;p1_4b_rlvr_adamw 0.932;e1_4b_rlvr_muon 0.918。
+e1_4b_rlvr_ssd 停在 378 步未交付;p1_4b_opd_adamw 未跑。P6 未跑。
+
+**v1 对照(bf16 master,隐式截断更新)。** phase2_rlvr_none 0.636 / 0.477;phase2_sft_none 0.412 / 0.366。
+fp32 spectrum_matched(0.634 / 0.474)与 v1 bf16 full 几乎相同:v1 的 full 实际运行在"小有效步长"区间。

@@ -3,6 +3,12 @@
 仓库里所有文档、交付说明与登记处的入口。版本规则见 `README.md`:v1 已冻结,
 v2 为当前版本;旧版本文件只改引用不改内容。
 
+## v3(草案,2026-09-11,待用户确认)
+
+| 文档 | 内容 | 维护人 |
+|---|---|---|
+| `docs/unified_paper_document_v3.md` | v3 企划书草案:v2 证据总账(支持/推翻/作废)、P3 解读(等范数 ≠ 等推进,cos = 1/scale)、新核心问题(奇异基是否有特权;有效步长 vs 自由度)、E-v3-0…4 实验设计、裁决规则、时间线。生效后 v2 冻结 | A |
+
 ## v2(当前,2026-09-09 起)
 
 | 文档 | 内容 | 维护人 |
@@ -13,6 +19,7 @@ v2 为当前版本;旧版本文件只改引用不改内容。
 | `paper/results_draft.md` | 数值登记处;"v2 登记处"小节收 A1/A5 数字与 B 待填项 | A |
 | `results/v2/result_B/B_P0_answers_v2.md` | **B 对 P0 三问的答复(2026-09-10)**。要点:(1) v1 评测未含 stop-ids 修复,但 6 个 ckpt 重评差 ≤1.6 点,SFT 低于 base 是真实效应;(2) B 机器 transformers 5.9.0 忽略 `dtype=fp32`,v1 批次 master 权重实为 bf16 → B 侧 v1 全部 H 侧指标与 spectrum_only/frame_only 干预写回都受 bf16 舍入污染,G 侧不受影响;已在 `specgeom_v2/modeling.py` 加显式 `.to(dtype)` 与 dtype 断言,修复后 H 自检 0.215→0.935;(3) 各类 run 的 秒/步;另修 `intervene_engine.py` 两处(首步 KeyError、SVD 基改每步刷新)。A 侧已核实自身环境(transformers 5.16.1)加载即为 fp32,A 侧 Phase 1 / smoke / KL 探针不受影响 | B |
 | `results/v2/result_A/` | A 的交付:`phase1_*`(v2 指标重算)、`smoke_v2_sft_*`(四模式 smoke)、`kl_probe_0.8b_{bf16,fp32}`(A5) | A |
+| `results/v2/result_B/README.md` | **B 的 v2 交付说明(2026-09-11)**:P0–P5 全部完成(P6 未跑),48 个 run 目录;P3+P4 等范数主表(fp32):mn 维更新(full/frame_matched/exact_iso)两范式 MMLU 降到随机、r 维更新(spectrum_matched/random_ext)保住 MMLU 且 GSM8K 更高,spectrum ≈ random。数字已登记到 `paper/results_draft.md`;解读见 v3 草案 §2 | B |
 | `results/v2/result_B/` | B 的交付落地处(P1–P6 的 `metrics.csv / manifest.json / eval*.json / log.jsonl / args.json`) | B |
 | `figs/v2/` | Fig.B α 收敛、Fig.C 信号/噪声、Fig.D v1 耦合 vs split-half、Fig.E KL 探针;Fig.A 等 P3 | A |
 
