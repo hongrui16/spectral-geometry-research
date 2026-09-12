@@ -67,12 +67,17 @@ def main():
     ap.add_argument("--n-mmlu", type=int, default=1000)
     ap.add_argument("--base-gsm8k", type=float, default=0.546)
     ap.add_argument("--base-mmlu", type=float, default=0.483)
+    ap.add_argument("--exclude-prefix", default="phase2_,e1_,e2_,e3_,e4_,p1_",
+                    help="comma-separated run-name prefixes to skip (v1 bf16-master runs)")
     a = ap.parse_args()
+    skip = tuple(x for x in a.exclude_prefix.split(",") if x)
     os.makedirs(a.out, exist_ok=True)
 
     runs = []
     for root in a.roots:
         for d in sorted(glob.glob(os.path.join(root, "*"))):
+            if os.path.basename(d).startswith(skip):
+                continue
             if os.path.isfile(os.path.join(d, "args.json")) and os.path.isfile(os.path.join(d, "eval_gsm8k.json")):
                 runs.append(read_run(d))
     df = pd.DataFrame(runs)
@@ -83,7 +88,8 @@ def main():
     agg["gsm8k_se"] = [se(p, a.n_gsm8k * n) for p, n in zip(agg.gsm8k, agg.n)]
     agg["mmlu_se"] = [se(p, a.n_mmlu * n) for p, n in zip(agg.mmlu, agg.n)]
     agg.to_csv(os.path.join(a.out, "frontier_points.csv"), index=False)
-    print(agg.round(3).to_string(index=False))
+    with pd.option_context("display.float_format", lambda v: f"{v:.3g}", "display.width", 200):
+        print(agg.to_string(index=False))
 
     objs = sorted(agg.objective.unique())
     fig, axes = plt.subplots(1, len(objs), figsize=(5.2 * len(objs), 4.4), squeeze=False)
