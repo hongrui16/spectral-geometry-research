@@ -12,6 +12,6 @@
 #SBATCH --output=/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/runs/slurm-%x-%A.out
 
 source /home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/slurm_v3/common.sh
-$PY analysis_v3/step_kl.py --step 8 --out $PROJ/results/v3/result_A/step_kl_smoke \
+$PY analysis_v3/step_kl.py --step ${STEP:-8} --out $PROJ/results/v3/result_A/step_kl_smoke_step${STEP:-8} \
   --runs $RUNS/smoke_v3_sft_none_s1 $RUNS/smoke_v3_sft_spectrum_matched_s3 $RUNS/smoke_v3_sft_random_ext_s1
 echo "STEP_KL_DONE"

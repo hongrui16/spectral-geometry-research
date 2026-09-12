@@ -179,5 +179,19 @@ spectrum_matched 5.38/5.00/4.90 与 5.48/5.50/5.41、random_ext 5.26/5.40/4.82 �
 
 ### E-v3-0a 累计位移 / 累计 KL(B,18 个 e4a ckpt)—— 待填
 ### E-v3-0b MMLU 格式检查(B,base + 4 ckpt)—— 待填
-### E-v3-0c 单步 KL(A,smoke 捕获)—— 待填
+### E-v3-0c 单步 KL(A,job 9914606;SFT smoke 第 8 步,同 prompt 流/seed,27 个跟踪矩阵的 H 加到 base 上;32 条 GSM8K 参考序列,fp32,TF32 关)
+
+| run | 干预 | ‖H‖_F(27 矩阵合计) | 单步 KL(nats/token) | KL/‖H‖² |
+|---|---|---|---|---|
+| smoke_v3_sft_none_s1 | none(full) | 3.24e-2 | **6.50e-3** | 6.20 |
+| smoke_v3_sft_spectrum_matched_s3 | spectrum_matched,s_rel=3 | 1.22e-1 | **1.33e-4** | 0.0089 |
+| smoke_v3_sft_random_ext_s1 | random_ext,s_rel=1 | 4.76e-2 | **5.10e-5** | 0.0225 |
+
+→ 等 Frobenius 步长下,r 维投影更新的**功能步长(KL)比 full 小约 50–130 倍;按单位范数平方算小 300–700 倍**。
+原因:full 的 Adam 步把能量集中在梯度方向(高曲率、高 KL/范数);投影到 r 维字典只保留 1/2500 能量再放大,
+保留的主要是与梯度弱相关、低曲率的分量。A5 的"谱/frame 单位范数代价相同"只对随机方向成立,对实际更新不成立。
+含义:(i)v2 P3 的 dense 崩溃 vs r 维健康首先是功能步长相差两个量级(M1);(ii)dense 的 lr 扫描是决定性实验,
+预计 lr×1/10 左右的 dense 单步 KL 才与 r 维干预相当(KL ∝ lr²);(iii)v3 §3.2 的假设改写。
+注意:单步、smoke 规模(4 prompts)、27 矩阵、H 加在 base 上;第 4 步复核在跑(结果见下)。
+
 ### E-v3-1 dense lr 扫描(B,12 run)—— 待填;lr\* = ______
