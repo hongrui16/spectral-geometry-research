@@ -24,7 +24,7 @@ v3 = `docs/unified_paper_document_v3.md` + `TASKS_A_v3 / TASKS_B_v3` + `results/
 2. E-v3-0a:累计位移/KL 相对 √T·单步值的比(单步值用 A5 或 E-v3-0c),判 H-5 初值;E-v3-0b:判 H-4(字母概率质量)。
 3. 登记 `paper/results_draft.md` v3 登记处;若三档都不健康,给 B 两条备选命令(kl-beta / 大 batch)。
 
-## A3:E-v3-0c —— ✅ 第 8 步已测(job 9914606):full 6.5e-3 vs spectrum(s_rel=3)1.3e-4 vs random 5.1e-5 nats/token;登记处与 v3 §3.2 已改写。第 4 步复核(job 提交中)与 RLVR smoke 捕获复测待补。
+## A3:E-v3-0c —— ✅ 第 8 步已测(job 9914606):full 6.5e-3 vs spectrum(s_rel=3)1.3e-4 vs random 5.1e-5 nats/token;登记处与 v3 §3.2 已改写。第 4 步复核(job 9914627)一致:full 3.1e-2 vs 4.5e-4 / 7.1e-5。RLVR 捕获复测可选。
 
 ## A4:分析与出图(批次二、三交付后)
 - `analysis_v3/frontier.py`:Fig.1 前沿(GSM8K, MMLU)× {RLVR, SFT},dense lr 线、两字典 s_rel 线、frame_matched/exact_iso 点;Fig.2 六种更新在 lr\* 与 lr×1 的带 SE 对比;Fig.3 崩溃诊断 + 累计 KL 比。
