@@ -172,7 +172,9 @@ spectrum_matched 5.38/5.00/4.90 与 5.48/5.50/5.41、random_ext 5.26/5.40/4.82 �
 每 50 步中间评测。SE:GSM8K 0.022、MMLU 0.016(单 run)。
 
 ### A1:v3 smoke(job 9913754,contrib-gpuq)
-- 待填:四路结果、cos_mean、s_rel=3 的 ‖Hp‖/‖H‖、捕获 dtype、eval-every 产物。
+- SFT spectrum_matched s_rel=3(8 步):scale_mean 50.3(max 91)、cos_mean 0.0235、step_norm_rel 3.0;H 自检 median R_sigma(H)=1.0 OK;捕获 G/W/H 全 fp32;eval_step000008_* 与 eval_*.json 生成。
+- SFT random_ext s_rel=1:scale_mean 51.9、cos_mean 0.0209;同上全部通过。
+- RLVR 两路(none+kl-beta 0.01、spectrum_matched):第一次用 max_new_tokens 128 全部截断(trunc_frac 1.0)、reward≈0、多步无有效 group → 末步评测被跳过;已改 train.py(跳过步也执行 ckpt/eval)并把 smoke 改 384 token 重跑。kl-beta 与 resp_len/trunc 日志路径本身正常。
 
 ### E-v3-0a 累计位移 / 累计 KL(B,18 个 e4a ckpt)—— 待填
 ### E-v3-0b MMLU 格式检查(B,base + 4 ckpt)—— 待填

@@ -384,7 +384,9 @@ class Trainer:
             self.model.train()
             rows, info = make_rows()
             if len(rows) == 0:
+                # no informative group this step: still honour ckpt/eval steps
                 self.log({"step": step, "skip": "no rows"})
+                self.maybe_ckpt_eval(step)
                 continue
             save = self.instr.is_save_step(step)
             if save:
@@ -476,17 +478,22 @@ class Trainer:
                 print(f"[{args.objective}] step {step} "
                       f"loss {rec['loss']:.4f} {rec['secs']}s", flush=True)
 
-            periodic = step % args.save_ckpt_every == 0 or step == args.steps
-            do_eval = args.eval_every > 0 and (step % args.eval_every == 0
-                                               or step == args.steps)
-            if periodic or do_eval:
-                ck = os.path.join(args.out, f"ckpt_{step:06d}")
-                self.model.save_pretrained(ck, safe_serialization=True)
-                self.tok.save_pretrained(ck)
-            if do_eval:
-                self.run_evals(ck, step, final=(step == args.steps))
-                if not periodic and not args.keep_eval_ckpts:
-                    shutil.rmtree(ck, ignore_errors=True)
+            self.maybe_ckpt_eval(step)
+
+    def maybe_ckpt_eval(self, step):
+        args = self.args
+        periodic = step % args.save_ckpt_every == 0 or step == args.steps
+        do_eval = args.eval_every > 0 and (step % args.eval_every == 0
+                                           or step == args.steps)
+        if not (periodic or do_eval):
+            return
+        ck = os.path.join(args.out, f"ckpt_{step:06d}")
+        self.model.save_pretrained(ck, safe_serialization=True)
+        self.tok.save_pretrained(ck)
+        if do_eval:
+            self.run_evals(ck, step, final=(step == args.steps))
+            if not periodic and not args.keep_eval_ckpts:
+                shutil.rmtree(ck, ignore_errors=True)
 
     def run_evals(self, ck, step, final=False):
         """v3: synchronous GSM8K + MMLU eval of a checkpoint (same GPU)."""
