@@ -210,5 +210,29 @@ spectrum_matched 5.38/5.00/4.90 与 5.48/5.50/5.41、random_ext 5.26/5.40/4.82 �
 E-v3-0c 的预测(lr\* ≈ 1/10)命中。SFT 侧:H-0 成立;H-4 成立(dense 崩溃可由步长解释);C5 在 SFT 上初判阴性。
 MMLU 在 ×1/3 档随步数单调衰减、GSM8K 反而上升,是"学得越多忘得越多"的连续过程,不是格式突变(仍待 E-v3-0b 确认)。
 
+### E-v3-2 / E-v3-3 批次二 —— SFT 八个(A,jobs 27170/27171,MIG 3g.40gb;2026-09-13)
+
+lr\* = 1e-6,s_rel = 1,300 步,2 seed;300 步终点,seed 合并;SE:GSM8K 0.016、MMLU 0.011(合并 2 seed)。
+
+| 更新 | 维度 | GSM8K s0/s1(均值) | MMLU s0/s1(均值) |
+|---|---|---|---|
+| full(批次一) | mn | 0.408/0.422(0.415) | 0.462/0.450(0.456) |
+| frame_matched | mn | 0.388/0.412(0.400) | 0.457/0.450(0.454) |
+| exact_iso | mn | 0.398/0.408(0.403) | 0.453/0.449(0.451) |
+| spectrum_matched | r | 0.386/0.392(0.389) | 0.475/0.473(0.474) |
+| random_ext | r | 0.354/0.396(0.375) | 0.474/0.476(0.475) |
+| full lr×1/30(批次一) | mn | 0.390 | 0.461 |
+
+两两差(margin GSM8K 0.03 / MMLU 0.02):
+- full − frame_matched:+0.015 (t=0.7) / +0.003 (t=0.2);full − exact_iso:+0.012 (t=0.6) / +0.005 (t=0.3);frame − iso:−0.003 / +0.003。→ **H-2 成立(SFT):保谱/去谱在健康区不可分,C4 成立。** v2 的"mn 维崩到 0.24"全部是 lr×1 崩溃区效应。
+- spectrum_matched − random_ext:+0.014 (t=0.6) / −0.001 (t=−0.1)。→ **H-1 在第二个 lr(lr\*)上复现(SFT,2 seed)**;lr×1 上(v2 e4a)−0.006 / +0.011,同样不可分。
+- r 维在 lr\* 与在 lr×1 结果相同(spectrum 0.389/0.474 vs 0.387/0.477;random 0.375/0.475 vs 0.393/0.466):**r 维干预对 lr 的 10 倍变化不敏感**,与 E-v3-0c(投影更新的功能步长本来就小两个量级)一致。
+- 前沿(H-3 初判):r 维两点 (0.38–0.39, 0.474) 与 dense lr\* (0.415, 0.456)、dense lr×1/30 (0.390, 0.461) 相比,GSM8K 低 0.03–0.04 (t≈1.2–1.8)、MMLU 高 0.018 (t≈1.2),均未过 |t|≥2;dense lr×1/30 与 spectrum_matched 几乎同点。→ 前沿重合,**C5 在 SFT 上维持阴性初判**;待 E-v3-5(s_rel 3/10)看 r 维能否沿前沿移动。
+- 轨迹:所有六族 MMLU 在 50→300 步内平稳(0.45–0.48),GSM8K 无趋势;lr\* 上无崩溃迹象。
+
+图:`figs/v3/fig1_frontier.pdf`、`fig1b_trajectories.pdf`、`frontier_points.csv`(`analysis_v3/frontier.py results/v3/result_A`)。
+
+批次三 SFT 已提交(2026-09-13,jobs 38326/38327,`slurm_v3/batch3_sft.sbatch`):E-v3-4 r 维第三 seed(lr×1)×2 + E-v3-5 s_rel∈{3,10}×两字典(lr\*,seed 0)×4。
+
 ### E-v3-1 dense lr 扫描 —— RLVR 六个(B)—— 待填;RLVR lr\* = ______
 

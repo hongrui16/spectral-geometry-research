@@ -23,6 +23,8 @@ v3 = `docs/unified_paper_document_v3.md` + `TASKS_A_v3 / TASKS_B_v3` + `results/
 
 ## A2:批次一裁决 —— SFT 侧 ✅ 2026-09-12:lr\* = 1e-6(×1/10 HEALTHY,×1/3 MMLU 衰减,×1/30 健康但学得少);dense@lr/10 与 r 维干预同前沿 → SFT 上 H-4 成立、C5 初判阴性。SFT 批次二 8 个 run 已由 A 提交(`slurm_v3/batch2_sft.sbatch`)。RLVR 侧等 B。 2026-09-13:A100.40gb 全满、原 job 9916589 排队 >14h 未起,改为同一数组按 GPU 类型分投(gpuq 3g.40gb=27170、gpuq A100.80gb=27169、contrib-gpuq 3g.40gb=27171,sbatch 内 `$OUT.lock` 原子认领防重复);frame_matched×2 / exact_iso×2 已在 MIG 上跑。
 
+## A2b:批次二裁决 —— SFT 侧 ✅ 2026-09-13:8 run 全部完成(MIG 约 2 h/run)。**H-2 成立**(full / frame_matched / exact_iso 两两差 ≤0.015 / 0.005,|t|<1)→ C4 成立;**H-1 在 lr\* 复现**(spectrum − random +0.014 / −0.001);r 维干预对 lr 十倍变化不敏感;前沿重合 → C5 SFT 维持阴性初判。登记处 E-v3-2/3 已填,`figs/v3/fig1_*` 已出。批次三 SFT(E-v3-4 第三 seed ×2 + E-v3-5 s_rel {3,10} ×4)已提交 jobs 38326/38327(`slurm_v3/batch3_sft.sbatch`)。RLVR 侧仍等 B 批次一。
+
 ## A2(原文):批次一裁决(B 交付当天)
 1. `analysis_v3/health.py` 跑 12 个 dense run → 定 lr\*(最大的 HEALTHY 档);写进 `TASKS_B_v3.md` 批次二并 push。
 2. E-v3-0a:累计位移/KL 相对 √T·单步值的比(单步值用 A5 或 E-v3-0c),判 H-5 初值;E-v3-0b:判 H-4(字母概率质量)。
