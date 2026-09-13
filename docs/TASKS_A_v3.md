@@ -25,6 +25,8 @@ v3 = `docs/unified_paper_document_v3.md` + `TASKS_A_v3 / TASKS_B_v3` + `results/
 
 ## A2b:批次二裁决 —— SFT 侧 ✅ 2026-09-13:8 run 全部完成(MIG 约 2 h/run)。**H-2 成立**(full / frame_matched / exact_iso 两两差 ≤0.015 / 0.005,|t|<1)→ C4 成立;**H-1 在 lr\* 复现**(spectrum − random +0.014 / −0.001);r 维干预对 lr 十倍变化不敏感;前沿重合 → C5 SFT 维持阴性初判。登记处 E-v3-2/3 已填,`figs/v3/fig1_*` 已出。批次三 SFT(E-v3-4 第三 seed ×2 + E-v3-5 s_rel {3,10} ×4)已提交 jobs 38326/38327(`slurm_v3/batch3_sft.sbatch`)。RLVR 侧仍等 B 批次一。
 
+## A2c:批次三裁决 —— SFT 侧 ✅ 2026-09-13:6 run 完成。**H-1 成立(3 seed,lr×1:spectrum 0.391/0.476 vs random 0.391/0.469)→ C2 成立**;**H-3 阴性(终判):s_rel 1→3→10 r 维两字典都不沿前沿移动(GSM8K 0.37–0.39,MMLU 0.46–0.48),与 dense lr×1/30 同点,dense lr\* 在其右下 → C5 SFT 阴性**。登记处 E-v3-4/5 已填,图已更新。**SFT 侧 v3 实验全部完成**(H-0/1/2 ✅,H-3 ✗)。剩余:RLVR 侧(等 B 批次一 → lr\* → 批次二/三命令,可直接复用 batch2/3_sft.sbatch 改 objective)、A4 Fig.2/3、A5 写作。
+
 ## A2(原文):批次一裁决(B 交付当天)
 1. `analysis_v3/health.py` 跑 12 个 dense run → 定 lr\*(最大的 HEALTHY 档);写进 `TASKS_B_v3.md` 批次二并 push。
 2. E-v3-0a:累计位移/KL 相对 √T·单步值的比(单步值用 A5 或 E-v3-0c),判 H-5 初值;E-v3-0b:判 H-4(字母概率质量)。
