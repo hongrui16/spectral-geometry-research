@@ -1,7 +1,11 @@
 #!/bin/bash
 # v3 batch 2, SFT half, at SFT lr* = 1e-6 (batch-1 gate, 2026-09-12): frame_matched, exact_iso,
 # spectrum_matched, random_ext x 2 seeds, 300 steps, eval every 50. Run by A on idle A100.40gb.
-# Submit: sbatch --partition=gpuq --gres=gpu:A100.40gb:1 --array=0-7 slurm_v3/batch2_sft.sbatch
+# Submit (2026-09-13 speed-up: same array submitted under several GPU types; the first task to start
+# claims $OUT.lock, later duplicates exit immediately; rm the .lock to allow a rerun):
+#   sbatch --partition=gpuq,contrib-gpuq --gres=gpu:3g.40gb:1    --array=0-7 slurm_v3/batch2_sft.sbatch
+#   sbatch --partition=gpuq,contrib-gpuq --gres=gpu:A100.80gb:1 --array=0-7 slurm_v3/batch2_sft.sbatch
+#   sbatch --partition=gpuq              --gres=gpu:A100.40gb:1 --array=0-7 slurm_v3/batch2_sft.sbatch
 #SBATCH --job-name=spec-b2sft
 #SBATCH --partition=gpuq
 #SBATCH --qos=gpu
@@ -16,6 +20,8 @@ MODES=(frame_matched frame_matched exact_iso exact_iso spectrum_matched spectrum
 SEEDS=(0 1 0 1 0 1 0 1)
 i=$SLURM_ARRAY_TASK_ID
 OUT=$RUNS/v3_sft_${MODES[$i]}_lr0.1_s${SEEDS[$i]}
+if ! mkdir "$OUT.lock" 2>/dev/null; then echo "SKIP: $OUT already claimed by $(cat $OUT.lock/job 2>/dev/null)"; exit 0; fi
+echo "$SLURM_JOB_ID $SLURMD_NODENAME $SLURM_JOB_GRES" > "$OUT.lock/job"
 echo "=== batch2 sft ${MODES[$i]} lr=1e-6 seed=${SEEDS[$i]} -> $OUT ==="
 
 $PY scripts_v3/train.py --objective sft --steps 300 --save-every 20 --lr 1e-6 \

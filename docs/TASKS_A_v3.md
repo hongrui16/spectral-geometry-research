@@ -21,7 +21,7 @@ v3 = `docs/unified_paper_document_v3.md` + `TASKS_A_v3 / TASKS_B_v3` + `results/
 
 ## A1b:批次一 SFT 六个 run 由 A 跑(2026-09-12 提交 gpuq A100.40gb,`slurm_v3/batch1_sft.sbatch`;交付到 `results/v3/result_A/v3_sft_full_lr*_s*`)
 
-## A2:批次一裁决 —— SFT 侧 ✅ 2026-09-12:lr\* = 1e-6(×1/10 HEALTHY,×1/3 MMLU 衰减,×1/30 健康但学得少);dense@lr/10 与 r 维干预同前沿 → SFT 上 H-4 成立、C5 初判阴性。SFT 批次二 8 个 run 已由 A 提交(`slurm_v3/batch2_sft.sbatch`)。RLVR 侧等 B。
+## A2:批次一裁决 —— SFT 侧 ✅ 2026-09-12:lr\* = 1e-6(×1/10 HEALTHY,×1/3 MMLU 衰减,×1/30 健康但学得少);dense@lr/10 与 r 维干预同前沿 → SFT 上 H-4 成立、C5 初判阴性。SFT 批次二 8 个 run 已由 A 提交(`slurm_v3/batch2_sft.sbatch`)。RLVR 侧等 B。 2026-09-13:A100.40gb 全满、原 job 9916589 排队 >14h 未起,改为同一数组按 GPU 类型分投(gpuq 3g.40gb=27170、gpuq A100.80gb=27169、contrib-gpuq 3g.40gb=27171,sbatch 内 `$OUT.lock` 原子认领防重复);frame_matched×2 / exact_iso×2 已在 MIG 上跑。
 
 ## A2(原文):批次一裁决(B 交付当天)
 1. `analysis_v3/health.py` 跑 12 个 dense run → 定 lr\*(最大的 HEALTHY 档);写进 `TASKS_B_v3.md` 批次二并 push。
