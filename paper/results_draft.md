@@ -261,6 +261,38 @@ lr\* = 1e-6,s_rel = 1,300 步,2 seed;300 步终点,seed 合并;SE:GSM8K 0.016、
 B 报告(MMLU 终值 / 两 seed GSM8K 差 / reward 回落):×1/30 0.479 / 0.000 / 0.0295;**×1/10 0.470 / 0.028 / 0.026 → HEALTHY,余量 +0.017**;×1/3 0.452 / 0.072 / 0.016 → MMLU 与离散双 FAIL。
 B 另报:E-v3-0a 秩受限更新权重空间位移更大(0.89–0.94 vs 0.755)但函数空间位移小 10–30 倍;单步 KL 优势(276–845×)到 300 步累计只剩 3.5–4.7×(不可外推);E-v3-0b:v2 lr×1 dense 的 MMLU 崩塌是格式假象(argmax_in_letters 0.025 → H-4 成立),v3 lr×1/3 的下降是真实能力损失(格式 0.865 与 base 持平)。数字待 run 目录到齐后由 A 复核登记。
 
+**A 复核(2026-09-16,A 自跑 dense lr\* ×2 seed,`slurm_v3/batch_rlvr.sbatch` 0–1,MIG 3g.40gb)**:full lr\*=2e-7 s0/s1 GSM8K 0.656/0.634(0.645)、MMLU 0.471/0.474(0.472);reward 峰 0.577、末 100 步 0.559、回落 0.018;两 seed GSM8K 差 0.022;trunc_frac 末 50 步 0.11 → **HEALTHY,与 B 报告一致(B:0.626–0.654 / 0.470),RLVR lr\* = 2e-7 确认,H-0 成立(RLVR)**。余量:MMLU +0.019、回落 +0.012。
+
+### E-v3-2 / E-v3-3 / E-v3-4 / E-v3-5 —— RLVR 十六个(A 自跑,2026-09-16,`slurm_v3/batch_rlvr.sbatch`,MIG 3g.40gb;B 的 RLVR 交付始终未到,A 于 09-16 02:30 UTC 起自跑,约 5 h/run)
+
+lr\* = 2e-7,300 步,`--eval-every 50`;GSM8K n=500、MMLU n=1000;SE 合并 2 seed:GSM8K 0.016、MMLU 0.011。base 0.546/0.483。所有 11 个配置按 H-0 三判据均 HEALTHY(`analysis_v3/health.py`)。表与两两检验由 `analysis_v3/verdict_rlvr.py results/v3/result_A` 生成。
+运维记录:MIG 3g.40gb 上评测子进程与训练进程共卡,干预 run(含 dense 在 step 150)在 step 50/150 的 MMLU 评测 OOM(需 7.56 GiB,余 5–7.5 GiB);`train.py run_evals` 加评测前 `torch.cuda.empty_cache()` + 失败时降 batch 重试(f0a37a3),全部 16 个 run 在补丁后重跑,**无一触发降 batch 重试**,评测口径与 SFT 完全一致。
+
+| 更新 | 维度 | lr | s_rel | GSM8K s0/s1(均值) | MMLU s0/s1(均值) | reward 末 100 | trunc 末 50 |
+|---|---|---|---|---|---|---|---|
+| full | mn | lr\* | – | 0.656/0.634(0.645) | 0.471/0.474(0.472) | 0.559 | 0.11 |
+| frame_matched | mn | lr\* | 1 | 0.628/0.610(0.619) | 0.478/0.467(0.473) | 0.543 | 0.15 |
+| exact_iso | mn | lr\* | 1 | 0.702/0.690(**0.696**) | 0.466/0.462(0.464) | **0.623** | 0.15 |
+| spectrum_matched | r | lr\* | 1 | 0.554/0.572(0.563) | 0.474/0.480(0.477) | 0.341 | 0.47 |
+| random_ext | r | lr\* | 1 | 0.546/0.564(0.555) | 0.476/0.478(0.477) | 0.340 | 0.48 |
+| spectrum_matched | r | lr\* | 3 | 0.570(s0) | 0.478 | 0.400 | 0.33 |
+| random_ext | r | lr\* | 3 | 0.558(s0) | 0.478 | 0.405 | 0.32 |
+| spectrum_matched | r | lr\* | 10 | 0.594(s0) | 0.475 | 0.486 | 0.18 |
+| random_ext | r | lr\* | 10 | 0.586(s0) | 0.474 | 0.480 | 0.23 |
+| spectrum_matched | r | lr×1 | 1 | 0.578(s2) | 0.474 | 0.545 | 0.10 |
+| random_ext | r | lr×1 | 1 | 0.620(s2) | 0.478 | 0.569 | 0.14 |
+
+两两差(GSM8K / MMLU,t 为合并 SE):
+- **H-2(E-v3-2)**:full − frame_matched +0.026 (t=1.2) / 0.000 (t=0.0) → 不可分;**full − exact_iso −0.051 (t=−2.4) / +0.008 (t=0.5);frame_matched − exact_iso −0.077 (t=−3.6) / +0.009 (t=0.5)**。→ **H-2 在 RLVR 上不成立:exact_iso(等范数、谱拉平)GSM8K 高于 dense 0.05、高于 frame_matched 0.08,MMLU 差在 1 SE 内**。reward 轨迹同向:exact_iso 50 步窗均值 0.37→0.64,dense 0.35→0.58,frame_matched 0.35→0.55,从第 100 步起已分开。B 的单 seed 0.706 与 A 的 s0 0.702 为同 seed 复算,s1 0.690 是独立复现。**C4"保谱/去谱在健康区不可分"只在 SFT 成立;RLVR 上去谱更新占优(GSM8K)**。第三 seed(full/frame_matched/exact_iso s2,jobs 274505/274506)已提交以确认。
+- **H-1(E-v3-3)**:spectrum_matched − random_ext +0.008 (t=0.4) / 0.000 (t=0.0) → **H-1 在 RLVR lr\* 上成立(2 seed);C2 在两种范式上都成立**。lr×1 单 seed −0.042 (t=−1.4) / −0.004,单 seed 不裁决。
+- **前沿(E-v3-3/5,C5)**:r 维两字典在 lr\* 上被 dense 严格占优:spectrum − full −0.082 (t=−3.8) / +0.005 (t=0.3),random − full −0.090 (t=−4.1) / +0.005 (t=0.3)。r 维在 lr\* 上 reward 末 100 步只有 0.34(dense 0.56),trunc_frac 0.47(base 水平)——**等范数 r 维更新在 RLVR 下几乎不训练**,与 E-v3-0c(功能步长小两个量级)一致。→ **C5 在 RLVR 上阴性,且比 SFT 更强(SFT 是"无一方占优",RLVR 是 dense 占优)**。
+- **H-3(E-v3-5,s_rel 扫描,seed 0)**:与 SFT 不同,RLVR 的 r 维更新**对步长是响应的**:s_rel 1→3→10 GSM8K 0.56→0.57→0.59(+0.031, t=1.1,两字典一致),reward 末 100 步 0.34→0.40→0.48,trunc 0.47→0.33→0.20;lr×1(≈ s_rel 10 的步长)random_ext 0.620 / reward 0.569。但直到 lr×1 也只追到 dense lr\* 的 GSM8K 以下(0.58–0.62 vs 0.645),MMLU 全程 0.474–0.480 与 dense 0.472 在 1 SE 内。→ **r 维前沿没有落在 dense 前沿右上方(预注册判据),H-3 阴性(RLVR);r 维约束的效果是"学得慢",不是"折中更好"**。
+- 对 v2 P3 的校正:v2 的 RLVR r 维 lr×1(0.63/0.59)与 v3 lr×1 单 seed(0.58–0.62 / 0.47)量级一致;v2 的"mn 维崩到 0.24"已由 E-v3-0b 确认是格式假象 + lr×1 崩溃区。
+
+**RLVR 侧总结(2026-09-16)**:H-0 ✅(lr\*=2e-7)、H-1 ✅、**H-2 ✗(exact_iso > dense,待第三 seed)**、H-3 ✗(C5 阴性,dense 占优)。
+**两范式对照**:C1–C3 两侧成立;C4 只在 SFT 成立,RLVR 上谱拉平的等范数更新学得更快更多;C5 两侧阴性。r 维更新在 SFT 上对步长不响应、在 RLVR 上响应但落后 dense。这改变 v3 §4 的裁决表与主线措辞(C4 由"成立"改为"范式依赖"),**是否重写由用户决定**;A 未改企划书。
+图:`figs/v3/fig1_frontier.pdf`、`fig1b_trajectories.pdf`、`frontier_points.csv` 已含 RLVR 全部 11 个配置。
+
 **余量登记(B 指出,A 确认)**:SFT lr\* = 1e-6 的 H-0 余量仅 +0.003(均值 0.456 vs 0.453;s1 终值 0.450;末三点均值读法 0.4525 → FAIL);RLVR lr\* 两种读法均 PASS。引用 SFT lr\* 必须连余量;SFT dense 参照同时报 lr×1/30(0.390/0.461,余量 +0.008)。SFT 三批的 H-1/H-2/H-3 裁决不受影响(均为同 lr 下的族间比较,且 lr×1/30 点与 r 维干预重合)。
 **命名说明**:`smoke_v3_*_s<N>` 的 `_s<N>` 是 s_rel,不是 seed;五个 smoke 均 seed 0(E-v3-0c 的同 prompt 流前提成立)。
 

@@ -86,6 +86,8 @@ $PY analysis_v3/health.py $RUNS/v3_rlvr_full_lr*_s* $RUNS/v3_sft_full_lr*_s* --b
 
 ---
 
+> **2026-09-16 更新:批次一~三的 RLVR 全部 16 个 run 已由 A 在本地集群自跑完成并裁决(`slurm_v3/batch_rlvr.sbatch`,登记处 E-v3-2/3/4/5 RLVR 节)。B 的 RLVR run 目录仍欢迎交付,作为额外 seed 登记(同 seed 的作为确定性复算);B 不必再新开 RLVR run。**
+
 ## 批次二 + 批次三(RLVR;2026-09-13 A 裁决后一次性放开,14 run 全可并行)
 
 > **RLVR lr\* = 2e-7(×1/10)**,采用 B 批次一报告(三判据 HEALTHY;lr×1/3 在 MMLU 与 GSM8K 离散上双失败)。A 收到 run 目录后用 `health.py` 复核,若翻案会另发通知,但不阻塞开跑。
