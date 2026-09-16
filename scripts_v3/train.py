@@ -506,7 +506,17 @@ class Trainer:
             cmd = [sys.executable, os.path.join(here, script), "--model", ck,
                    "--limit", str(limit), "--out", out]
             t0 = time.time()
-            subprocess.run(cmd, check=True)
+            # 2026-09-16: the eval subprocess shares the GPU with this process; release the
+            # allocator cache first (no numeric effect), and on OOM retry once with a smaller
+            # eval batch (padding-only difference). MIG 3g.40gb + random_ext dictionary hit this.
+            torch.cuda.empty_cache()
+            r = subprocess.run(cmd)
+            if r.returncode != 0:
+                small = {"gsm8k": "8", "mmlu": "4"}[name]
+                print(f"[eval] step {step} {name} failed (rc={r.returncode}); "
+                      f"retrying with --batch {small}", flush=True)
+                torch.cuda.empty_cache()
+                subprocess.run(cmd + ["--batch", small], check=True)
             outs[name] = out
             print(f"[eval] step {step} {name} -> {out} ({time.time() - t0:.0f}s)",
                   flush=True)
