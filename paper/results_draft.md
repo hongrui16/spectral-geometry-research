@@ -293,6 +293,58 @@ lr\* = 2e-7,300 步,`--eval-every 50`;GSM8K n=500、MMLU n=1000;SE 合并 2 seed
 **两范式对照**:C1–C3 两侧成立;C4 只在 SFT 成立,RLVR 上谱拉平的等范数更新学得更快(终点 ≥ dense > 保谱);C5 两侧阴性。r 维更新在 SFT 上对步长不响应、在 RLVR 上响应但落后 dense。这改变 v3 §4 的裁决表与主线措辞(C4 由"成立"改为"范式依赖"),**是否重写由用户决定**;A 未改企划书。
 图:`figs/v3/fig1_frontier.pdf`、`fig1b_trajectories.pdf`、`frontier_points.csv` 已含 RLVR 全部 11 个配置。
 
+**E-v3-1 RLVR 闸门,A 自跑补齐(2026-09-16 晚,`batch_rlvr.sbatch` 19–22)**:lr×1/3 = 6.67e-7 s0/s1 GSM8K 0.676/0.728(0.702)、MMLU 0.471/0.452(0.462)、reward 回落 0.011;两 seed GSM8K 差 0.052 > 0.04 → **FAIL(离散)**,s1 的 MMLU 在第 150 步跌到 0.416、末点 0.452 压线。与 B 报告方向一致(B:差 0.072、MMLU 0.452)。**RLVR lr\* = 2e-7 维持**。lr×1/30 两 seed 在跑,补登记。
+副产品:dense lr×1/3 的 (0.702, 0.462) 与 exact_iso lr\* 的 (0.680, 0.468) 几乎同点,且两者的 seed 离散都超 0.04(0.052 / 0.054)。
+
+### E-v3-0a 累计位移 / 累计 KL —— A 自跑,v3 全部 39 个终点 ckpt(job 315249,`analysis_v3/cum_kl.py --glob 'v3_*'`;`results/v3/result_A/cum_kl/`)
+
+disp = 186 个矩阵 ‖W_300 − W_base‖_F 的平方和开方(绝对值);KL = base→ckpt 逐 token 前向 KL(A5 参考集,fp32)。
+
+| 范式 | 更新 | lr / s_rel | disp(seed 列表) | KL(seed 列表) |
+|---|---|---|---|---|
+| RLVR | full | lr\* | 0.096 / 0.097 / 0.094 | 0.60 / 0.67 / 0.52 |
+| RLVR | frame_matched | lr\* | 0.093 / 0.093 / 0.089 | 0.50 / 0.52 / 0.32 |
+| RLVR | exact_iso | lr\* | **0.638 / 0.640 / 0.642** | 0.66 / 0.62 / 0.52 |
+| RLVR | spectrum_matched | lr\* | 0.136 / 0.136 | **0.0046 / 0.0052** |
+| RLVR | random_ext | lr\* | 0.131 / 0.136 | **0.0042 / 0.0046** |
+| RLVR | spectrum / random | lr\*, s_rel 3 | 0.34 / 0.35 | 0.016 / 0.014 |
+| RLVR | spectrum / random | lr\*, s_rel 10 | 0.95 / 0.98 | 0.113 / 0.033 |
+| RLVR | spectrum / random | lr×1 s2 | 0.89 / 0.94 | 0.122 / 0.165 |
+| SFT | full | lr\* | 0.490 / 0.490 | 0.87 / 0.82 |
+| SFT | frame_matched | lr\* | 0.490 / 0.490 | 0.87 / 0.82 |
+| SFT | exact_iso | lr\* | 0.796 / 0.792 | 0.84 / 0.80 |
+| SFT | spectrum / random | lr\* | 1.74 / 2.05 | 0.50 / 0.51 |
+| SFT | spectrum / random | lr\*, s_rel 10 | 6.38 / 7.36 | 0.68 / 0.67 |
+| SFT | full | lr×1/30 · lr×1/3 | 0.26 · 1.26 | 0.87 · 0.85 |
+
+- **r 维在 RLVR 下几乎不动**:lr\* 累计 KL 是 dense 的 <1%(0.005 vs 0.6),s_rel 10 或 lr×1 也只到 dense 的 5–25%;SFT 下 r 维累计 KL 达 dense 的 60%(0.50 vs 0.85)。与 B 在 v2 e4a 上的读法(r 维权重位移更大、函数位移小 10–30 倍)同向,v3 上 RLVR 的差距更大。这解释了 RLVR 前沿上 r 维被 dense 占优、SFT 上只是"换权衡点"。
+- **exact_iso 的累计权重位移是 dense 的 6.7 倍(RLVR)/ 1.6 倍(SFT),累计 KL 与 dense 相同**。见 E-v3-0c 扩展与 exact_iso 机制说明。
+- SFT 累计 KL 对 lr 几乎不敏感(lr×1/30 到 ×1/3 都是 0.85–0.87),但位移 5 倍:SFT 的函数位移在这个区间饱和,MMLU 的差异不是"离 base 多远"能解释的。
+
+### E-v3-0b MMLU 格式检查 —— A 自跑,base + 12 个 v3 ckpt(job 315249,`analysis_v3/mmlu_format.py`,200 题;`results/v3/result_A/mmlu_format/`)
+
+argmax 落在选项字母上的比例(base 0.865):RLVR lr\* 五种更新 0.84–0.96,RLVR random lr×1 0.89,SFT lr\* 0.90–1.0,SFT lr×1/30 0.985,**SFT lr×1/3 0.30**。限定字母打分的 MMLU(base 0.475):健康 run 0.43–0.475,SFT lr×1/3 0.265。
+→ 所有健康区 run **没有格式假象**;SFT lr×1/3 的 MMLU 0.30 同时是格式漂移(0.30)和真实损失(限定字母 0.265 ≈ 随机 0.25)。B 报的 v2 lr×1 dense 崩到 0.24 = 格式假象(0.025)、v3 RLVR lr×1/3 = 真实损失(格式 0.865),与此一致。exact_iso RLVR 的限定字母 MMLU 0.43 略低于 dense 0.46(200 题,SE≈0.035,不裁决)。
+
+### E-v3-0c 扩展:exact_iso / frame_matched 的单步功能步长 —— A 自跑(`slurm_v3/step_kl_iso.sbatch`,10 个 8 步捕获 + step_kl;`results/v3/result_A/step_kl_iso_{sft,rlvr}_step{8,4}`)
+
+同 prompt 流、seed 0、lr×1,27 个跟踪矩阵的实际施加更新 H(引擎之后捕获)加到 base 上,32 条参考序列 fp32 前向。KL 单位 nats/token,‖H‖ 为 27 矩阵总 Frobenius 范数。
+
+| 范式 / 步 | none | frame_matched | exact_iso | spectrum_matched | random_ext |
+|---|---|---|---|---|---|
+| RLVR 步 4:‖H‖ / KL / KL/‖H‖² | 0.0090 / 1.19e-3 / 14.5 | 0.0092 / 9.79e-4 / 11.6 | 0.0108 / 7.75e-4 / 6.7 | 0.0091 / 3.2e-7 / 0.004 | 0.0091 / 2.7e-7 / 0.003 |
+| RLVR 步 8 | 0.0065 / 3.91e-4 / 9.3 | 0.0066 / 2.59e-4 / 5.9 | 0.0088 / 2.39e-4 / 3.1 | 0.0066 / 1.5e-7 / 0.003 | 0.0066 / 1.0e-7 / 0.002 |
+| SFT 步 4 | 0.0452 / 3.00e-2 / 14.7 | 0.0452 / 3.04e-2 / 14.9 | 0.0452 / 2.85e-2 / 13.9 | 0.0572 / 1.0e-4 / 0.032 | 0.0574 / 7.2e-5 / 0.022 |
+| SFT 步 8 | 0.0325 / 8.92e-3 / 8.4 | 0.0325 / 8.40e-3 / 7.9 | 0.0329 / 9.05e-3 / 8.3 | 0.0473 / 7.4e-5 | 0.0477 / 5.2e-5 |
+
+- **exact_iso 的单步功能步长不比 dense 大**:RLVR 下 KL 是 dense 的 0.65 / 0.61(步 4 / 8),单位范数平方的 KL 只有 dense 的 46% / 33%;SFT 下三者相同。**M1"有效步长更大"不能解释 exact_iso 在 RLVR 上学得更快**:它单步走得少、累计走得一样远(E-v3-0a KL 相同)、权重却走了 6.7 倍。
+- r 维(spectrum / random)单步 KL 比 dense 小 3–4 个数量级(RLVR)/ 2–3 个数量级(SFT),复现 E-v3-0c 主结果,这次 s_rel=1、两字典与 none 同口径(回应 B 对 s_rel=3 那个点的保留)。
+- RLVR 下 frame_matched 的 KL/‖H‖² 比 dense 低 20–36%:保谱把更新压进已有奇异方向,单步功能效率更低,与它 reward 最慢一致。
+
+### exact_iso 机制说明(A,2026-09-16,回应 B"引擎缺陷"的判断)
+
+`specgeom_v3/intervene_engine.py` 的 exact_iso **不是**"把更新谱拉平",而是:dense 步之后对 W_after 做 SVD,把奇异值整体重置为 base 的锚定谱(`S_anchor`),只允许奇异向量(frame)变化,每步执行,**没有等范数匹配**(scale_log 为空)。因此:实际施加的更新 = dense 步 + 谱修正,单步范数比 dense 大 0–35%(E-v3-0c 扩展:0.0108 vs 0.0090);W 的奇异值在整个训练中被钉在 base 上;权重位移可以累积得远得多(谱修正每步同向)。B 说"ckpt 离 base 谱的距离是 dense 漂移的 33 倍",若指 W 的奇异值则与代码矛盾(应为 0),若指 ‖W − W_base‖ 或更新 ΔW 的谱则与 E-v3-0a 的 6.7 倍同向;A 已提交直接核对(`analysis_v3/spectrum_drift.py`,jobs 322552/322553),结果补登记。**A 的判断:这是设计(frame-only 更新)而非 bug**,但它同时改变了"等范数"前提,所以 H-2 里 exact_iso 臂与 full/frame_matched 不是严格等范数比较;frame_matched(等范数、保谱)与 full 的比较仍然干净。
+
 **余量登记(B 指出,A 确认)**:SFT lr\* = 1e-6 的 H-0 余量仅 +0.003(均值 0.456 vs 0.453;s1 终值 0.450;末三点均值读法 0.4525 → FAIL);RLVR lr\* 两种读法均 PASS。引用 SFT lr\* 必须连余量;SFT dense 参照同时报 lr×1/30(0.390/0.461,余量 +0.008)。SFT 三批的 H-1/H-2/H-3 裁决不受影响(均为同 lr 下的族间比较,且 lr×1/30 点与 r 维干预重合)。
 **命名说明**:`smoke_v3_*_s<N>` 的 `_s<N>` 是 s_rel,不是 seed;五个 smoke 均 seed 0(E-v3-0c 的同 prompt 流前提成立)。
 

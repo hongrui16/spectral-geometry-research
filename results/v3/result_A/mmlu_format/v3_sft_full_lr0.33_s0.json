@@ -1,0 +1,211 @@
+{
+ "model": "/scratch/rhong5/spectral_runs/v3_sft_full_lr0.33_s0/ckpt_000300",
+ "n": 200,
+ "letter_mass_mean": 0.28122715413570404,
+ "argmax_in_letters_frac": 0.3,
+ "mmlu_letter_logit": 0.265,
+ "top_argmax_tokens": [
+  [
+   "The",
+   85
+  ],
+  [
+   "A",
+   48
+  ],
+  [
+   "In",
+   13
+  ],
+  [
+   "D",
+   8
+  ],
+  [
+   "C",
+   4
+  ],
+  [
+   "Ant",
+   2
+  ],
+  [
+   "M",
+   2
+  ],
+  [
+   "If",
+   2
+  ],
+  [
+   "5",
+   1
+  ],
+  [
+   "NO",
+   1
+  ]
+ ],
+ "generations": [
+  {
+   "question": "A landlord was the owner of a large, high-rise apartment building in a Midwestern city. On June 1, 2007, two tenants took possession of a three- bedroom apartment in the landlord's building under a th",
+   "gold": "C",
+   "generation": "The two tenants were not liable for the fire because the lease did not contain a provision regarding liability for fire.\nThe two tenants were not liable because they did not own an interest in the property.\nThe two tenants were not liable because the jurisdiction has rejected the common law view on the tenant's duty to pay rent"
+  },
+  {
+   "question": "Weber (1919) said that the state's monopoly of the use of force was legitimated by:",
+   "gold": "B",
+   "generation": "The state's monopoly of the use of force was legitimated by rational-legal authority because Weber argued that the state's monopoly of the use of force was legitimated by the rational-legal authority of the state.\nThe state's monopoly of the use of force was legitimated by rational-legal authority because Weber argued"
+  },
+  {
+   "question": "Which expression is equivalent to 5(4x + 3) — 2x?",
+   "gold": "A",
+   "generation": "5(4x + 3) = 20x + 15\n20x + 15 - 2x = 18x + 15\nA\n"
+  },
+  {
+   "question": "Congress has embarked on another round of expansionary fiscal policy to boost employment and get reelected. As chair of the central bank how would you reduce the \"crowding-out\" effect and what macroec",
+   "gold": "D",
+   "generation": "The central bank would buy government securities to reduce the crowding-out effect because the government is a net borrower and the central bank is a net lender.\nThe central bank would lower the discount rate because the discount rate is the interest rate the central bank charges the government for borrowing.\nThe central bank would lower the discount"
+  },
+  {
+   "question": "Immediately after a shooting incident, the police chased one of the shooters into an apartment where he was apprehended and arrested. While in the apartment, a detective noticed some antique furniture",
+   "gold": "D",
+   "generation": "The police had no probable cause to believe the items were contraband because the items were not in plain view.\nThe police had no probable cause to believe the items were contraband because the items were not in plain view.\nThe police had no probable cause to believe the items were contraband because the"
+  },
+  {
+   "question": "Which of the following reactions occurs in the forward direction during glycolysis but in the reverse direction during fermentation?",
+   "gold": "C",
+   "generation": "A. pyruvate → lactate\nIn the forward direction, pyruvate is converted to lactate during glycolysis.\nIn the reverse direction, lactate is converted to pyruvate during fermentation.\nB. pyruvate → ethanol\nIn the forward direction, pyru"
+  },
+  {
+   "question": " What is the name of the Jewish prayer used for mourning since the Middle Ages?",
+   "gold": "B",
+   "generation": "The K'nesset is the Jewish prayer used for mourning since the Middle Ages.\nThe K'nesset is a prayer that is recited by the mourner to express their grief and to ask for the deceased's forgiveness.\nThe K'nesset is recited by the mourner to express their grief"
+  },
+  {
+   "question": "In Python 3, b = [11,13,15,17,19,21]; print(b[::2]) outputs what?",
+   "gold": "C",
+   "generation": "The slice b[::2] is equivalent to b[0:2*len(b)-1]\nThe slice b[0:2*len(b)-1] is equivalent to b[0:4-1]\nThe slice b[0:4-1] is equivalent to b[0:"
+  },
+  {
+   "question": "The process of invasion and succession is a process involving migration and is best described as when",
+   "gold": "D",
+   "generation": "The process of invasion and succession is a process involving migration and is best described as when new residents move into areas occupied by older resident groups.\nThis is because the process of invasion and succession is a process involving migration and is best described as when new residents move into areas occupied by older resident groups.\nThis is because"
+  },
+  {
+   "question": "The vitamins which are lost most readily during cooking are:\n",
+   "gold": "D",
+   "generation": "The vitamins which are lost most readily during cooking are vitamin C and thiamin.\nThe other vitamins are lost less readily during cooking.\nTherefore, the correct answer is D.\nThe vitamins which are lost most readily during cooking are vitamin C and thiamin.\nTherefore, the correct answer is D."
+  },
+  {
+   "question": "This question refers to the following information.\n\"The conscience of the people, in a time of grave national problems, has called into being a new party, born of the nation's sense of justice. We of ",
+   "gold": "D",
+   "generation": "Theodore Roosevelt's \"Big Stick\" policy in Latin America was best characterized by his belief that the United States had an obligation to protect security and stability by assuming a protective role throughout the Western hemisphere.\nTheodore Roosevelt's \"Big Stick\" policy in Latin America was best characterized by his belief that the United States had"
+  },
+  {
+   "question": "What is the price of a three-year bond (face value $100), paying 5% coupons, with a yield of 6%?",
+   "gold": "D",
+   "generation": "The coupon rate is 5% and the yield is 6%, so the bond is selling at a discount.\nThe discount is 6-5=1%\nSo the price is 100-1= $99.\nThe price is 99*1.06=$1"
+  },
+  {
+   "question": "___________, ___________ and __________ are all factors which can impact the moral intensity",
+   "gold": "A",
+   "generation": "The three factors that can impact the moral intensity are social consensus, temporal immediacy and proximity.\nTherefore, the correct answer is A.\n"
+  },
+  {
+   "question": "During a chemical reaction, NO(g) gets reduced and no nitrogen-containing compound is oxidized. Which of the following is a possible product of this reaction?",
+   "gold": "B",
+   "generation": "NO is reduced to N2 because the oxidation state of N in NO is +2 and the oxidation state of N in N2 is 0.\nNO2 is oxidized because the oxidation state of N in NO2 is +4 and the oxidation state of N in N2 is 0.\nNO3"
+  },
+  {
+   "question": "Which of the following is true about rectal bleeding?",
+   "gold": "A",
+   "generation": "A. A painful digital examination suggests an anal fissure\nB. Bright red blood on the finger usually signifies a caecal lesion\nC. Proctoscopy is of no value in the assessment of rectal bleeding\nD. Rectal cancer is the commonest cause of rectal bleeding\nA. A painful"
+  },
+  {
+   "question": "Historically, it has been observed that computer processing speeds tend to double every two years. Which of the following best describes how technology companies can use this observation for planning ",
+   "gold": "C",
+   "generation": "A. Technology companies can accurately predict the dates when new computing innovations will be available to use.\nB. Technology companies can plan to double the costs of new products each time advances in processing speed occur.\nC. Technology companies can set research and development goals based on anticipated processing speeds.\nD. Technology companies can"
+  },
+  {
+   "question": "In acid solution the bromate ion, BrO3- can react with other substances, resulting in Br2. Balance the half-reaction for bromate ions forming bromine. The balanced half-reaction has",
+   "gold": "D",
+   "generation": "The half-reaction for bromate ions forming bromine is:\nBrO3- + 6H+ + 6e- -> Br2 + 3H2O\nThe number of electrons on the left is 6.\nTherefore, the correct answer is A.\n\n"
+  },
+  {
+   "question": "A 35-year-old male presents to the office for the result of an HIV test, and he is informed that the result is positive. The patient resists disclosure to his wife because he has not told her about hi",
+   "gold": "D",
+   "generation": "The physician's recommendation to inform the patient of his HIV status is based on the principle of beneficence, which is the physician's duty to promote the patient's well-being.\nThe patient's right to refuse treatment is overridden by the physician's duty to promote the patient's well-being.\nTherefore, the correct answer"
+  },
+  {
+   "question": "Which of the following would increase the aggregate demand function?",
+   "gold": "D",
+   "generation": "A. Higher levels of imported goods\nThe aggregate demand function is a function of the price level and the level of income.\nThe price level is a function of the level of income and the level of the interest rate.\nThe level of the interest rate is a function of the level of the price level and the"
+  },
+  {
+   "question": "Who has legal responsibility for a patient's care during hospital admission, stay, and discharge?",
+   "gold": "B",
+   "generation": "The named nurse is responsible for the patient's care during hospital admission, stay, and discharge.\nThe ward manager is responsible for the ward and the patient's care.\nThe GP is responsible for the patient's care.\nThe named consultant is responsible for the patient's care.\nThe named nurse is the most"
+  },
+  {
+   "question": "A retailer agreed to purchase an orchard's total cherry production for a 12-month period. The contract included this provision: \"Terms: Cash upon delivery  deliveries to be made at least twice per m",
+   "gold": "D",
+   "generation": "The contract was for cash at delivery, and the driver failed to deliver the check.\nThe contract was for cash at delivery, and the driver failed to deliver the check.\nThe contract was for cash at delivery, and the driver failed to deliver the check.\nThe contract was for cash at delivery, and the"
+  },
+  {
+   "question": "The polytene chromosomes seen in Drosophila silvarentis with the aid of a light microscope are",
+   "gold": "D",
+   "generation": "Polytene chromosomes are formed by repeated rounds of DNA replication followed by nuclear division.\nThey are not actively carrying out transcription.\nThey are produced only during mitosis.\nThey are multiple copies of a single chromosome.\nTherefore, the correct answer is D.\n\n"
+  },
+  {
+   "question": "In HIV-associated tuberculosis cases, treatment with antiretrovirals should begin:",
+   "gold": "C",
+   "generation": "Antiretrovirals should be started before the initiation of antiretroviral drugs in HIV-associated tuberculosis cases.\nThis is because the initiation of antiretroviral drugs in HIV-associated tuberculosis cases is not recommended.\nThe initiation of antiretroviral drugs in HIV-associated tuberculosis cases is not recommended"
+  },
+  {
+   "question": " Which of the following is a value that Arthur believes is more fundamental than rights and desert?",
+   "gold": "D",
+   "generation": "Arthur believes that justice is more fundamental than rights and desert because he believes that justice is the foundation of all other things.\nHe believes that fairness is a value that is more fundamental than rights and desert because he believes that fairness is the foundation of all other things.\nHe believes that respect for other persons is a value"
+  },
+  {
+   "question": "At the break-even point",
+   "gold": "C",
+   "generation": "At the break-even point, the expenses of corporations just equal their revenues.\nThis is because the expenses of corporations are equal to the revenues of corporations.\nThis is because the expenses of corporations are equal to the revenues of corporations.\nThis is because the expenses of corporations are equal to the revenues of corporations.\n"
+  },
+  {
+   "question": "A baby born with pulmonary hypoplasia secondary to oligohydramnios caused by renal agenesis would be classified as having:",
+   "gold": "C",
+   "generation": "A baby born with pulmonary hypoplasia secondary to oligohydramnios caused by renal agenesis would be classified as having a syndrome because the combination of the two conditions is a syndrome.\nA syndrome is a group of related conditions that are often caused by a single cause.\nA sequence is a series of"
+  },
+  {
+   "question": "What endogenous substrate source provides the most energy during moderate to high intensity exercise?\n",
+   "gold": "B",
+   "generation": "During moderate to high intensity exercise, the body uses the most energy from the liver glycogen.\nThe liver glycogen is the most abundant source of energy during moderate to high intensity exercise.\nThe liver glycogen is the most abundant source of energy during moderate to high intensity exercise.\nThe liver glycogen is the"
+  },
+  {
+   "question": "Why should a patient stand or sit as upright as possible when recording a peak flow rate?",
+   "gold": "A",
+   "generation": "A. To ensure best lung expansion and accuracy and consistency of readings.\nStanding or sitting upright allows the patient to breathe more effectively, leading to more accurate and consistent readings.\nB. This is the most comfortable position to perform any breathing test.\nC. The counter on the meter will not move if the patient"
+  },
+  {
+   "question": "Statement 1| The back-propagation algorithm learns a globally optimal neural network with hidden layers. Statement 2| The VC dimension of a line should be at most 2, since I can find at least one case",
+   "gold": "B",
+   "generation": "Statement 1 is False because the back-propagation algorithm is a local optimization algorithm and does not find a globally optimal neural network.\nStatement 2 is True because the VC dimension of a line is at most 2 because I can find at least one case of 3 points that cannot be shattered by any line."
+  },
+  {
+   "question": "A federal agency has been established for the purpose of stabilizing, supporting, and protecting farm income and prices. The agency is authorized to enter into and carry out such contracts or agreemen",
+   "gold": "D",
+   "generation": "The president was charged with knowingly making a false statement, and the federal government presented evidence to show that he falsified bills of lading and embezzled over $500,000 of surplus commodities for export.\nThe president testified that he did not know that he was dealing with a federal agency"
+  },
+  {
+   "question": "Which of the following statements identifies a chemically based sensory system?\nI. Gustatory system\nII. Auditory system\nIII. Olfactory system",
+   "gold": "D",
+   "generation": "The gustatory system is chemically based because it detects the chemical composition of food.\nThe auditory system is not chemically based because it detects sound waves.\nThe olfactory system is chemically based because it detects the chemical composition of the air.\nTherefore, the correct answer is D.\n\n"
+  },
+  {
+   "question": "Post-modernist writers have argued that:",
+   "gold": "A",
+   "generation": "D\n"
+  }
+ ]
+}

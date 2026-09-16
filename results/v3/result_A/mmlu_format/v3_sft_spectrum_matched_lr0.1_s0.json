@@ -1,0 +1,191 @@
+{
+ "model": "/scratch/rhong5/spectral_runs/v3_sft_spectrum_matched_lr0.1_s0/ckpt_000300",
+ "n": 200,
+ "letter_mass_mean": 0.9564935755729675,
+ "argmax_in_letters_frac": 0.995,
+ "mmlu_letter_logit": 0.44,
+ "top_argmax_tokens": [
+  [
+   "A",
+   77
+  ],
+  [
+   "B",
+   49
+  ],
+  [
+   "D",
+   42
+  ],
+  [
+   "C",
+   31
+  ],
+  [
+   "The",
+   1
+  ]
+ ],
+ "generations": [
+  {
+   "question": "A landlord was the owner of a large, high-rise apartment building in a Midwestern city. On June 1, 2007, two tenants took possession of a three- bedroom apartment in the landlord's building under a th",
+   "gold": "C",
+   "generation": "A\n"
+  },
+  {
+   "question": "Weber (1919) said that the state's monopoly of the use of force was legitimated by:",
+   "gold": "B",
+   "generation": "B\n"
+  },
+  {
+   "question": "Which expression is equivalent to 5(4x + 3) — 2x?",
+   "gold": "A",
+   "generation": "A\n"
+  },
+  {
+   "question": "Congress has embarked on another round of expansionary fiscal policy to boost employment and get reelected. As chair of the central bank how would you reduce the \"crowding-out\" effect and what macroec",
+   "gold": "D",
+   "generation": "C\n"
+  },
+  {
+   "question": "Immediately after a shooting incident, the police chased one of the shooters into an apartment where he was apprehended and arrested. While in the apartment, a detective noticed some antique furniture",
+   "gold": "D",
+   "generation": "B\n"
+  },
+  {
+   "question": "Which of the following reactions occurs in the forward direction during glycolysis but in the reverse direction during fermentation?",
+   "gold": "C",
+   "generation": "A\n"
+  },
+  {
+   "question": " What is the name of the Jewish prayer used for mourning since the Middle Ages?",
+   "gold": "B",
+   "generation": "B\n"
+  },
+  {
+   "question": "In Python 3, b = [11,13,15,17,19,21]; print(b[::2]) outputs what?",
+   "gold": "C",
+   "generation": "A\n"
+  },
+  {
+   "question": "The process of invasion and succession is a process involving migration and is best described as when",
+   "gold": "D",
+   "generation": "D\n"
+  },
+  {
+   "question": "The vitamins which are lost most readily during cooking are:\n",
+   "gold": "D",
+   "generation": "A\n"
+  },
+  {
+   "question": "This question refers to the following information.\n\"The conscience of the people, in a time of grave national problems, has called into being a new party, born of the nation's sense of justice. We of ",
+   "gold": "D",
+   "generation": "C\n"
+  },
+  {
+   "question": "What is the price of a three-year bond (face value $100), paying 5% coupons, with a yield of 6%?",
+   "gold": "D",
+   "generation": "B\n"
+  },
+  {
+   "question": "___________, ___________ and __________ are all factors which can impact the moral intensity",
+   "gold": "A",
+   "generation": "C\n"
+  },
+  {
+   "question": "During a chemical reaction, NO(g) gets reduced and no nitrogen-containing compound is oxidized. Which of the following is a possible product of this reaction?",
+   "gold": "B",
+   "generation": "A\n"
+  },
+  {
+   "question": "Which of the following is true about rectal bleeding?",
+   "gold": "A",
+   "generation": "D\n"
+  },
+  {
+   "question": "Historically, it has been observed that computer processing speeds tend to double every two years. Which of the following best describes how technology companies can use this observation for planning ",
+   "gold": "C",
+   "generation": "C\n"
+  },
+  {
+   "question": "In acid solution the bromate ion, BrO3- can react with other substances, resulting in Br2. Balance the half-reaction for bromate ions forming bromine. The balanced half-reaction has",
+   "gold": "D",
+   "generation": "A\n"
+  },
+  {
+   "question": "A 35-year-old male presents to the office for the result of an HIV test, and he is informed that the result is positive. The patient resists disclosure to his wife because he has not told her about hi",
+   "gold": "D",
+   "generation": "D\n"
+  },
+  {
+   "question": "Which of the following would increase the aggregate demand function?",
+   "gold": "D",
+   "generation": "D\n"
+  },
+  {
+   "question": "Who has legal responsibility for a patient's care during hospital admission, stay, and discharge?",
+   "gold": "B",
+   "generation": "A\n"
+  },
+  {
+   "question": "A retailer agreed to purchase an orchard's total cherry production for a 12-month period. The contract included this provision: \"Terms: Cash upon delivery  deliveries to be made at least twice per m",
+   "gold": "D",
+   "generation": "B\n"
+  },
+  {
+   "question": "The polytene chromosomes seen in Drosophila silvarentis with the aid of a light microscope are",
+   "gold": "D",
+   "generation": "D\n"
+  },
+  {
+   "question": "In HIV-associated tuberculosis cases, treatment with antiretrovirals should begin:",
+   "gold": "C",
+   "generation": "B\n"
+  },
+  {
+   "question": " Which of the following is a value that Arthur believes is more fundamental than rights and desert?",
+   "gold": "D",
+   "generation": "A\n"
+  },
+  {
+   "question": "At the break-even point",
+   "gold": "C",
+   "generation": "A\n"
+  },
+  {
+   "question": "A baby born with pulmonary hypoplasia secondary to oligohydramnios caused by renal agenesis would be classified as having:",
+   "gold": "C",
+   "generation": "D\n"
+  },
+  {
+   "question": "What endogenous substrate source provides the most energy during moderate to high intensity exercise?\n",
+   "gold": "B",
+   "generation": "A\n"
+  },
+  {
+   "question": "Why should a patient stand or sit as upright as possible when recording a peak flow rate?",
+   "gold": "A",
+   "generation": "A\n"
+  },
+  {
+   "question": "Statement 1| The back-propagation algorithm learns a globally optimal neural network with hidden layers. Statement 2| The VC dimension of a line should be at most 2, since I can find at least one case",
+   "gold": "B",
+   "generation": "C\n"
+  },
+  {
+   "question": "A federal agency has been established for the purpose of stabilizing, supporting, and protecting farm income and prices. The agency is authorized to enter into and carry out such contracts or agreemen",
+   "gold": "D",
+   "generation": "D\n"
+  },
+  {
+   "question": "Which of the following statements identifies a chemically based sensory system?\nI. Gustatory system\nII. Auditory system\nIII. Olfactory system",
+   "gold": "D",
+   "generation": "D\n"
+  },
+  {
+   "question": "Post-modernist writers have argued that:",
+   "gold": "A",
+   "generation": "D\n"
+  }
+ ]
+}
