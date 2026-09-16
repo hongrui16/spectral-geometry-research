@@ -1,0 +1,11 @@
+v3_rlvr_full_lr0.1_s0              n=186 median rel_dW=3.10e-04 median rel_dS=2.59e-05 max rel_dS=4.26e-01
+v3_rlvr_full_lr0.1_s1              n=186 median rel_dW=3.17e-04 median rel_dS=2.60e-05 max rel_dS=4.26e-01
+v3_rlvr_frame_matched_lr0.1_s0     n=186 median rel_dW=3.03e-04 median rel_dS=2.52e-05 max rel_dS=4.26e-01
+v3_rlvr_exact_iso_lr0.1_s0         n=186 median rel_dW=1.87e-03 median rel_dS=2.80e-04 max rel_dS=4.26e-01
+v3_rlvr_exact_iso_lr0.1_s1         n=186 median rel_dW=1.87e-03 median rel_dS=2.81e-04 max rel_dS=4.26e-01
+v3_rlvr_spectrum_matched_lr0.1_s0  n=186 median rel_dW=4.36e-04 median rel_dS=4.21e-04 max rel_dS=4.26e-01
+v3_sft_full_lr0.1_s0               n=186 median rel_dW=1.50e-03 median rel_dS=4.59e-05 max rel_dS=4.26e-01
+v3_sft_frame_matched_lr0.1_s0      n=186 median rel_dW=1.50e-03 median rel_dS=2.53e-05 max rel_dS=4.26e-01
+v3_sft_exact_iso_lr0.1_s0          n=186 median rel_dW=2.50e-03 median rel_dS=2.79e-04 max rel_dS=4.26e-01
+v3_sft_exact_iso_lr0.1_s1          n=186 median rel_dW=2.50e-03 median rel_dS=2.81e-04 max rel_dS=4.26e-01
+SPECTRUM_DRIFT_DONE

@@ -1,0 +1,8 @@
+tf32 matmul flag as imported: False precision highest
+tf32=True: anchor vs fp64 svdvals rel diff 1.36e-04
+  step 1: ||H||/||W||=6.50e-05  ||W_new-W_after||/||H||=7.80  ||W-W0||/||W0||=5.11e-04  rel_dS=3.56e-04
+  step 10: ||H||/||W||=6.50e-05  ||W_new-W_after||/||H||=5.28  ||W-W0||/||W0||=1.25e-03  rel_dS=3.55e-04
+tf32=False: anchor vs fp64 svdvals rel diff 1.36e-04
+  step 1: ||H||/||W||=6.50e-05  ||W_new-W_after||/||H||=4.37  ||W-W0||/||W0||=2.91e-04  rel_dS=2.81e-04
+  step 10: ||H||/||W||=6.50e-05  ||W_new-W_after||/||H||=0.74  ||W-W0||/||W0||=3.76e-04  rel_dS=2.78e-04
+ISO_NOISE_DONE
