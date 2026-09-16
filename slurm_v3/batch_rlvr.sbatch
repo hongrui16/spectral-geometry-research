@@ -5,6 +5,7 @@
 # Tier 3 (10-15): lr x1 seed 2 (x2), s_rel 3 / 10 x both dicts -> H-3 (C5 final).
 # Tier 4 (16-18, added 2026-09-16 after tier 1): third seed of dense / frame_matched / exact_iso at lr*
 #   (exact_iso > dense on GSM8K at 2 seeds, t=2.4; third seed to confirm).
+# Tier 5 (19-22, 2026-09-16): E-v3-1 RLVR dense gate lr x1/3 and x1/30 x 2 seeds (B's batch-1 never delivered).
 # Submit the same array under several GPU types; first task to start claims $OUT.lock, duplicates exit;
 # a failed train releases the lock so another GPU type can retry:
 #   sbatch --partition=contrib-gpuq --gres=gpu:A100.80gb:1 --array=0-9 slurm_v3/batch_rlvr.sbatch
@@ -20,11 +21,11 @@
 #SBATCH --output=/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/runs/slurm-%x-%A_%a.out
 
 source /home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/slurm_v3/common.sh
-MODES=(none none frame_matched frame_matched exact_iso exact_iso spectrum_matched spectrum_matched random_ext random_ext spectrum_matched random_ext spectrum_matched random_ext spectrum_matched random_ext none frame_matched exact_iso)
-SEEDS=(0 1 0 1 0 1 0 1 0 1 2 2 0 0 0 0 2 2 2)
-LRS=(2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-6 2e-6 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7)
-LRTAG=(lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr1 lr1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1)
-SCALES=(1 1 1 1 1 1 1 1 1 1 1 1 3 3 10 10 1 1 1)
+MODES=(none none frame_matched frame_matched exact_iso exact_iso spectrum_matched spectrum_matched random_ext random_ext spectrum_matched random_ext spectrum_matched random_ext spectrum_matched random_ext none frame_matched exact_iso none none none none)
+SEEDS=(0 1 0 1 0 1 0 1 0 1 2 2 0 0 0 0 2 2 2 0 1 0 1)
+LRS=(2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-6 2e-6 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 2e-7 6.67e-7 6.67e-7 6.67e-8 6.67e-8)
+LRTAG=(lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr1 lr1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.1 lr0.33 lr0.33 lr0.033 lr0.033)
+SCALES=(1 1 1 1 1 1 1 1 1 1 1 1 3 3 10 10 1 1 1 1 1 1 1)
 i=$SLURM_ARRAY_TASK_ID
 M=${MODES[$i]}; [ "$M" = none ] && NAME=full || NAME=$M
 SR=""; [ "${SCALES[$i]}" != 1 ] && SR="_srel${SCALES[$i]}"
