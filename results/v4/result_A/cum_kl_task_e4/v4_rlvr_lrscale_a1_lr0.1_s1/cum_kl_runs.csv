@@ -1,0 +1,2 @@
+run,ckpt,n_matrices,disp_fro_total,kl_base_to_ckpt
+v4_rlvr_lrscale_a1_lr0.1_s1,/scratch/rhong5/spectral_runs/v4_rlvr_lrscale_a1_lr0.1_s1/ckpt_000300,186,0.12311620275014186,0.6491768899499185
