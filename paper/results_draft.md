@@ -389,7 +389,7 @@ argmax 落在选项字母上的比例(base 0.865):RLVR lr\* 五种更新 0.84–
 
 - exact_iso − full:GSM8K −0.009 (t=−0.4) / MMLU −0.001 (t=−0.1);exact_iso − frame_matched:+0.006 / +0.001。→ **H-2 在 SFT 上完整成立:保谱、去谱、dense 三者不可分,C4(SFT)完整。**
 - **机理注记**:修复版的 scale_mean = 1.000、cos_mean = 1.000,即"把 W 的奇异值钉回 base 谱"这一步对 dense 更新几乎没有改动——健康 lr 下的 dense 步本身就几乎不改变奇异值(与 Jin 等 2509.12235 "SFT 与 RL 下奇异值变化 ~0.005"一致)。所以 exact_iso 在健康区是一个近乎空的干预;"去谱 ≈ dense"成立的原因是 dense 本来就不改谱,而不是"改谱与否无所谓"。写作时按此表述。旧 exact_iso 的 6.7 倍位移完全是数值噪声。
-- RLVR 三个 seed 在跑,补登记。
+- **RLVR 三个 seed(修复版,A,2026-09-17)**:GSM8K 0.618/0.636/0.608(**0.621**)、MMLU 0.473/0.471/0.477(0.474)、reward 末 100 步 0.53–0.55;scale_mean 0.986、cos_mean 1.014(RLVR 的 dense 步比 SFT 多改一点奇异值,钉谱后更新缩 1.4%)。exact_iso − full −0.031(t_binom −1.7,t_emp −2.5)/ MMLU +0.002;exact_iso − frame_matched −0.004。→ **RLVR 上去谱 = 保谱 ≈ dense 略低 0.03(压 margin,|t_binom|<2),与 frame_matched 同一水平;旧 exact_iso 的"高 0.05"完全是数值噪声效应。** H-2 在 RLVR 上的表述:保谱与去谱互相不可分,二者比 dense 慢一点(0.03,边界),C4 以"不改谱的更新不优于 dense"成立。
 
 **余量登记(B 指出,A 确认)**:SFT lr\* = 1e-6 的 H-0 余量仅 +0.003(均值 0.456 vs 0.453;s1 终值 0.450;末三点均值读法 0.4525 → FAIL);RLVR lr\* 两种读法均 PASS。引用 SFT lr\* 必须连余量;SFT dense 参照同时报 lr×1/30(0.390/0.461,余量 +0.008)。SFT 三批的 H-1/H-2/H-3 裁决不受影响(均为同 lr 下的族间比较,且 lr×1/30 点与 r 维干预重合)。
 **命名说明**:`smoke_v3_*_s<N>` 的 `_s<N>` 是 s_rel,不是 seed;五个 smoke 均 seed 0(E-v3-0c 的同 prompt 流前提成立)。
