@@ -1,0 +1,20 @@
+{
+ "args": {
+  "base": "Qwen/Qwen3.5-0.8B",
+  "runs": [
+   "/scratch/rhong5/spectral_runs/klcap_v3_rlvr_none",
+   "/scratch/rhong5/spectral_runs/klcap_v3_rlvr_frame_matched",
+   "/scratch/rhong5/spectral_runs/klcap_v3_rlvr_exact_iso",
+   "/scratch/rhong5/spectral_runs/klcap_v3_rlvr_spectrum_matched",
+   "/scratch/rhong5/spectral_runs/klcap_v3_rlvr_random_ext"
+  ],
+  "step": 4,
+  "out": "/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/results/v4/result_A/step_kl_offtask_rlvr_step4",
+  "n_prompts": 64,
+  "batch": 8,
+  "max_len": 512,
+  "seed": 0,
+  "reference": "offtask"
+ },
+ "elapsed_s": 33.93093681335449
+}

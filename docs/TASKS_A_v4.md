@@ -16,9 +16,11 @@
 - SFT 1e-5、RLVR 2e-6,frame_matched / exact_iso(修复版)× 2 seed。与已有 lr×1 上的 dense(v2 e4a / v3 dense lr0.33 不是同 lr,故 lr×1 dense 需补:见 A2b)、spectrum、random 组成 lr×1 全套。
 - **A2b**:lr×1 dense 参照。v2 e4a 的 dense 是 bf16 时代?——不是,v2 e4a 为 fp32 但为崩溃态;仍用作 lr×1 dense 参照(reward 回落已知),另在 v4 补 SFT dense lr×1 × 2 seed(RLVR lr×1 dense 用 e4a_rlvr_full_s0/s1 + v3 lr1 s2 数据)。
 
-## A3 §2.1-3 RL 与 SFT 每步功能步长匹配(A1 出结果后)
-- 用 8 步探针(任务外单步 KL)找 SFT 的学习率使每步任务外 KL 与 RLVR lr\* 相同;训 SFT 3 seed,300 步,评 GSM8K/MMLU。
-- 裁决:匹配后 RLVR 与 SFT 的 MMLU 差距至少缩小一半 → 功能步长说成立;不缩 → 方向说复活,主张反转,如实写。
+## A3 §2.1-3(修订,2026-09-17,据 E-v4-1):RL 与 SFT 的差别在多步叠加,不在单步
+- E-v4-1:单步每单位范数的任务 KL 与任务外 KL 两范式相同,300 步后任务外累计 KL 差 13 倍。原"每步功能步长匹配"实验取消。
+- 改做两件事:(a) **任务外 KL 轨迹**:dense SFT lr\* 与 RLVR lr\* 各 2 seed 重跑并保留每 50 步 ckpt(`--keep-eval-ckpts`),算每个 ckpt 的任务外/任务累计 KL,看 SFT 的任务外累积从哪一步开始与 RLVR 分开(`slurm_v4/traj_runs.sbatch`);(b) **逐矩阵归因**:对终点 ckpt 逐个矩阵回退到 base,测任务外 KL 与任务 KL 的变化,得到每个矩阵的"任务外承重 / 任务承重"比(`analysis_v4/matrix_attrib.py`),比较 SFT 与 RLVR 的分布,找 SFT 里任务外承重集中的矩阵。
+- 裁决:若 SFT 的任务外累积集中在少数矩阵且这些矩阵在 RLVR 下不动,则得到一个可操作的方法假设(§2.3 改为"按矩阵的任务外承重压步长");若均匀分布,§2.3 退回全局功能步长控制。
+- 遗忘读数改为:任务外 KL + 全量 MMLU(E-v4-2,`slurm_v4/mmlu_full.sbatch`,全部终点 ckpt)。
 
 ## A4 §2.2 遗忘探针
 - 对每个已有配置(约 60 个 run 的起点配置)跑 8 步捕获 + 任务外单步 KL,算 KL/‖H‖²;与最终 MMLU 降幅作图。写 `analysis_v4/forgetting_probe.py`。
