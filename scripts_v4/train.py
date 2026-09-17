@@ -69,6 +69,8 @@ def parse_args():
                             "spectrum_matched", "frame_matched",
                             "random_ext", "exact_iso"])
     p.add_argument("--intervention-q", type=float, default=0.1)
+    p.add_argument("--lr-scale-file", default=None,
+                   help="v4: json {param_name: lr multiplier} from analysis_v4/make_lr_scales.py")
     p.add_argument("--intervention-scale", type=float, default=1.0,
                    help="v3 s_rel: extra multiplier on the norm-matched update "
                         "(step norm = s_rel * ||H||_F); 1.0 = v2 behaviour")
@@ -116,7 +118,20 @@ class Trainer:
         self.rollout_names = names[::stride][:args.rollout_capture_mats]
 
         matrix, other = decoder_param_groups(self.model)
-        if args.optimizer == "adamw":
+        if args.optimizer == "adamw" and args.lr_scale_file:
+            # v4 E-v4-4: per-matrix learning-rate multipliers (name -> factor) from the
+            # off-task/task attribution; unlisted params keep lr. Total step is kept
+            # comparable by normalising the factors in make_lr_scales.py (mean = 1).
+            scales = json.load(open(args.lr_scale_file))
+            named, _ = decoder_param_groups(self.model, with_names=True)
+            groups = [{"params": [p], "lr": args.lr * float(scales.get(n, 1.0))} for n, p in named]
+            groups.append({"params": other, "lr": args.lr})
+            self.opt = torch.optim.AdamW(groups, lr=args.lr, betas=(0.9, 0.95), weight_decay=0.0)
+            self.opt_other = None
+            used = sum(1 for n, _ in named if n in scales)
+            print(f"[lr-scale] {used}/{len(named)} matrices scaled from {args.lr_scale_file}; "
+                  f"min {min(scales.values()):.2f} max {max(scales.values()):.2f}", flush=True)
+        elif args.optimizer == "adamw":
             self.opt = torch.optim.AdamW(
                 [{"params": matrix}, {"params": other}],
                 lr=args.lr, betas=(0.9, 0.95), weight_decay=0.0)
