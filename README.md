@@ -10,7 +10,7 @@ Code, documents and results for "When Should Post-Training Change the Spectrum?"
 
 | | v1(2026-09-06 → 09-09,已完结) | v2(2026-09-09 → 09-11,已冻结) |
 |---|---|---|
-| **v4(2026-09-17 草案,待确认)** | 企划书 `docs/unified_paper_document_v4.md`(v3 总结 + 差距分析 + 泛化/诊断/LoRA 设计);生效后 `TASKS_A_v4.md` / `TASKS_B_v4.md`、`results/v4/`、`*_v4/` | 主线不变;新增正面主张(功能步长诊断预测 lr\*、处方)、2B 与第二任务单元、LoRA 基线、exact_iso 修复版 |
+| **v4(2026-09-17 生效)** | 企划书 `docs/unified_paper_document_v4.md`(第一部分 v3 总结;第二部分改进方案);任务 `docs/TASKS_A_v4.md` / `docs/TASKS_B_v4.md`;结果 `results/v4/{result_A,result_B}`;代码 `specgeom_v4/ analysis_v4/ scripts_v4/ slurm_v4/`(从 v3 复制:exact_iso 修复版、任务外 KL 参考集、`--reference offtask`)。**v3 自此冻结。** 调研 `docs/survey_v4_literature.md` | 主张:遗忘由每步功能步长决定,与更新方向(主方向/保谱/去谱)无关;因果检验(对手 2511.08567 等)+ 8 步遗忘探针 + 按功能步长做 SFT(对照 FINCH、Anchored Learning) |
 | **v3(2026-09-11 起,实验完成 09-17)** | 企划书 `docs/unified_paper_document_v3.md`;任务 `docs/TASKS_A_v3.md` / `docs/TASKS_B_v3.md`;结果 `results/v3/{result_A,result_B}`;代码 `specgeom_v3/ analysis_v3/ scripts_v3/ slurm_v3/`(从 v2 复制后叠加:`--intervention-scale`、每步刷新基、fp32 捕获、`--eval-every`、`--kl-beta`、E-v3-0 诊断脚本)。**v2 自此冻结。** | 主线:奇异基不是特权坐标系;dense 先找健康 lr\*,三个小批次 |
 | 企划书(理论 + 实验设计,唯一叙事来源) | `docs/unified_paper_document_v1.md`(credit-assignment 决定谱几何 + SSD 优化器,H1–H7) | `docs/unified_paper_document_v2.md`(谱更新的条件增益;§9.4 登记 v1 结果与判定;§14 优先级) |
 | 实验总账 | `docs/EXPERIMENTS_v1.md` | 并入企划书 §11、§14 |
