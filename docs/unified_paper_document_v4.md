@@ -107,9 +107,9 @@ margin 与 v3 相同(GSM8K 0.03、MMLU 0.02);每臂 ≥ 3 个独立 run(不同 s
 
 | 假设 | 检验 | 成立 | 不成立 |
 |---|---|---|---|
-| H4-0 闸门 | 每个新单元(模型×任务×范式)扫 lr {×1/30, ×1/10, ×1/3},判据同 v3 | 存在健康 lr\* | 该单元换配方(加 KL 惩罚或加大 batch),不进主结果 |
+| H4-0 闸门 | 每个新单元(模型×任务×范式)扫 lr {×1/30, ×1/10, ×1/3},判据同 v3;**MMLU 同时报单点与末 3 个 ckpt 均值及其波动(B 的 `mmlu_stability` 读法),两种读法都过才算 HEALTHY,余量一并登记** | 存在健康 lr\* | 该单元换配方(加 KL 惩罚或加大 batch),不进主结果 |
 | **H4-P1 诊断预测** | 闸门之前,用 8 步捕获的 KL/‖H‖² 预测 lr\* 档位与"r 维臂几乎不训练";预测写进登记处再跑 | 4 个单元中 ≥ 3 个命中 lr\* 档位,r 维"不训练"预测全部命中 | 诊断降为描述性指标,P-1 从主张中删除 |
-| H4-1 泛化 C2 | 每单元 lr\* 上 spectrum_matched vs random_ext,3 run | 差在 margin 内 | 在哪个单元不成立就在哪个单元写明,C2 加限定 |
+| H4-1 泛化 C2 | 每单元 spectrum_matched vs random_ext,3 run,**在 lr\* 与 lr×1(或 s_rel 10)两个步长上都做**;B 指出 RLVR 的 lr\* 上两臂都停在 base 附近、无检验力,只有 r 维臂真的推进了的步长上的"不可分"才算数 | 两个步长上差都在 margin 内,且至少一个步长上 r 维臂 GSM8K ≥ base + 0.03 | 在哪个单元不成立就在哪个单元写明,C2 加限定 |
 | H4-2 泛化 C4 | 每单元 lr\* 上 full vs frame_matched vs exact_iso(修复版),3 run | 三者两两在 margin 内 | 若 exact_iso 或 frame 与 dense 可分,C4 改为"范式/规模依赖",方向写明 |
 | H4-3 泛化 C5 | 每单元 r 维臂对 dense 的前沿位置 | r 维不在 dense 前沿右上方 | 若在某单元占优,C5 改判并成为正面结果 |
 | H4-L LoRA 基线 | 0.8B/GSM8K 两范式,LoRA(秩 = r 维臂的 r)扫 lr 3 档,2 seed,画在同一前沿 | LoRA 落在 dense 前沿上或其下 | LoRA 占优 → P-2 处方要加"低秩参数化 ≠ 等范数子空间约束"的限定 |
@@ -124,7 +124,7 @@ margin 与 v3 相同(GSM8K 0.03、MMLU 0.02);每臂 ≥ 3 个独立 run(不同 s
 - 单元 U1:**Qwen3.5-2B × GSM8K × RLVR**(本地已有 2B 权重;fp32 + AdamW 约 32 GB,需 A100.80gb,MIG 不够)。
 - 单元 U2:**Qwen3.5-0.8B × 第二任务 × {SFT, RLVR}**。任务要求:可验证奖励、有独立能力保持基准、非 GSM8K 分布。首选 MATH(Hendrycks,train 按难度 1–3 取子集,eval MATH-500,能力保持仍用 MMLU);需下载数据集到 HF 缓存(离线模式)。
 - 单元 U3(可选,视 U1/U2 进度):Llama-3.2-3B-Instruct × GSM8K × RLVR,换模型家族。
-- 代码 `*_v4/`:从 v3 复制,叠加 (a) 已修复的 exact_iso,(b) `--model` 与 `--task` 参数化(数据加载、reward、eval 脚本按任务分派),(c) LoRA 模式(`--lora-rank r`,PEFT 或手写,fp32),(d) `analysis_v4/predict_lr.py`:从 8 步捕获输出 lr\* 预测与"不训练"预测并写入登记处。
+- 代码 `*_v4/`:从 v3 复制,叠加 (a) 已修复的 exact_iso,(a2) `run_evals` 在降 batch 重试仍失败时按 B 的建议降级为记 `eval_skipped` 并继续训练(终点评测缺失则由 `compute_metrics` 后补),(b) `--model` 与 `--task` 参数化(数据加载、reward、eval 脚本按任务分派),(c) LoRA 模式(`--lora-rank r`,PEFT 或手写,fp32),(d) `analysis_v4/predict_lr.py`:从 8 步捕获输出 lr\* 预测与"不训练"预测并写入登记处。
 
 ## 5.1 批次(每批一天;批次之间有闸门)
 
