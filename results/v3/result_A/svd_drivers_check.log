@@ -1,0 +1,20 @@
+7.mlp.down_proj.weight (1024, 3584)
+   fp32 default      174 ms  |dS|/S=1.4e-04  recon=3.0e-04  repin_corr/||H||=4.64
+   fp32 gesvd        442 ms  |dS|/S=3.0e-06  recon=5.7e-06  repin_corr/||H||=0.09
+   fp32 gesvda       161 ms  |dS|/S=2.5e-08  recon=2.8e-07  repin_corr/||H||=0.02
+   fp64 default      151 ms  |dS|/S=0.0e+00  recon=2.0e-16  repin_corr/||H||=0.02
+   fp64 gesvd        287 ms  |dS|/S=2.3e-13  recon=0.0e+00  repin_corr/||H||=0.02
+7.mlp.up_proj.weight (3584, 1024)
+   fp32 default       85 ms  |dS|/S=1.6e-04  recon=3.2e-04  repin_corr/||H||=4.97
+   fp32 gesvd        151 ms  |dS|/S=5.7e-07  recon=4.4e-06  repin_corr/||H||=0.07
+   fp32 gesvda        15 ms  |dS|/S=2.6e-08  recon=3.6e-07  repin_corr/||H||=0.02
+   fp64 default      150 ms  |dS|/S=0.0e+00  recon=2.6e-16  repin_corr/||H||=0.02
+   fp64 gesvd        188 ms  |dS|/S=2.3e-13  recon=6.9e-18  repin_corr/||H||=0.02
+7.self_attn.q_proj.weight (4096, 1024)
+   fp32 default       87 ms  |dS|/S=1.4e-04  recon=2.8e-04  repin_corr/||H||=4.29
+   fp32 gesvd        165 ms  |dS|/S=2.2e-06  recon=4.8e-06  repin_corr/||H||=0.07
+   fp32 gesvda        15 ms  |dS|/S=2.4e-08  recon=7.2e-07  repin_corr/||H||=0.02
+   fp64 default      153 ms  |dS|/S=0.0e+00  recon=5.0e-16  repin_corr/||H||=0.02
+   fp64 gesvd        203 ms  |dS|/S=2.3e-13  recon=2.0e-18  repin_corr/||H||=0.02
+SVD_DRIVERS_DONE
+SVD_DRIVERS_DONE_JOB

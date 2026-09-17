@@ -14,8 +14,9 @@ v2 additions (doc §11 E4a, equal-Frobenius-step comparison):
   - random_ext uses a fixed random orthonormal dictionary per matrix, drawn
     once at construction from `seed` (same dimension r as the spectral one).
   - exact_iso resets the singular values to the anchor spectrum captured at
-    construction (the pretrained checkpoint's spectrum), every step. This
-    costs one SVD per matrix per step.
+    construction (the pretrained checkpoint's spectrum), every step, then
+    norm-matches the resulting frame-only update to ||H||_F (v3 fix 2026-09-17;
+    CUDA SVD driver gesvda). One SVD per matrix per step.
 """
 
 import re
@@ -52,14 +53,23 @@ class InterventionEngine:
         self._w_before = None
         self._step = 0
         if mode == "exact_iso":
+            # 2026-09-17 fix: PyTorch's default CUDA SVD driver (gesvdj) has ~1e-4 relative
+            # error in fp32, so the per-step re-pin below injected a perturbation of up to
+            # 4x the dense step (v3 registry "exact_iso engine defect"). gesvda (CUDA) is
+            # ~1e-8 and faster; CPU LAPACK is already ~1e-6. Also norm-match the resulting
+            # frame-only update to ||H||_F like the other matched modes (it was unmatched).
             for n, p in self.params.items():
-                self.S_anchor[n] = torch.linalg.svdvals(p.detach().float())
+                self.S_anchor[n] = torch.linalg.svdvals(p.detach().float(), **self._svd_kw(p))
         if mode == "random_ext":
             g = torch.Generator().manual_seed(seed)
             for n, p in self.params.items():
                 m_, n_ = p.shape
                 self.rand[n] = random_basis(m_, n_, min(m_, n_), generator=g,
                                             device=p.device)
+
+    @staticmethod
+    def _svd_kw(t):
+        return {"driver": "gesvda"} if t.is_cuda else {}
 
     @torch.no_grad()
     def _refresh_basis(self):
@@ -96,10 +106,12 @@ class InterventionEngine:
         for n, p in self.params.items():
             H = (p.detach() - self._w_before[n]).float()
             if self.mode == "exact_iso":
-                W_after = self._w_before[n].float() + H
-                Ua, _, Vah = torch.linalg.svd(W_after, full_matrices=False)
-                W_new = Ua @ torch.diag(self.S_anchor[n]) @ Vah
-                p.copy_(W_new.to(p.dtype))
+                W0 = self._w_before[n].float()
+                Ua, _, Vah = torch.linalg.svd(W0 + H, full_matrices=False, **self._svd_kw(p))
+                Hp = Ua @ torch.diag(self.S_anchor[n]) @ Vah - W0   # frame-only update
+                Hp, self.scale_log[n] = match_norm(Hp, H)
+                self.cos_log[n] = 1.0 / self.scale_log[n]
+                p.copy_((W0 + Hp * self.scale).to(p.dtype))
                 continue
             if self.mode == "random_ext":
                 # fixed random dictionary: no SVD basis needed (short-circuit)
