@@ -1,0 +1,5 @@
+{
+ "model": "/mnt/bn/genai-nebula/kaifan.fk/spectral/runs/v3_rlvr_random_ext_lr1_s2/ckpt_000200",
+ "n": 500,
+ "pass@1": 0.598
+}

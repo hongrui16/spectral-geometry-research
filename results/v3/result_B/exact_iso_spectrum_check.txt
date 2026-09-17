@@ -1,0 +1,19 @@
+base snapshot: 2fc06364715b967f1860aea9cf38778875588b17  候选矩阵 84,抽查 8 个
+
+相对奇异值变化 ||s-s0||/||s0||  (fp64 svdvals, CPU)
+matrix                                                             full_s0      frame_matched_s0          exact_iso_s0          exact_iso_s1
+L3.mlp.down_proj.weight                                           9.87e-06              7.00e-08              3.14e-04              3.11e-04
+L3.mlp.up_proj.weight                                             1.01e-05              2.15e-07              3.27e-04              3.33e-04
+L7.mlp.down_proj.weight                                           1.02e-05              6.84e-08              3.02e-04              3.01e-04
+L7.mlp.up_proj.weight                                             9.94e-06              6.27e-08              3.19e-04              3.24e-04
+L12.linear_attn.out_proj.weight                                   7.95e-06              6.74e-08              2.62e-04              2.63e-04
+L12.mlp.down_proj.weight                                          8.75e-06              7.41e-08              3.02e-04              2.99e-04
+L20.linear_attn.out_proj.weight                                   8.07e-06              5.12e-08              2.83e-04              2.82e-04
+L20.mlp.down_proj.weight                                          7.47e-06              6.99e-08              3.15e-04              3.11e-04
+
+中位数:  full_lr0.1_s0=9.31e-06  frame_matched_lr0.1_s0=6.92e-08  exact_iso_lr0.1_s0=3.08e-04  exact_iso_lr0.1_s1=3.06e-04
+  v3_rlvr_full_lr0.1_s0                相对 full 的倍数    1.0x
+  v3_rlvr_frame_matched_lr0.1_s0       相对 full 的倍数    0.0x
+  v3_rlvr_exact_iso_lr0.1_s0           相对 full 的倍数   33.1x
+  v3_rlvr_exact_iso_lr0.1_s1           相对 full 的倍数   32.9x
+

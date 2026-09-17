@@ -1,0 +1,9 @@
+config                       seeds   single    mean3   range  maxSE    single     mean
+--------------------------------------------------------------------------------------
+v3_sft_full_lr0.033              2    0.461    0.461   0.009    0.6      PASS     PASS
+v3_sft_full_lr0.1                2    0.456    0.452   0.012    0.8      PASS     FAIL
+v3_sft_full_lr0.33               2    0.302    0.320   0.069    5.8      FAIL     FAIL
+
+判据 mmlu >= base - tol = 0.453(base 0.483, tol 0.03)
+maxSE = 同一 run 内相邻 ckpt MMLU 跳变的最大值,单位为抽样 SE(n=1000)
+single 与 mean 两列判定不一致的配置,说明其 gate 结论依赖于取哪个 ckpt。

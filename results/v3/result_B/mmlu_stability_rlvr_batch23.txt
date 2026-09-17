@@ -1,0 +1,17 @@
+config                       seeds   single    mean3   range  maxSE    single     mean
+--------------------------------------------------------------------------------------
+v3_rlvr_exact_iso_lr0.1          2    0.472    0.472   0.001    0.3      PASS     PASS
+v3_rlvr_frame_matched_lr0.1      2    0.471    0.474   0.009    0.6      PASS     PASS
+v3_rlvr_full_lr0.1               3    0.470    0.472   0.008    0.5      PASS     PASS
+v3_rlvr_random_ext_lr0.1         2    0.476    0.477   0.004    0.3      PASS     PASS
+v3_rlvr_random_ext_lr0.1_srel10     1    0.470    0.476   0.012    0.8      PASS     PASS
+v3_rlvr_random_ext_lr0.1_srel3     1    0.479    0.475   0.006    0.6      PASS     PASS
+v3_rlvr_random_ext_lr1           1    0.475    0.474   0.007    0.6      PASS     PASS
+v3_rlvr_spectrum_matched_lr0.1     2    0.479    0.478   0.004    0.3      PASS     PASS
+v3_rlvr_spectrum_matched_lr0.1_srel10     1    0.473    0.475   0.008    0.5      PASS     PASS
+v3_rlvr_spectrum_matched_lr0.1_srel3     1    0.481    0.482   0.002    0.2      PASS     PASS
+v3_rlvr_spectrum_matched_lr1     1    0.478    0.477   0.003    0.4      PASS     PASS
+
+判据 mmlu >= base - tol = 0.453(base 0.483, tol 0.03)
+maxSE = 同一 run 内相邻 ckpt MMLU 跳变的最大值,单位为抽样 SE(n=1000)
+single 与 mean 两列判定不一致的配置,说明其 gate 结论依赖于取哪个 ckpt。

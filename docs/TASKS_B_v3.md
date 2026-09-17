@@ -86,7 +86,7 @@ $PY analysis_v3/health.py $RUNS/v3_rlvr_full_lr*_s* $RUNS/v3_sft_full_lr*_s* --b
 
 ---
 
-> **2026-09-16 更新:批次一~三的 RLVR 全部 16 个 run 已由 A 在本地集群自跑完成并裁决(`slurm_v3/batch_rlvr.sbatch`,登记处 E-v3-2/3/4/5 RLVR 节)。B 的 RLVR run 目录仍欢迎交付,作为额外 seed 登记(同 seed 的作为确定性复算);B 不必再新开 RLVR run。**
+> **2026-09-16 更新:批次一~三的 RLVR 全部 16 个 run 已由 A 在本地集群自跑完成并裁决(`slurm_v3/batch_rlvr.sbatch`,登记处 E-v3-2/3/4/5 RLVR 节)。B 的 RLVR run 目录仍欢迎交付,作为额外 seed 登记(同 seed 的作为确定性复算);B 不必再新开 RLVR run。** → **B 于 09-16 21:34 交付 21 个 run(results/v3/result_B),已合并裁决;同 seed 跨硬件不复现,按独立样本合并。B 的 v3 清单全部完成。**
 
 ## 批次二 + 批次三(RLVR;2026-09-13 A 裁决后一次性放开,14 run 全可并行)
 

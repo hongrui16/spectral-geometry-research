@@ -351,6 +351,34 @@ argmax 落在选项字母上的比例(base 0.865):RLVR lr\* 五种更新 0.84–
 - 后果:exact_iso 臂 = dense 更新 + 每步同量级的 SVD 数值噪声 + 常数谱偏置。这解释了 E-v3-0a 的 6.7 倍权重位移(噪声随机游走)和 E-v3-0c 扩展里它单步范数大 20–35% 但 KL 更小。它**不是**干净的"去谱"对照。
 **裁决:B 的判断正确,exact_iso 臂从 C4 证据中移除(RLVR 与 SFT 两侧);C4 只用 frame_matched(等范数、保谱)对 full 论证。** exact_iso 在 RLVR 上 reward 更高这一现象改记为开放问题(等范数噪声注入是否有利于 RLVR 探索),不进入主线。修复方案(若要保留该臂):锚定谱与每步 SVD 改用 fp64(每步 186 个 fp64 SVD,RLVR 单 run 估计 +1–2 h),并加等范数匹配;是否重跑 4 个臂由用户决定。
 
+### B v3 交付登记(2026-09-16 21:34 包,`results/v3/result_B/`;21 个 RLVR run 目录 + gate 表 + E-v3-0a(v2 e4a)+ E-v3-0b + exact_iso 谱检查 + 复核文档;B 环境 A100-80G,transformers 5.16.1,ckpt 全 F32)
+
+- **B 独立确认 exact_iso 缺陷**:fp64 CPU svdvals,8 个矩阵中位谱漂移 exact_iso 3.08e-4 / 3.06e-4 vs dense 9.3e-6(33 倍),frame_matched 6.9e-8(比 dense 更贴近 base 135 倍);v2 e4a exact_iso 同样。与 A 的 GPU 检查(186 矩阵中位 2.8e-4 vs 2.6e-5)一致。**两边独立得到同一结论,exact_iso 臂作废。**
+- **同 seed 跨硬件不复现**:17 组同 seed 同配置对的 GSM8K 绝对差中位 0.010、最大 0.044,与换 seed 同量级 → A(MIG)与 B(A100)的 run 按独立样本合并,不做同 seed 配对。
+- B 的 gate:exact_iso FAIL(离散 0.060)、spectrum s_rel=10 FAIL(decline 0.032)、其余 HEALTHY;MMLU 稳定性检查全 PASS。
+- **A+B 合并裁决(`analysis_v3/verdict_rlvr_pooled.py`,`results/v3/result_A/verdict_rlvr_pooled.txt`;GSM8K 均值,n = run 数)**:
+
+| 配置 | n | GSM8K(A | B) | 均值 | MMLU |
+|---|---|---|---|---|
+| full lr\* | 6 | 0.656/0.634/0.664 | 0.626/0.640/0.654 | 0.646 | 0.471 |
+| frame_matched lr\* | 5 | 0.628/0.610/0.636 | 0.650/0.644 | 0.634 | 0.473 |
+| exact_iso lr\*(作废) | 5 | 0.702/0.690/0.648 | 0.706/0.646 | 0.678 | 0.469 |
+| spectrum_matched lr\* | 4 | 0.554/0.572 | 0.554/0.546 | 0.556 | 0.478 |
+| random_ext lr\* | 4 | 0.546/0.564 | 0.556/0.558 | 0.556 | 0.477 |
+| spectrum / random, s_rel 3 | 2+2 | 0.570 | 0.550;0.558 | 0.560 | 0.560 / 0.559 | 0.479 / 0.478 |
+| spectrum / random, s_rel 10 | 2+2 | 0.594 | 0.608;0.586 | 0.588 | 0.601 / 0.587 | 0.474 / 0.472 |
+| spectrum / random, lr×1 s2 | 2+2 | 0.578 | 0.614;0.620 | 0.624 | 0.596 / 0.622 | 0.476 / 0.476 |
+| full lr×1/3 | 4 | 0.676/0.728 | 0.660/0.732 | 0.699 | 0.457 |
+| full lr×1/30 | 2(B) | – | 0.562/0.562 | 0.562 | 0.479 |
+
+  - **H-2**:full − frame_matched **+0.012**(t_binom 0.9,t_emp 1.3)/ MMLU −0.003 → **成立(RLVR,合并 11 个 run)**。A 侧 frame 偏低、B 侧持平,合并后在 margin 内。
+  - **H-1**:lr\* 上 spectrum − random **0.000**;lr×1 上 −0.026(t≈−1.3,4 run)→ 成立;B 提醒 lr\* 上两臂都在 base 附近,检验力弱,lr×1 才是有效检验。
+  - **前沿 / C5**:r 维 lr\* 比 dense 低 0.089 / 0.090(t_emp −11 / −13),MMLU +0.006 → dense 严格占优,C5 阴性(RLVR,终版)。
+  - **H-3**:s_rel 10 两字典 +0.03–0.045(2+2 run),lr×1 +0.04–0.07;r 维响应步长,但落在 dense lr 前沿上(B 按 dense 前沿线性插值,预期 MMLU 0.472–0.474,实测 0.472–0.478,1 SE 内)→ 阴性(终版)。
+  - **gate**:lr×1/3 四 run GSM8K 0.660–0.732、MMLU 0.457 → 离散与 MMLU 双失败;lr×1/30 健康但余量 0.0005;**lr\* = 2e-7(终版)**。
+- B 对 A 的 SFT lr\* 复算(`health_v3_sft_gate.*`)与 A 一致;E-v3-0b 在 v3 lr×1/3 上:格式 0.865 完好、限定字母准确率 0.425–0.430,真实损失。
+- B 的 E-v3-0a 是 v2 e4a 的 18 个 ckpt(`cum_kl/`),与 A 的 v3 版本互补,不重复。
+
 **余量登记(B 指出,A 确认)**:SFT lr\* = 1e-6 的 H-0 余量仅 +0.003(均值 0.456 vs 0.453;s1 终值 0.450;末三点均值读法 0.4525 → FAIL);RLVR lr\* 两种读法均 PASS。引用 SFT lr\* 必须连余量;SFT dense 参照同时报 lr×1/30(0.390/0.461,余量 +0.008)。SFT 三批的 H-1/H-2/H-3 裁决不受影响(均为同 lr 下的族间比较,且 lr×1/30 点与 r 维干预重合)。
 **命名说明**:`smoke_v3_*_s<N>` 的 `_s<N>` 是 s_rel,不是 seed;五个 smoke 均 seed 0(E-v3-0c 的同 prompt 流前提成立)。
 

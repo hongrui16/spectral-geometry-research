@@ -1,0 +1,4 @@
+cfg,n_seeds,gsm8k,mmlu,gsm8k_spread,verdict
+v3_sft_full_lr0.033,2,0.39,0.4605,0.02400000000000002,HEALTHY
+v3_sft_full_lr0.1,2,0.415,0.456,0.014000000000000012,HEALTHY
+v3_sft_full_lr0.33,2,0.42,0.3025,0.008000000000000007,FAIL: mmlu 0.302

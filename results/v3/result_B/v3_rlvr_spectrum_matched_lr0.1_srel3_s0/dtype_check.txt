@@ -1,0 +1,1 @@
+v3_rlvr_spectrum_matched_lr0.1_srel3_s0 ckpt_000300 dtype ['F32'] OK

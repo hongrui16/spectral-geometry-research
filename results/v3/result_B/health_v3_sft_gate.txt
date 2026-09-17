@@ -1,0 +1,6 @@
+                cfg  n_seeds  gsm8k  mmlu  gsm8k_spread          verdict
+v3_sft_full_lr0.033        2  0.390 0.460         0.024          HEALTHY
+  v3_sft_full_lr0.1        2  0.415 0.456         0.014          HEALTHY
+ v3_sft_full_lr0.33        2  0.420 0.302         0.008 FAIL: mmlu 0.302
+
+HEALTHY configs: ['v3_sft_full_lr0.033', 'v3_sft_full_lr0.1']

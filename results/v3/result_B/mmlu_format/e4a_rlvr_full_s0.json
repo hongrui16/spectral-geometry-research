@@ -1,0 +1,211 @@
+{
+ "model": "/mnt/bn/genai-nebula/kaifan.fk/spectral/runs/e4a_rlvr_full_s0/ckpt_000300",
+ "n": 200,
+ "letter_mass_mean": 0.022674446911842096,
+ "argmax_in_letters_frac": 0.025,
+ "mmlu_letter_logit": 0.24,
+ "top_argmax_tokens": [
+  [
+   "The",
+   109
+  ],
+  [
+   "We",
+   17
+  ],
+  [
+   "In",
+   8
+  ],
+  [
+   "Scenario",
+   7
+  ],
+  [
+   "A",
+   4
+  ],
+  [
+   "Total",
+   4
+  ],
+  [
+   "P",
+   2
+  ],
+  [
+   "When",
+   2
+  ],
+  [
+   "b",
+   1
+  ],
+  [
+   "Bond",
+   1
+  ]
+ ],
+ "generations": [
+  {
+   "question": "A landlord was the owner of a large, high-rise apartment building in a Midwestern city. On June 1, 2007, two tenants took possession of a three- bedroom apartment in the landlord's building under a th",
+   "gold": "C",
+   "generation": "The lease says the term is 3 years from the date hereof (June 1, 2007). Lived 2 years (2007-2009). Remaining term = 3-2=1 year (from 2009-2010)."
+  },
+  {
+   "question": "Weber (1919) said that the state's monopoly of the use of force was legitimated by:",
+   "gold": "B",
+   "generation": "Weber's theory of the state's monopoly of the use of force is based on **rational-legal authority** (legitimacy based on reason, law, and the rule of law). Charismatic, traditional, and value-rational are other Weberian types, but the monopoly of force is specifically rational-"
+  },
+  {
+   "question": "Which expression is equivalent to 5(4x + 3) — 2x?",
+   "gold": "A",
+   "generation": "We expand 5(4x+3) = 20x+15. Subtract 2x: 20x+15 - 2x = 20x-2x+15 = 18x+15.\nOption A is 18x+"
+  },
+  {
+   "question": "Congress has embarked on another round of expansionary fiscal policy to boost employment and get reelected. As chair of the central bank how would you reduce the \"crowding-out\" effect and what macroec",
+   "gold": "D",
+   "generation": "The crowding-out effect (money supply contraction) is reduced by increasing the money supply (buying securities). The central bank buys government securities (reserves increase, money supply increases). This reduces the crowding-out. The macroeconomic problem exacerbated by expansionary policy (too much money, too little demand) is inflation"
+  },
+  {
+   "question": "Immediately after a shooting incident, the police chased one of the shooters into an apartment where he was apprehended and arrested. While in the apartment, a detective noticed some antique furniture",
+   "gold": "D",
+   "generation": "The plain view doctrine allows search and seizure if the evidence is visible to the officer and the officer has a reasonable suspicion that it is contraband. The key is \"reasonable suspicion,\" not \"no probable cause.\" The police had probable cause (the museum theft) to search, but the plain view doctrine does not require"
+  },
+  {
+   "question": "Which of the following reactions occurs in the forward direction during glycolysis but in the reverse direction during fermentation?",
+   "gold": "C",
+   "generation": "In glycolysis, pyruvate is converted to lactate (or ethanol/acetate in alcoholic fermentation) by lactate dehydrogenase, which uses NADH to regenerate NAD+ (NADH + H+ + 2e- → NADH? Wait, the reaction is"
+  },
+  {
+   "question": " What is the name of the Jewish prayer used for mourning since the Middle Ages?",
+   "gold": "B",
+   "generation": "The Kaddish is the mourning prayer (specifically the \"Kaddish of the dead\" or \"Kaddish of the mourners\"). The Shema is the covenant. K'nesset is the synagogue. Kippah is the head covering. The correct answer is B.\n"
+  },
+  {
+   "question": "In Python 3, b = [11,13,15,17,19,21]; print(b[::2]) outputs what?",
+   "gold": "C",
+   "generation": "b[::2] means step 2, starting from 0 (index 0,1,2,3,4,5). Indices: 0(11),1(13),2(15),3(17),4(19),5(21). Even indices"
+  },
+  {
+   "question": "The process of invasion and succession is a process involving migration and is best described as when",
+   "gold": "D",
+   "generation": "The process of invasion and succession (often related to urban renewal, gentrification, or displacement) involves new residents moving into areas where older residents are present. Option D describes moving into areas occupied by older resident groups. This is the definition of invasion/succession in this context (new vs. old). A,"
+  },
+  {
+   "question": "The vitamins which are lost most readily during cooking are:\n",
+   "gold": "D",
+   "generation": "The vitamins lost most readily during cooking are water-soluble vitamins (B complex, C, D, E, K). Among these, vitamin C (ascorbic acid) is the most easily lost, followed by niacin (B3), vitamin E (tocopherol), and thiamin (B1"
+  },
+  {
+   "question": "This question refers to the following information.\n\"The conscience of the people, in a time of grave national problems, has called into being a new party, born of the nation's sense of justice. We of ",
+   "gold": "D",
+   "generation": "The Progressive Party (1912) platform emphasizes the people's sovereignty, equal opportunity, industrial justice, and the government's duty to maintain the government of the people, by the people and for the people. The \"Big Stick\" policy (Theroux) in Latin America is about protecting the US's security"
+  },
+  {
+   "question": "What is the price of a three-year bond (face value $100), paying 5% coupons, with a yield of 6%?",
+   "gold": "D",
+   "generation": "Bond price = FV * (1 + y/m)^n - C (coupon * n / (1+y/m)^n). Face 100, coupon 5% (5/100*100=5 per year, 5*36/106? Wait,"
+  },
+  {
+   "question": "___________, ___________ and __________ are all factors which can impact the moral intensity",
+   "gold": "A",
+   "generation": "The moral intensity (or intensity of the moral judgment) is influenced by factors such as social consensus (agreement), temporal immediacy (how recent the event is), and proximity (how close the actor is to the victim). Social dissensus (divergence) generally reduces intensity. Futility of effect is not a"
+  },
+  {
+   "question": "During a chemical reaction, NO(g) gets reduced and no nitrogen-containing compound is oxidized. Which of the following is a possible product of this reaction?",
+   "gold": "B",
+   "generation": "The reduction of NO (N in +2 oxidation state) to NO2 (N in +4) is oxidation? Wait. NO (N is +2). NO2 (N is +4). NO2 is a higher oxidation state, so it is oxidized. The problem says NO gets reduced. Reduction means"
+  },
+  {
+   "question": "Which of the following is true about rectal bleeding?",
+   "gold": "A",
+   "generation": "Rectal bleeding can be various causes. Painful digital exam (A) is not specific for anal fissure (fissure is painless, digital exam shows fissure, but pain is not the primary sign of fissure, and the question asks what is true about rectal bleeding). Bright red blood on finger"
+  },
+  {
+   "question": "Historically, it has been observed that computer processing speeds tend to double every two years. Which of the following best describes how technology companies can use this observation for planning ",
+   "gold": "C",
+   "generation": "The observation that speeds double every 2 years means the rate of improvement is exponential (doubling each 2y). To plan, we need to know the future speed. If current speed is S, next is 2S, next 4S, etc. The company can set R&D goals based on anticipated"
+  },
+  {
+   "question": "In acid solution the bromate ion, BrO3- can react with other substances, resulting in Br2. Balance the half-reaction for bromate ions forming bromine. The balanced half-reaction has",
+   "gold": "D",
+   "generation": "The half-reaction: BrO3- (Bromate, +5 oxidation state) -> Br2 (0).\nOxidation state change: Br in BrO3- is +5 (3*+3 + Br = +9? Wait. O is -2, 3*(-2"
+  },
+  {
+   "question": "A 35-year-old male presents to the office for the result of an HIV test, and he is informed that the result is positive. The patient resists disclosure to his wife because he has not told her about hi",
+   "gold": "D",
+   "generation": "The key principle here is the patient's right to know (autonomy) vs. the physician's duty to protect the patient (beneficence/justice). The wife's right to know is paramount because she could also be HIV positive. The physician recommends informing the wife. This is because the patient's autonomy (right"
+  },
+  {
+   "question": "Which of the following would increase the aggregate demand function?",
+   "gold": "D",
+   "generation": "Aggregate demand (AD) = C + I + G + (M/P). Imported goods (M) are part of the net exports (X-M). Higher imported goods (M) increase M, which decreases net exports (X-M), which decreases AD. So A decreases AD. Lower wealth (B) lowers C"
+  },
+  {
+   "question": "Who has legal responsibility for a patient's care during hospital admission, stay, and discharge?",
+   "gold": "B",
+   "generation": "The legal responsibility for care during admission, stay, and discharge is generally the named nurse (the registered nurse on the ward). The consultant is for specific complex cases, the ward manager is for administrative/operational, and the GP is for primary care. The specific legal duty of care in the hospital setting is the registered"
+  },
+  {
+   "question": "A retailer agreed to purchase an orchard's total cherry production for a 12-month period. The contract included this provision: \"Terms: Cash upon delivery  deliveries to be made at least twice per m",
+   "gold": "D",
+   "generation": "The key is the \"cash upon delivery\" clause. The contract says cash upon delivery, deliveries at least twice per month. The driver forgot to take the check (delayed payment). The orchard refused to deliver more. The retailer sued for breach of installment contract, demanded difference in price (open market - contract)."
+  },
+  {
+   "question": "The polytene chromosomes seen in Drosophila silvarentis with the aid of a light microscope are",
+   "gold": "D",
+   "generation": "In Drosophila silvarentis (and other Drosophila), the polytene chromosomes are formed by repeated rounds of DNA replication and nuclear division (mitosis). Each round of replication creates a copy of the chromosome, and the next division (mitosis) separates the sister chromatids, resulting in many"
+  },
+  {
+   "question": "In HIV-associated tuberculosis cases, treatment with antiretrovirals should begin:",
+   "gold": "C",
+   "generation": "In HIV-associated TB, the antiretroviral therapy (ART) is started *after* the TB treatment (antitubercular drugs) is completed, because the patient needs to be on ART to suppress the virus before starting TB drugs (which can interact or cause toxicity). The question asks \"treatment"
+  },
+  {
+   "question": " Which of the following is a value that Arthur believes is more fundamental than rights and desert?",
+   "gold": "D",
+   "generation": "The question asks which value Arthur believes is more fundamental than rights and desert. This is a specific reference to the philosopher John Rawls (often associated with the \"veil of ignorance\" and the two principles of justice: liberty and difference in matters of justice). Rawls argues that the fundamental principle is the principle of justice ("
+  },
+  {
+   "question": "At the break-even point",
+   "gold": "C",
+   "generation": "At the break-even point, expenses (costs) equal revenues (income from sales). This is the definition. Household spending (consumption) equals income (GDP/total income) is not break-even (that's equilibrium, not break-even). Dissaving/inventory accumulation is not break-even. So A is"
+  },
+  {
+   "question": "A baby born with pulmonary hypoplasia secondary to oligohydramnios caused by renal agenesis would be classified as having:",
+   "gold": "C",
+   "generation": "Pulmonary hypoplasia + oligohydramnios (renal agenesis) = Congenital heart defect (PDA/ASD) + renal agenesis + lung hypoplasia. This is a specific genetic/developmental disorder. The term \"syndrome\" (A) is the most"
+  },
+  {
+   "question": "What endogenous substrate source provides the most energy during moderate to high intensity exercise?\n",
+   "gold": "B",
+   "generation": "During moderate to high intensity exercise, the body relies on anaerobic glycolysis. The primary substrate for this is muscle glycogen (from B). Liver glycogen (A) is used for the first 20-30% of energy, but muscle glycogen is the main source for the majority ("
+  },
+  {
+   "question": "Why should a patient stand or sit as upright as possible when recording a peak flow rate?",
+   "gold": "A",
+   "generation": "The peak flow rate is measured by the volume of air inhaled per minute. The most upright position (sitting or standing) maximizes lung expansion, ensuring the tidal volume is captured accurately and consistently. The other options (comfort, meter movement, technique observation) are not the primary reason for the upright position. So"
+  },
+  {
+   "question": "Statement 1| The back-propagation algorithm learns a globally optimal neural network with hidden layers. Statement 2| The VC dimension of a line should be at most 2, since I can find at least one case",
+   "gold": "B",
+   "generation": "Statement 1: Back-propagation learns a globally optimal neural network with hidden layers. This is generally considered true in the context of standard deep learning (backprop gives gradients, update weights to minimize loss, which is global optimum for the network structure). However, is it \"globally optimal\"? The network itself (weights"
+  },
+  {
+   "question": "A federal agency has been established for the purpose of stabilizing, supporting, and protecting farm income and prices. The agency is authorized to enter into and carry out such contracts or agreemen",
+   "gold": "D",
+   "generation": "The statute says \"knowingly make a false statement\". The president testified he did not know he was dealing with a federal agency. The question asks: \"the court should instruct the jury that it may convict the president\". The conviction is based on the false statement (falsified bills of lading, embezz"
+  },
+  {
+   "question": "Which of the following statements identifies a chemically based sensory system?\nI. Gustatory system\nII. Auditory system\nIII. Olfactory system",
+   "gold": "D",
+   "generation": "The chemically based sensory systems are those that detect chemical substances (gustatory, olfactory, taste). Auditory is auditory (sound). So I (gustatory), III (olfactory) are chemically based. II (auditory) is not. Answer D (I and III only).\n"
+  },
+  {
+   "question": "Post-modernist writers have argued that:",
+   "gold": "A",
+   "generation": "The post-modernist critique (e.g., Foucault, Derrida, Deleuze) emphasizes the fragmentation of the image, the lack of grand narratives, and the need for new theories to address these changes. Option A (superficial, fragmented images) is a core post-modernist claim"
+  }
+ ]
+}
