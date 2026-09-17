@@ -18,7 +18,7 @@ $PY scripts_v4/train.py --objective rlvr --model Qwen/Qwen3.5-2B --steps 8 --sav
   --intervention $INT --intervention-scale 1 --eval-every 1000 --out $RUNS/klcap_v4_2b_rlvr_$INT
 done
 ```
-(`--model` 若 train.py 尚未暴露,A 于 09-18 前补;届时通知。)
+(`--model` 已是 train.py 的参数;2B 不加 `--kl-beta`,不会加载 teacher。)
 
 闸门六个(A 给出预测后开):lr ∈ {×1/30, ×1/10, ×1/3} 以 2B 的 lr×1 = 2e-6 为基准,seed 0/1,`--eval-every 50`,目录 `v4_2b_rlvr_full_lr{0.033,0.1,0.33}_s{0,1}`。命令模板同 v3 批次一,加 `--model Qwen/Qwen3.5-2B`。跑完 `analysis_v4/health.py`(判据同 v3)。
 
