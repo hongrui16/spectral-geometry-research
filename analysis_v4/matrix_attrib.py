@@ -20,13 +20,22 @@ names = [n for n, p in model.named_parameters() if p.dim() == 2 and pat.search(n
 bw = {n: p.detach().clone() for n, p in base.named_parameters() if n in set(names)}
 refs = {"task": build_reference(tok, a.n_prompts, 0, "cuda", a.max_len), "off": build_offtask_reference(tok, a.n_prompts, 0, "cuda", a.max_len)}
 @torch.no_grad()
-def logps(m, ref):
+def base_logps(ref):
     ids, attn, ans = ref; out = []
-    for i in range(0, ids.shape[0], a.batch): out.append(logp_batch(m, ids[i:i+a.batch], attn[i:i+a.batch], False))
-    return torch.cat(out), ans
+    for i in range(0, ids.shape[0], a.batch):
+        out.append(logp_batch(base, ids[i:i+a.batch], attn[i:i+a.batch], False).half())   # cache in fp16 on GPU
+    return out
+BASE_LP = {k: base_logps(refs[k]) for k in refs}
 @torch.no_grad()
 def kl_to_base(ref_key):
-    l1, ans = logps(model, refs[ref_key]); l0, _ = logps(base, refs[ref_key]); return kl_tokens(l0, l1, ans).item()
+    ids, attn, ans = refs[ref_key]; num = 0.0; den = 0.0
+    for bi, i in enumerate(range(0, ids.shape[0], a.batch)):
+        l1 = logp_batch(model, ids[i:i+a.batch], attn[i:i+a.batch], False)
+        l0 = BASE_LP[ref_key][bi].float()
+        m = ans[i:i+a.batch][:, 1:].float().sum().item()
+        num += kl_tokens(l0, l1, ans[i:i+a.batch]).item() * m; den += m
+        del l1, l0
+    return num / max(den, 1)
 full = {k: kl_to_base(k) for k in refs}; print("full", full, flush=True)
 params = dict(model.named_parameters()); rows = []; t0 = time.time()
 for n in names:
