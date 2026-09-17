@@ -1,0 +1,5 @@
+{
+ "model": "/scratch/rhong5/spectral_runs/v4_rlvr_lrscale_a2_lr0.1_s1/ckpt_000050",
+ "n": 500,
+ "pass@1": 0.582
+}

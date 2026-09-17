@@ -1,0 +1,7 @@
+run,ckpt,n_matrices,disp_fro_total,kl_base_to_ckpt
+v4_rlvr_full_traj_lr0.1_s1,/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000050,186,0.0402052500821558,0.1753700192452902
+v4_rlvr_full_traj_lr0.1_s1,/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000100,186,0.05567700898352756,0.23942741960368405
+v4_rlvr_full_traj_lr0.1_s1,/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000150,186,0.06712363024639305,0.3036002737485822
+v4_rlvr_full_traj_lr0.1_s1,/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000200,186,0.075419714516627,0.2625533754045474
+v4_rlvr_full_traj_lr0.1_s1,/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000250,186,0.08580685766348436,0.3956813426339597
+v4_rlvr_full_traj_lr0.1_s1,/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000300,186,0.09229836779843084,0.4273748804729326

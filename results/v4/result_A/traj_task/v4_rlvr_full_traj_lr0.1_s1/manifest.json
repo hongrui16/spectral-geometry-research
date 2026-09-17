@@ -1,0 +1,32 @@
+{
+ "args": {
+  "base": "Qwen/Qwen3.5-0.8B",
+  "ckpts": [
+   "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000050",
+   "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000100",
+   "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000150",
+   "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000200",
+   "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000250",
+   "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000300"
+  ],
+  "runs_root": null,
+  "glob": "e4a_*",
+  "step": 300,
+  "out": "/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/results/v4/result_A/traj_task/v4_rlvr_full_traj_lr0.1_s1",
+  "n_prompts": 64,
+  "batch": 8,
+  "max_len": 512,
+  "seed": 0,
+  "reference": "task"
+ },
+ "n_answer_tokens": 7697,
+ "ckpts": [
+  "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000050",
+  "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000100",
+  "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000150",
+  "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000200",
+  "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000250",
+  "/scratch/rhong5/spectral_runs/v4_rlvr_full_traj_lr0.1_s1/ckpt_000300"
+ ],
+ "elapsed_s": 58.39198970794678
+}

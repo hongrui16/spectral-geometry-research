@@ -461,4 +461,26 @@ SFT lr×1 = 1e-5(GSM8K / MMLU,1000 题):frame_matched s0/s1 0.292 / 0.235、0.27
 | dense(3 seed) | 0.656/0.634/0.664(0.651) | 0.472 | 0.57 | 0.0022 | 0.60 |
 | 倍率 alpha 1 | 0.648/0.652(0.650) | 0.472/0.475(0.474) | 0.58 / 0.59 | 0.0016 / 0.0018(−23%) | 0.55 / 0.65 |
 
-→ 与 SFT 同一模式:任务分数与任务 KL 不变,任务外 KL 降两成,MMLU(1000 题)不动。alpha 2 两个在跑;全量 MMLU 待出。
+→ 与 SFT 同一模式:任务分数与任务 KL 不变,任务外 KL 降两成,MMLU(1000 题)不动。alpha 2 两个已到:GSM8K 0.648 / 0.648,MMLU(1000 题)0.472 / 0.473,任务外 KL 0.0015 / 0.0017(−27%),任务 KL 0.65 / 0.93。
+
+### E-v4-4 终判(A,2026-09-17;全量 MMLU 14042 题,`slurm_v4/mmlu_full_v4.sbatch`、`mmlu_full.sbatch`、`mmlu_full_base.sbatch`;`results/v4/result_A/mmlu_full/*.json`)
+
+| 配置 | 全量 MMLU |
+|---|---|
+| base | 0.470 |
+| SFT dense lr\*(v4 traj s0/s1) | 0.453 / 0.445(0.449) |
+| SFT 倍率 alpha 1 s0/s1 | 0.447 / 0.433(0.440) |
+| SFT 倍率 alpha 2 s0/s1 | 0.451 / 0.431(0.441) |
+| RLVR dense lr\*(3 seed) | 0.465 / 0.466 / 0.466(0.466) |
+| RLVR 倍率 alpha 1 s0/s1 | 0.464 / 0.465 |
+| RLVR 倍率 alpha 2 s0 | 0.465 |
+
+- **SFT:判负。** 按预登记的判负线(全量 MMLU 不高于 dense 即判负):倍率组均值 0.440 比 dense 0.449 低 0.009,四个 run 没有一个高于 dense 均值。任务外 KL 降三成没有换来任何能力保持。
+- **RLVR:无事可救。** dense 在 lr\* 上全量 MMLU 只比 base 低 0.004;倍率组与 dense 完全相同。
+- 顺带:v3 全部方向臂(frame / exact_iso 修复版 / random_ext / spectrum_matched,lr\*)全量 MMLU 落在 0.448–0.471,全在 dense ±0.01 内;lr×1 八个方向臂全量 MMLU 0.23–0.25(崩溃)。全量 MMLU 没有改变任何 v3 / v4 结论。
+- **结论:任务外 KL(MMLU 题干上的分布偏离)不是 MMLU 准确率的代理。** 一个把它降 31% 的方法,能力分数不升反略降。E-v4-4 方法作废。
+
+### 轨迹 run 登记(A,`slurm_v4/traj_runs.sbatch`;`results/v4/result_A/v4_{sft,rlvr}_full_traj_lr0.1_s{0,1}`、`traj_task/`、`traj_offtask/`)
+
+dense lr\* 重跑(v4 代码,每 50 步存 ckpt 供轨迹 KL):SFT s0/s1 GSM8K 0.396 / 0.408、MMLU(1000)0.457 / 0.452、全量 MMLU 0.453 / 0.445;RLVR s0/s1 GSM8K 0.634 / 0.616、MMLU(1000)0.470 / 0.478。与 v3 dense 一致(RLVR 种子差 0.02–0.05 仍在)。轨迹 KL 已落地,未做进一步分析(项目暂停,见 v4 企划书第三部分)。
+
