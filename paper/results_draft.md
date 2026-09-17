@@ -440,7 +440,7 @@ argmax 落在选项字母上的比例(base 0.865):RLVR lr\* 五种更新 0.84–
 ### E-v4-5 常用学习率(lr×1)上的保谱与去谱(A,`slurm_v4/batch1_lr1_arms.sbatch`;`results/v4/result_A/v4_*_lr1_s*`)
 
 SFT lr×1 = 1e-5(GSM8K / MMLU,1000 题):frame_matched s0/s1 0.292 / 0.235、0.272 / 0.236;exact_iso(修复版)s0/s1 0.302 / 0.246、0.294 / 0.236。参照:dense lr×1(v2 e4a,fp32,崩溃态)MMLU ≈ 0.24(格式崩);r 维 lr×1(spectrum / random s2)0.400 / 0.473、0.386 / 0.473。
-→ **在崩溃学习率上,保谱与去谱和 dense 一样崩**(MMLU 0.24,格式崩坏那一档),只有功能步长小两个量级的 r 维臂不崩。"保谱能防遗忘"在最需要它的地方也不成立;决定崩不崩的是功能步长,不是方向。RLVR lr×1 = 2e-6:exact_iso(修复版)s0 GSM8K 0.594 / MMLU **0.222**(第 50 步已 0.25,格式崩,与 v2 e4a dense lr×1 的 0.24 相同);其余三个在跑。→ RLVR 上同样:钉住谱也和 dense 一样崩。
+→ **在崩溃学习率上,保谱与去谱和 dense 一样崩**(MMLU 0.24,格式崩坏那一档),只有功能步长小两个量级的 r 维臂不崩。"保谱能防遗忘"在最需要它的地方也不成立;决定崩不崩的是功能步长,不是方向。RLVR lr×1 = 2e-6:exact_iso(修复版)s0 GSM8K 0.594 / MMLU **0.222**(第 50 步已 0.25,格式崩,与 v2 e4a dense lr×1 的 0.24 相同);frame_matched s0 GSM8K 0.542 / MMLU **0.240**(第 100 步已 0.22);其余两个在跑。→ RLVR 上同样:保谱、钉谱都和 dense 一样崩,保谱的任务分数还更低。
 
 ### E-v4-4 方法:按矩阵类型的学习率倍率 —— SFT 四个(A,`slurm_v4/e4_lrscale.sbatch`;倍率由 E-v4-3 的任务承重比生成,`results/v4/result_A/lr_scales/sft_type_a{1,2}.json`,均值归一为 1;lr\* = 1e-6)
 
