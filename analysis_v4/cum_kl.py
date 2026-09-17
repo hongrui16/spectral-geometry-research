@@ -69,7 +69,8 @@ def main():
     input_ids, attn, ans = (build_offtask_reference if a.reference == "offtask" else build_reference)(tok, a.n_prompts, a.seed, "cuda", a.max_len)
     batches = [(input_ids[i:i + a.batch], attn[i:i + a.batch], ans[i:i + a.batch])
                for i in range(0, input_ids.shape[0], a.batch)]
-    lp_base = [logp_batch(base, ii, am, False) for ii, am, _ in batches]
+    # v4: cache base log-probs in fp16 (64 x 512 x vocab fp32 does not fit a 40 GB MIG)
+    lp_base = [logp_batch(base, ii, am, False).half() for ii, am, _ in batches]
     n_tok = int(ans.sum())
     del base
     torch.cuda.empty_cache()
@@ -91,7 +92,8 @@ def main():
         for (ii, am, an), lp0 in zip(batches, lp_base):
             lp1 = logp_batch(model, ii, am, False)
             m = an[:, 1:].float().sum().item()
-            num += kl_tokens(lp0, lp1, an).item() * m
+            num += kl_tokens(lp0.float(), lp1, an).item() * m
+            del lp1
             den += m
         kl = num / max(den, 1)
         run_rows.append(dict(run=run, ckpt=ck, n_matrices=len(mats),
