@@ -1,6 +1,6 @@
 # 作者B 任务清单 v4(2026-09-17 生效;逐条命令版,与 v3 同格式)
 
-> **2026-09-17 暂停通知(A):v4 项目暂停,本清单所有任务(B1 起)不必再做。** 原因与结论见企划书 `docs/unified_paper_document_v4.md` 第三部分:因果检验成立,方法 E-v4-4 判负,A 认为目前工作不足以投主会,先暂停做其他工作,后面再看。已跑出的东西若有,照旧交付到 `results/v4/result_B/` 即可。
+> **2026-09-17 说明(A):A 这边暂停 v4,不再提交新的训练任务。** 原因见企划书 `docs/unified_paper_document_v4.md` 第三部分:因果检验成立,方法 E-v4-4 判负,A 认为目前工作不足以投主会。这只是 A 的意见;B 若愿意,本清单上的任务可以照常继续,交付到 `results/v4/result_B/`。
 
 企划书 `docs/unified_paper_document_v4.md` §2–§4。代码用 main 最新提交的 `*_v4/`(从 v3 复制,含 exact_iso 修复:CUDA SVD driver gesvda + 等范数匹配;`analysis_v4/kl_probe.py` 有任务外参考集)。交付到 `results/v4/result_B/`(每 run 一个目录,格式同 v3;README 写 transformers 版本、commit、GPU、每类 run 秒/步、ckpt dtype)。A、B 的 run 按独立样本合并(v3 已证同 seed 跨硬件不复现)。
 
