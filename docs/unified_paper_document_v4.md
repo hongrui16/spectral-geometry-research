@@ -1,17 +1,3 @@
-# When Should Post-Training Change the Spectrum?
-## Is the Weight SVD Basis a Privileged Coordinate System for LLM Post-Training?
-
-版本:v4,2026-09-17(第三稿,草案)
-文档类型:第一部分是现阶段总结(分析发现了什么、提出的优化方法解决了什么、达到了什么地步);第二部分是若要达到顶会主会投稿水平还需要哪些实验、每个实验要达到什么预期效果。数字来源 `paper/results_draft.md`。
-
----
-
-# 前一版本(v3)的状况(一段话)
-
-v3 主线"权重奇异基不是后训练的特权坐标系"成立,C1–C4 两侧成立,C5 两侧阴性,exact_iso 臂作废重跑中。主线成立,但它是否定式结论,项目至今没有提出任何让后训练变好的方法。
-
----
-
 # 第一部分:现阶段总结
 
 ## 一、分析发现了什么
