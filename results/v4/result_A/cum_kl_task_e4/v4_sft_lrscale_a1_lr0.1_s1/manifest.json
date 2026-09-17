@@ -1,0 +1,22 @@
+{
+ "args": {
+  "base": "Qwen/Qwen3.5-0.8B",
+  "ckpts": [
+   "/scratch/rhong5/spectral_runs/v4_sft_lrscale_a1_lr0.1_s1/ckpt_000300"
+  ],
+  "runs_root": null,
+  "glob": "e4a_*",
+  "step": 300,
+  "out": "/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/results/v4/result_A/cum_kl_task_e4/v4_sft_lrscale_a1_lr0.1_s1",
+  "n_prompts": 64,
+  "batch": 8,
+  "max_len": 512,
+  "seed": 0,
+  "reference": "task"
+ },
+ "n_answer_tokens": 7697,
+ "ckpts": [
+  "/scratch/rhong5/spectral_runs/v4_sft_lrscale_a1_lr0.1_s1/ckpt_000300"
+ ],
+ "elapsed_s": 9.6165132522583
+}
