@@ -1,7 +1,7 @@
 config                                    n                            GSM8K (A | B)   mean   MMLU
 v3_rlvr_exact_iso_lr0.1                   5          0.702/0.690/0.648 | 0.706/0.646  0.678  0.469
 v3_rlvr_frame_matched_lr0.1               5          0.628/0.610/0.636 | 0.650/0.644  0.634  0.473
-v3_rlvr_full_lr0.033                      2                            | 0.562/0.562  0.562  0.479
+v3_rlvr_full_lr0.033                      4                0.548/0.562 | 0.562/0.562  0.558  0.477
 v3_rlvr_full_lr0.1                        6    0.656/0.634/0.664 | 0.626/0.640/0.654  0.646  0.471
 v3_rlvr_full_lr0.33                       4                0.676/0.728 | 0.660/0.732  0.699  0.457
 v3_rlvr_random_ext_lr0.1                  4                0.546/0.564 | 0.556/0.558  0.556  0.477
@@ -25,4 +25,4 @@ Pooled A+B (independent samples):
   H-3 random_ext srel3 - s_rel1: GSM8K +0.003 (t_binom=+0.2, t_emp=+0.8)  MMLU +0.002 (t=+0.1)
   H-3 random_ext srel10 - s_rel1: GSM8K +0.031 (t_binom=+1.6, t_emp=+8.0)  MMLU -0.005 (t=-0.3)
   gate lr x1/3 - lr*: GSM8K +0.053 (t_binom=+4.0, t_emp=+2.8)  MMLU -0.014 (t=-1.4)
-  gate lr x1/30 - lr*: GSM8K -0.084 (t_binom=-4.7, t_emp=-14.0)  MMLU +0.008 (t=+0.6)
+  gate lr x1/30 - lr*: GSM8K -0.087 (t_binom=-6.2, t_emp=-12.6)  MMLU +0.007 (t=+0.6)

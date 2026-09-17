@@ -293,7 +293,7 @@ lr\* = 2e-7,300 步,`--eval-every 50`;GSM8K n=500、MMLU n=1000;SE 合并 2 seed
 **两范式对照**:C1–C3 两侧成立;**C4 两侧成立(保谱 frame_matched ≈ dense;exact_iso 臂因引擎数值缺陷移除)**;C5 两侧阴性。r 维更新在 SFT 上对步长不响应、在 RLVR 上响应但落后 dense。v3 §4 的裁决表不需要改 C4;需要改的是 C4 的证据基础(只用 frame_matched)和 exact_iso 的处理;**由用户决定**;A 未改企划书。
 图:`figs/v3/fig1_frontier.pdf`、`fig1b_trajectories.pdf`、`frontier_points.csv` 已含 RLVR 全部 11 个配置。
 
-**E-v3-1 RLVR 闸门,A 自跑补齐(2026-09-16 晚,`batch_rlvr.sbatch` 19–22)**:lr×1/3 = 6.67e-7 s0/s1 GSM8K 0.676/0.728(0.702)、MMLU 0.471/0.452(0.462)、reward 回落 0.011;两 seed GSM8K 差 0.052 > 0.04 → **FAIL(离散)**,s1 的 MMLU 在第 150 步跌到 0.416、末点 0.452 压线。与 B 报告方向一致(B:差 0.072、MMLU 0.452)。**RLVR lr\* = 2e-7 维持**。lr×1/30 两 seed 在跑,补登记。
+**E-v3-1 RLVR 闸门,A 自跑补齐(2026-09-16 晚,`batch_rlvr.sbatch` 19–22)**:lr×1/3 = 6.67e-7 s0/s1 GSM8K 0.676/0.728(0.702)、MMLU 0.471/0.452(0.462)、reward 回落 0.011;两 seed GSM8K 差 0.052 > 0.04 → **FAIL(离散)**,s1 的 MMLU 在第 150 步跌到 0.416、末点 0.452 压线。与 B 报告方向一致(B:差 0.072、MMLU 0.452)。**RLVR lr\* = 2e-7 维持**。lr×1/30 = 6.67e-8 A 两 seed(batch_rlvr 21–22)已完成,与 B 两 seed 合并为 4 run,见"B v3 交付登记"合并表更新: `v3_rlvr_full_lr0.033                      4                0.548/0.562 | 0.562/0.562  0.558  0.477`;gate lr x1/30 - lr*: GSM8K -0.087 (t_binom=-6.2, t_emp=-12.6)  MMLU +0.007 (t=+0.6) → 健康但学得少(与 B 一致),lr\* = 2e-7 不变。
 副产品:dense lr×1/3 的 (0.702, 0.462) 与 exact_iso lr\* 的 (0.680, 0.468) 几乎同点,且两者的 seed 离散都超 0.04(0.052 / 0.054)。
 
 ### E-v3-0a 累计位移 / 累计 KL —— A 自跑,v3 全部 39 个终点 ckpt(job 315249,`analysis_v3/cum_kl.py --glob 'v3_*'`;`results/v3/result_A/cum_kl/`)
