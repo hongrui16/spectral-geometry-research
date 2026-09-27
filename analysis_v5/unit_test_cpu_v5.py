@@ -40,6 +40,13 @@ def test_extraction_and_reward():
     spam = "1 2 3 " * 50 + "42"
     assert reward_fn(spam, "42", terminated=False, strict=False) == 0.0
     assert has_format("x #### 5") and not has_format("x 5")
+    # review fixes (2026-09-27): markdown/LaTeX dollar forms, headings, no backtracking
+    cases = {"#### **18**": "18", "#### \\$18": "18", "#### -$7": "-7", "#### 18 dollars": "18",
+             "####\n18": "18", "#### 1. Compute the total": None, "#### 12. Compute": None,
+             "#### 2) Step": None, "#### 1. Compute x\n#### 42": "42", "####  $1,000,000": "1000000"}
+    for t, want in cases.items():
+        assert extract_answer(t) == want, (t, extract_answer(t), want)
+    assert not has_format("#### 1. Compute the total")
     print("extraction/reward OK")
 
 
@@ -87,6 +94,7 @@ def test_stats():
 def test_eval_helpers():
     import eval_retention as er
     assert er._norm_ans("The  Beatles!") == "beatles"
+    assert er._norm_ans("Children's") == "children s" and er._norm_ans("Forty-Fourth") == "forty fourth"
     assert er._GEN_ANS.findall("blah Answer: (C). Answer: B") == ["C", "B"]
     assert er._hs_pre("Roof [title] Removing shingles [step] x") == "Roof. Removing shingles x"
     from transformers import AutoTokenizer
@@ -146,6 +154,24 @@ def test_bf16_visibility_logic():
     print("bf16 visibility OK")
 
 
+def test_triviaqa_alias_consistency():
+    """Our normalisation must map the canonical answer into normalized_aliases (review check)."""
+    import eval_retention as er
+    from datasets import load_dataset
+    ds = load_dataset("mandarjoshi/trivia_qa", "rc.nocontext", split="validation").shuffle(seed=0)
+    ds = ds.select(range(1000))
+    miss = sum(er._norm_ans(r["answer"]["value"]) not in set(r["answer"]["normalized_aliases"]) for r in ds)
+    assert miss <= 5, miss
+    print(f"triviaqa canonical-answer misses {miss}/1000 OK")
+
+
+def test_rlvr_temperature_scaling():
+    import re as _re
+    src = open(os.path.join(ROOT, "scripts_v5/train.py")).read()
+    assert _re.search(r"logits = logits / self\.args\.temperature", src), "rlvr logits not tempered"
+    print("rlvr temperature scaling present OK")
+
+
 if __name__ == "__main__":
     test_extraction_and_reward()
     test_split_at_stop()
@@ -155,4 +181,6 @@ if __name__ == "__main__":
     test_offtask_reference()
     test_lr_scales_param_weighted()
     test_bf16_visibility_logic()
+    test_triviaqa_alias_consistency()
+    test_rlvr_temperature_scaling()
     print("ALL V5 CPU TESTS PASS")

@@ -176,8 +176,10 @@ def load_hellaswag(limit):
 
 
 def _norm_ans(s):
+    """Official TriviaQA normalisation: punctuation and '_' become spaces (v5 review fix: the
+    first version deleted them, so "Children's" -> "childrens" missed the alias "children s")."""
     s = s.lower()
-    s = "".join(ch for ch in s if ch not in set(string.punctuation))
+    s = "".join(" " if (ch in set(string.punctuation) or ch == "_") else ch for ch in s)
     s = re.sub(r"\b(a|an|the)\b", " ", s)
     return " ".join(s.split())
 
@@ -218,7 +220,8 @@ def run(task, ev, limit):
                 p = _norm_ans(t.strip().split("\n")[0])
                 correct.append(int(p in set(aliases)))
                 preds.append(p)
-        return {"acc": sum(correct) / len(correct), "n": len(correct), "correct": correct}
+        return {"acc": sum(correct) / len(correct), "n": len(correct), "correct": correct,
+                "preds": preds}
     if task == "mmlu_gen":
         items = load_mmlu(limit)
         correct, extracted, terminated = [], [], []

@@ -265,8 +265,9 @@ class Trainer:
     @torch.no_grad()
     def probe_logp(self):
         """fp32 forward, TF32 off (bf16 autocast cannot resolve single-step KLs, A5)."""
-        tf32 = torch.backends.cuda.matmul.allow_tf32
+        tf32 = (torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32)
         torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False   # conv1d fallback of the linear-attention layers
         was_training = self.model.training
         self.model.eval()
         input_ids, attn, mask = self.kl_probe
@@ -275,7 +276,7 @@ class Trainer:
             lg = self.model(input_ids=input_ids[i:i + 4], attention_mask=attn[i:i + 4]).logits.float()
             lp = F.log_softmax(lg[:, :-1], -1)
             out.append(lp[mask[i:i + 4]])
-        torch.backends.cuda.matmul.allow_tf32 = tf32
+        torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32 = tf32
         self.model.train(was_training)
         return torch.cat(out)
 
@@ -429,6 +430,10 @@ class Trainer:
         sub = [rows[i] for i in idxs]
         input_ids, labels, attn = self.collate(sub)
         logits = self.lm_logits(input_ids, attn)
+        if self.args.objective == "rlvr" and self.args.temperature != 1.0:
+            # v5 review fix: score rollouts under the temperature they were sampled at
+            # (verl/TRL convention); top-p/top-k truncation is not corrected (standard practice)
+            logits = logits / self.args.temperature
         logp = F.log_softmax(logits[:, :-1], dim=-1)
         # with device_map, logits sit on the last shard's GPU
         tgt = labels[:, 1:].to(logits.device)

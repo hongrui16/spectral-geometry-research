@@ -22,7 +22,10 @@ INSTR = ("Solve the problem step by step. "
          "Put the final numeric answer after '####'.\n\nProblem: ")
 
 _NUM = r"-?\d[\d,]*(?:\.\d+)?"
-_STRICT = re.compile(r"####\s*\$?\s*(" + _NUM + r")")
+# '#### 18', '#### $18', '#### \\$18', '#### **18**', '#### -$7', '#### 1,234.'; NOT a markdown
+# heading such as '#### 1. Compute ...' or '#### 2) Step' (number followed by '.'/')' + a word)
+_STRICT = re.compile(r"####\s*\**[ \t]*(-?)[ \t]*(?:\\?\$)?[ \t]*(\d[\d,]*(?:\.\d+)?)"
+                     r"(?![\d,])(?!\.\d)(?![.)][ \t]+[A-Za-z])")
 _ANY = re.compile(_NUM)
 _CALC = re.compile(r"<<[^<>]*>>")
 
@@ -58,7 +61,8 @@ def extract_answer(text: str, strict: bool = True):
     """Number after the last '####' (strict); flex falls back to the last number."""
     m = _STRICT.findall(text)
     if m:
-        return _norm(m[-1])
+        sign, num = m[-1]
+        return _norm(sign + num)
     if strict:
         return None
     m = _ANY.findall(text)
