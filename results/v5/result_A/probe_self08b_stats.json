@@ -1,0 +1,18 @@
+{
+ "model": "Qwen/Qwen3.5-0.8B",
+ "k": 4,
+ "temperature": 1.0,
+ "max_new_tokens": 1536,
+ "shard": 0,
+ "nshards": 1,
+ "questions": 256,
+ "kept": 163,
+ "sample_trunc_frac": 0.2509765625,
+ "sample_acc": 0.3486328125,
+ "len_pct": {
+  "50": 464,
+  "90": 1536,
+  "95": 1536,
+  "99": 1536
+ }
+}
