@@ -1,0 +1,46 @@
+{
+ "base_llama1b": {
+  "mmlu": {
+   "n": 2042,
+   "strict": 0.4089128305582762,
+   "finished": 0.980411361410382,
+   "acc_finished": 0.4165834165834166,
+   "lenient": 0.41429970617042117,
+   "lenient_only": 0.0053868756121449556,
+   "strict_only": 0.0,
+   "lenient_tiers": {
+    "authors": 1771,
+    "answer_is": 17,
+    "correct_is": 2,
+    "option_is": 2
+   }
+  },
+  "countdown": {
+   "n": 1000,
+   "strict": 0.034,
+   "finished": 0.232,
+   "acc_finished": 0.14655172413793102,
+   "lenient": 0.04,
+   "lenient_only": 0.006,
+   "strict_only": 0.0
+  },
+  "math": {
+   "n": 5000,
+   "strict": 0.2676,
+   "finished": 0.8684,
+   "acc_finished": 0.30700138185168124,
+   "lenient": 0.2676,
+   "lenient_only": 0.0,
+   "strict_only": 0.0
+  },
+  "ifeval_verify": {
+   "n": 1948,
+   "strict": 0.2874743326488706,
+   "finished": 0.9009240246406571,
+   "acc_finished": 0.2945868945868946,
+   "lenient": 0.2874743326488706,
+   "lenient_only": 0.0,
+   "strict_only": 0.0
+  }
+ }
+}
