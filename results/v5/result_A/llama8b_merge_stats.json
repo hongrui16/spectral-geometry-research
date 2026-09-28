@@ -1,0 +1,9 @@
+{
+ "source_rows": 3088,
+ "dropped_over_1000_tokens": 0,
+ "dropped_regrade_strict": 0,
+ "kept": 3088,
+ "len_p50": 234,
+ "len_p90": 350,
+ "len_max": 818
+}

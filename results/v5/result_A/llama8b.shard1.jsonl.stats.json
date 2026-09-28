@@ -1,0 +1,20 @@
+{
+ "model": "meta-llama/Llama-3.1-8B-Instruct",
+ "k": 2,
+ "temperature": 0.7,
+ "top_p": 0.9,
+ "top_k": 0,
+ "max_new_tokens": 1024,
+ "shard": 1,
+ "nshards": 2,
+ "questions": 1600,
+ "kept": 1548,
+ "sample_trunc_frac": 0.00375,
+ "sample_acc": 0.9171875,
+ "len_pct": {
+  "50": 217,
+  "90": 330,
+  "95": 376,
+  "99": 510
+ }
+}
