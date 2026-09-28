@@ -36,11 +36,14 @@ def main():
     ap.add_argument("--nshards", type=int, default=1)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--dtype", choices=["fp32", "bf16"], default="fp32",
+                    help="teacher weights; bf16 is fine for data generation (e.g. an 8B teacher)")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
     torch.manual_seed(args.seed + args.shard)
-    model, tok, _ = load_model(args.model, dtype=torch.float32, trainable=False)
+    dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float32
+    model, tok, _ = load_model(args.model, dtype=dtype, trainable=False)
     stops = stop_token_ids(tok)
     data = load_gsm8k("train")
     idxs = list(range(len(data)))[args.shard::args.nshards]
@@ -54,8 +57,9 @@ def main():
         for b in range(0, len(idxs), args.batch):
             chunk = idxs[b:b + args.batch]
             prompts = [build_prompt(tok, data[i]["question"]) for i in chunk]
-            enc = tok(prompts, return_tensors="pt", padding=True,
-                      padding_side="left").to(model.device)
+            # chat templates already carry BOS (Llama); default add_special_tokens doubled it
+            enc = tok(prompts, return_tensors="pt", padding=True, padding_side="left",
+                      add_special_tokens=False).to(model.device)
             with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
                 gen = model.generate(**enc, do_sample=True, temperature=args.temperature,
                                      top_p=args.top_p, top_k=args.top_k,

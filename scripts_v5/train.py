@@ -103,6 +103,10 @@ def parse_args():
     p.add_argument("--sft-data", default=None,
                    help="v5 SFT targets: gsm8k_raw | gsm8k_clean | <path.jsonl> "
                         "(scripts_v5/make_sft_data.py); required for --objective sft")
+    p.add_argument("--grpo-loss", choices=["grpo", "drgrpo"], default="drgrpo",
+                   help="v5 (2026-09-28): drgrpo = advantages r - mean(r) (no std division) and "
+                        "summed token log-prob / max_new_tokens (Dr. GRPO; removes the length bias "
+                        "that made every GRPO pilot drift into truncation); grpo = stage-1 pilot loss")
     p.add_argument("--reward-mode", choices=["strict", "flex"], default="strict",
                    help="strict = only the number after '####' counts; truncated "
                         "(no stop token) completions always score 0")
@@ -389,7 +393,10 @@ class Trainer:
             rs_t = torch.tensor(rs, dtype=torch.float32)
             if rs_t.std(unbiased=False) < 1e-6:
                 continue
-            a = (rs_t - rs_t.mean()) / (rs_t.std(unbiased=False) + 1e-4)
+            if self.args.grpo_loss == "drgrpo":
+                a = rs_t - rs_t.mean()
+            else:
+                a = (rs_t - rs_t.mean()) / (rs_t.std(unbiased=False) + 1e-4)
             g_rows, g_advs, g_txt, complete = [], [], [], True
             for k in range(K):
                 i = gi * K + k
@@ -447,8 +454,12 @@ class Trainer:
         if self.args.objective == "rlvr":
             adv = torch.tensor([info["adv"][i] for i in idxs],
                                device=logits.device)
-            seq_mean_logp = tok_logp.sum(1) / mask.sum(1).clamp_min(1)
-            loss = -(adv * seq_mean_logp).mean()
+            if self.args.grpo_loss == "drgrpo":
+                # constant normaliser: every token of every rollout gets the same weight
+                seq_logp = tok_logp.sum(1) / self.args.max_new_tokens
+            else:
+                seq_logp = tok_logp.sum(1) / mask.sum(1).clamp_min(1)
+            loss = -(adv * seq_logp).mean()
             if self.ref is not None:
                 # k3 estimator of KL(pi || pi_ref) on the taken tokens
                 with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
