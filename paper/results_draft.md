@@ -591,3 +591,18 @@ GSM8K 为前 500 题(基座同口径 0.578);三项似然基座 0.562、TriviaQA 
 - **Llama 数据 SFT lr 1e-5**:GSM8K 全量 0.389(基座 0.560,−17 个点);retention_v2 0.450 / 0.423 / 0.432、三项似然 0.548 / 0.528 / 0.527(ARC 0.688 → 0.621)、TriviaQA 包含 0.146;字母质量 0.996;bf16 可见 0.85。→ 任务严重变差,伴随约 3.5 个点的真实遗忘。
 
 **G0 终判(预跑 2):不通过。** 0.8B + GSM8K 上,两种教师(同家族 Qwen3.5-2B、异家族 Llama-3.1-8B)× 两种范式,没有任何配置"任务提升且遗忘可测":SFT 从未提升任务(同家族最多 +2 个点、异家族下降),遗忘只在任务严重变差或 RL 崩溃时出现;RL 只在 lr 3e-7 健康(+7 个点、无遗忘)。按事先定的规则,**停止本设定下的因果检验**;排队中的 Dr. GRPO lr 3e-7 取消(job 1329787,未开始)。
+
+## v6 登记处(2026-09-28 起;对象:Retaining by Doing,arXiv 2510.18874)
+
+### 复现目标(论文 Table 2,"Drop" = 非目标任务平均降幅,非目标 = 另两个主任务 + MATH + WildJailbreak + WildGuardTest)
+
+| 模型 | 方法 | 训练 IFEval 后 Drop | 训练 MMLU 后 Drop | 训练 Countdown 后 Drop |
+|---|---|---|---|---|
+| Llama-3.2-1B-Instruct | Self-SFT | 6.9 | 34.6 | 25.3 |
+| Llama-3.2-1B-Instruct | SFT | 26.2 | 28.9 | 24.2 |
+| Llama-3.2-1B-Instruct | GRPO | 1.6 | 0.3 | −0.6 |
+| Qwen-2.5-1.5B-Instruct | Self-SFT | 3.0 | 14.0 | 19.5 |
+| Qwen-2.5-1.5B-Instruct | SFT | 6.2 | 11.9 | 29.5 |
+| Qwen-2.5-1.5B-Instruct | GRPO | 0.6 | 0.5 | 0.9 |
+
+超参(论文原文):1B/1.5B 学习率 1e-4(8B/7B 为 5e-6);batch 128(IFEval、MMLU)/ 64(Countdown);2 epoch;SFT 最长 4096;Self-SFT 每题采 5 个、滤掉错的;GRPO 组大小 5、KL 系数 0.05。评测:贪心、4096 token;MMLU 用正则 `The ... answer is: X`(A 读代码核实,`core/data.py` `parse_output_text`),Countdown / MATH 取 `\boxed{}`。代码 upstream 1228541,数据来自作者 Google Drive(`/scratch/rhong5/rbd/data`)。

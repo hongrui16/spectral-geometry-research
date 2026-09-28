@@ -16,7 +16,7 @@ for cmd in "$@"; do
       echo "REFUSED (one array task per command, use --array=i-i): $cmd"; continue
     fi
   fi
-  if [[ ! $cmd =~ job-name=v5- ]] && ! grep -q "^#SBATCH --job-name=v5-" $(echo $cmd | grep -oE "slurm_v5/[a-z_]+\.sbatch" | head -1) 2>/dev/null; then
+  if [[ ! $cmd =~ job-name=v5- ]] && ! grep -q "^#SBATCH --job-name=v5-" $(echo $cmd | grep -oE "slurm_v[0-9]+/[a-z0-9_]+\.sbatch" | head -1) 2>/dev/null; then
     echo "REFUSED (job name must start with v5- so the cap can count it): $cmd"; continue
   fi
   # check-and-submit under a lock so several submitters can run side by side safely
