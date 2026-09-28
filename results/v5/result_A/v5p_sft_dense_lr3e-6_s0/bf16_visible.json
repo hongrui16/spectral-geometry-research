@@ -1,0 +1,56 @@
+{
+ "ckpt": "/scratch/rhong5/spectral_runs/v5/v5p_sft_dense_lr3e-6_s0/ckpt_000300",
+ "n_matrices": 186,
+ "changed_frac": 0.999963246675469,
+ "visible_frac": 0.5934835855647467,
+ "by_type": {
+  "down_proj": {
+   "changed_frac": 0.9999940395355225,
+   "visible_frac": 0.6839704523141891
+  },
+  "gate_proj": {
+   "changed_frac": 0.9999917575291225,
+   "visible_frac": 0.5682262412962593
+  },
+  "in_proj_a": {
+   "changed_frac": 0.9999830457899306,
+   "visible_frac": 0.38967878008999446
+  },
+  "in_proj_b": {
+   "changed_frac": 0.9999966091579862,
+   "visible_frac": 0.5436996246325162
+  },
+  "in_proj_qkv": {
+   "changed_frac": 0.9998626797287552,
+   "visible_frac": 0.5004089307721671
+  },
+  "in_proj_z": {
+   "changed_frac": 0.9999910725487603,
+   "visible_frac": 0.5407264292188921
+  },
+  "k_proj": {
+   "changed_frac": 0.999995231628418,
+   "visible_frac": 0.6496940439258126
+  },
+  "o_proj": {
+   "changed_frac": 0.9999922116597494,
+   "visible_frac": 0.5704385362447542
+  },
+  "out_proj": {
+   "changed_frac": 0.9999926884969076,
+   "visible_frac": 0.6125230539206102
+  },
+  "q_proj": {
+   "changed_frac": 0.9999907414118449,
+   "visible_frac": 0.5571682381709215
+  },
+  "up_proj": {
+   "changed_frac": 0.9999943460736956,
+   "visible_frac": 0.6769114346946362
+  },
+  "v_proj": {
+   "changed_frac": 0.9999923706054688,
+   "visible_frac": 0.5361979385218698
+  }
+ }
+}

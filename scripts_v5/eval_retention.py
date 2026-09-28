@@ -16,7 +16,9 @@ Tasks (fixed, seeded subsets):
             normalized exact match against the alias list.
 - mmlu_gen  MMLU first 300 of the same shuffle, greedy generation (<=512 tokens),
             'Answer: X' extraction; format-independent cross-check, not in the mean.
-retention = mean(mmlu, arc, hellaswag, triviaqa).
+retention = mean(mmlu, arc, hellaswag, triviaqa) with triviaqa = exact match (legacy field).
+PRIMARY readout from 2026-09-27: analysis_v5/retention.py (triviaqa = acc_contains, recomputed
+from saved predictions; exact match is format-sensitive, see results_draft v5 registry).
 Numerics: fp32 weights + bf16 autocast (training forward) unless --numerics.
 """
 
@@ -184,6 +186,12 @@ def _norm_ans(s):
     return " ".join(s.split())
 
 
+def alias_contained(pred_norm, aliases):
+    """True if any normalised alias occurs in the normalised prediction as whole words."""
+    padded = f" {pred_norm} "
+    return any(a and f" {a} " in padded for a in aliases)
+
+
 def load_triviaqa(limit):
     ds = load_dataset("mandarjoshi/trivia_qa", "rc.nocontext", split="validation").shuffle(seed=0)
     ds = ds.select(range(min(limit, len(ds))))
@@ -210,7 +218,7 @@ def run(task, ev, limit):
         return {"acc": sum(correct) / len(correct), "n": len(correct), "correct": correct}
     if task == "triviaqa":
         items = load_triviaqa(limit)
-        correct, preds = [], []
+        correct, contains, preds = [], [], []
         for i in range(0, len(items), ev.batch):
             chunk = items[i:i + ev.batch]
             prompts = [chat(ev.tok, "Answer the following question with only the answer, "
@@ -219,9 +227,14 @@ def run(task, ev, limit):
             for (q, aliases), t in zip(chunk, texts):
                 p = _norm_ans(t.strip().split("\n")[0])
                 correct.append(int(p in set(aliases)))
+                contains.append(int(alias_contained(p, aliases)))
                 preds.append(p)
-        return {"acc": sum(correct) / len(correct), "n": len(correct), "correct": correct,
-                "preds": preds}
+        n = len(correct)
+        # acc = exact match (kept for continuity); acc_contains = an alias appears as whole words
+        # in the answer line (format-robust: fine-tuned models answer in full sentences,
+        # e.g. 'knight of round table ... is sir lancelot'; primary readout from 2026-09-27)
+        return {"acc": sum(correct) / n, "acc_contains": sum(contains) / n, "n": n,
+                "correct": correct, "correct_contains": contains, "preds": preds}
     if task == "mmlu_gen":
         items = load_mmlu(limit)
         correct, extracted, terminated = [], [], []
@@ -238,8 +251,11 @@ def run(task, ev, limit):
                 extracted.append(int(pred is not None))
                 terminated.append(int(term))
         n = len(correct)
+        nt = max(1, sum(terminated))
         return {"acc": sum(correct) / n, "n": n, "extract_frac": sum(extracted) / n,
-                "term_frac": sum(terminated) / n, "correct": correct}
+                "term_frac": sum(terminated) / n,
+                "acc_terminated": sum(c for c, t in zip(correct, terminated) if t) / nt,
+                "correct": correct, "terminated": terminated}
     raise ValueError(task)
 
 

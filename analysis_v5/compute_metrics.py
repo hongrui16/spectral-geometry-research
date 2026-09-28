@@ -19,7 +19,7 @@ are prompt-group 1, so first-half / second-half are independent groups. For
 SFT/OPD every microbatch is one independent sequence.
 
 Usage: python analysis/compute_metrics_v2.py runs/phase1_sft_adamw [...more runs]
-Writes <run>/metrics.csv, <run>/rho_hist.pt and <run>/manifest.json
+Writes <run>/metrics.csv, <run>/rho_hist.pt (v5: always in the scratch run dir, never the repo) and <run>/manifest.json
 """
 
 import glob
@@ -159,7 +159,10 @@ def process_run(run_dir, device="cpu", out_dir=None):
     out = os.path.join(out_dir, "metrics.csv")
     df.to_csv(out, index=False)
     if rho_store:
-        torch.save(rho_store, os.path.join(out_dir, "rho_hist.pt"))
+        # v5: ~100 MB per RLVR run; written next to the run on scratch, never into the repo
+        rho_dir = run_dir if os.path.abspath(out_dir).startswith(os.path.abspath(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))) else out_dir
+        torch.save(rho_store, os.path.join(rho_dir, "rho_hist.pt"))
     print(f"wrote {out} ({len(df)} rows)")
 
     # --- H self-check (v2 doc §12.4): the captured H of a spectrum-type
