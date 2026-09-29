@@ -19,7 +19,7 @@ source /home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/sl
 export PATH=$HOME/envs_py310_new/bin:$PATH
 RB=$RUNS/train; mkdir -p $RB
 S=$RUNS/scripts/${ALGO}_${MS}_${DS}_$SLURM_JOB_ID.sh; mkdir -p $(dirname $S)
-sed -e "s#^conda activate py310n#: # env from slurm_v6/common.sh#" \
+sed -e "s|^conda activate py310n|true  # env from slurm_v6/common.sh|" \
     -e "s#root_dir=\"/path/to/your/project/dir\"#root_dir=\"$RBD/code\"#" \
     -e "s#run_base_dir=\"/path/to/your/run/dir\"#run_base_dir=\"$RB\"#" \
     -e "s#/path/to/your/local_models/meta-llama/Llama-3.2-1B-Instruct#$(snap meta-llama/Llama-3.2-1B-Instruct)#" \
@@ -31,7 +31,13 @@ sed -e "s#^conda activate py310n#: # env from slurm_v6/common.sh#" \
     $RBD/code/scripts/$ALGO.sh > $S
 # keep the total batch: accumulation x (old train GPUs / new train GPUs) = x2 for both SFT and RL
 sed -i -E 's#^(\s*)gradient_accumulation_steps=([0-9]+)#echo_accum=1; \1gradient_accumulation_steps=$((\2 * 2))#' $S
+# fail loudly if the generated script is broken (2026-09-28: a sed delimiter bug produced an
+# empty script and the job "finished" in 4 s with rc=0)
+for pat in "^model_name_short=\"$MS\"" "^dataset_name=\"$DS\"" "^num_gpus=2" "^root_dir=\"$RBD/code\""; do
+  grep -q "$pat" $S || { echo "WRAPPER_ERROR: '$pat' missing in $S"; exit 2; }
+done
 echo "=== rbd train $ALGO $MS $DS ($REV, upstream $(cat $RBD/UPSTREAM_REV)) script=$S ==="
 grep -nE "(model_name_short|dataset_name|lr|num_epochs|kl_beta|num_gpus|num_gen_gpus|gradient_accumulation_steps|train_batch_size_per_device|root_dir|run_base_dir)=" $S | grep -v "^[0-9]*:#"
-bash $S
-echo "RBD_TRAIN_DONE $ALGO $MS $DS rc=$?"
+bash $S; rc=$?
+[ $rc -ne 0 ] && { echo "RBD_TRAIN_FAILED rc=$rc"; exit $rc; }
+echo "RBD_TRAIN_DONE $ALGO $MS $DS rc=$rc"
