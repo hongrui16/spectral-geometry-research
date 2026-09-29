@@ -88,12 +88,18 @@ def countdown_lenient(ds, text, datapoint, finished):
         last = None
         for m in re.finditer(r"([\d\s()+\-*/]+?)=\s*" + re.escape(str(target)) + r"(?!\d)", t):
             last = m.group(1).strip()
+        # also the final statement "... the equation ... is: <expr>" (SFT-on-MMLU models write the
+        # final expression after 'is:' without \\boxed{} and without '= target')
+        m2 = re.findall(r"(?:equation|expression|answer)[^\n:]{0,80}\bis:?\s*\$?\\?\(?\s*([\d\s()+\-*/]{3,}?)\s*\$?\.?\s*(?:\n|$)", t, re.I)
+        if m2 and (last is None or t.rfind(m2[-1]) > t.rfind(last)):
+            last = m2[-1].strip()
         if last is None:
             return False
         try:
             if not ds.validate_expression(x_list, last, target):
                 return False
-        except Exception:
+        except Exception as e:
+            _err("countdown_validate", e)
             return False
     return True
 
@@ -101,24 +107,28 @@ def countdown_lenient(ds, text, datapoint, finished):
 def truthy_eval(ds, text, datapoint):
     try:
         return bool(ds.reward_fn(text, datapoint))
-    except Exception:
+    except Exception as e:
+        _err("countdown_reward", e)
         return False
 
 
 def math_lenient(ds, text, datapoint):
+    """Authors' parser first; then the content of the LAST 'answer is: X' / 'Final answer: X'
+    statement (SFT-on-MMLU models end math answers with the MMLU format 'The answer is: X')."""
     try:
         if ds.reward_fn(ds.parse_output_text(text), datapoint):
             return True
-    except Exception:
-        pass
-    for pat in (r"answer is[:\s]*\$?([^\n$]+?)\$?(?:\.|\n|$)", r"Final answer[:\s]*\$?([^\n$]+?)\$?(?:\.|\n|$)"):
+    except Exception as e:
+        _err("math_reward_parsed", e)
+    for pat in (r"answer is[:\s]*\$?([^\n$]+?)\$?\s*\.?\s*(?:\n|$)", r"Final answer[:\s]*\$?([^\n$]+?)\$?\s*\.?\s*(?:\n|$)"):
         m = re.findall(pat, text or "", re.I)
         if m:
+            cand = m[-1].strip().rstrip(".").strip()
             try:
-                if ds.reward_fn(m[-1].strip(), datapoint):
+                if ds.reward_fn(cand, datapoint):
                     return True
-            except Exception:
-                pass
+            except Exception as e:
+                _err("math_reward_lenient", e)
     return False
 
 
@@ -126,7 +136,21 @@ def dataset_obj(name):
     """Scoring-only instance of the authors' dataset class (no tokenisation)."""
     import core.data as D
     cls = {"countdown": D.CountdownDataset, "math": D.MATHDataset}[name]
-    return cls.__new__(cls)
+    obj = cls.__new__(cls)
+    if name == "math":
+        # set in MATHDataset.__init__ (skipped here); missing it made every lenient MATH check raise
+        # and, with the exception swallowed, silently return False (bug found 2026-09-28)
+        from core.evaluation.math_utils import normalize_final_answer
+        obj.normalize_final_answer = normalize_final_answer
+    return obj
+
+
+ERRORS = {}
+
+
+def _err(where, e):
+    k = f"{where}:{type(e).__name__}"
+    ERRORS[k] = ERRORS.get(k, 0) + 1
 
 
 def score(eval_dir, name, dump=0):
@@ -193,6 +217,8 @@ def main():
                 (f" tiers={res['lenient_tiers']}" if "lenient_tiers" in res else ""))
             for x in dumps:
                 print("   LENIENT-ONLY", json.dumps(x)[:500])
+    if ERRORS:
+        print("SCORING EXCEPTIONS (counted, not silent):", ERRORS)
     if a.out:
         json.dump(allres, open(a.out, "w"), indent=1)
 
