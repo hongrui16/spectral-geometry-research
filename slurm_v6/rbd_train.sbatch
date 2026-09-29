@@ -17,6 +17,12 @@
 #SBATCH --output=/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/runs/slurm-%x-%j.out
 source /home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/slurm_v6/common.sh
 export PATH=$HOME/envs_py310_new/bin:$PATH
+if [ "$ALGO" = rl ]; then
+  # the authors' RL code syncs weights through vLLM V0 internals (driver_worker, in-process
+  # torch.distributed); vllm 0.11 (V1) has neither -> separate scratch env with vllm 0.7.3
+  export PATH=$RBD/env_vllm073/bin:$PATH
+  export PYTHONPATH=$RBD/code
+fi
 RB=$RUNS/train; mkdir -p $RB
 S=$RUNS/scripts/${ALGO}_${MS}_${DS}_$SLURM_JOB_ID.sh; mkdir -p $(dirname $S)
 sed -e "s|^conda activate py310n|true  # env from slurm_v6/common.sh|" \
