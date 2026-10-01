@@ -13,6 +13,13 @@
 #SBATCH --output=/home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/runs/slurm-%x-%j.out
 source /home/rhong5/research_pro/hand_modeling_pro/spectral_geometry_research/slurm_v6/common.sh
 M=$MODEL; [ -d "$M" ] || M=$(snap $MODEL)
+# 2026-09-29: single-GPU jobs on contrib-gpuq can land on a MIG slice even when an A100 is
+# requested; vLLM 0.11 then fails parsing CUDA_VISIBLE_DEVICES=MIG-<uuid> as an int. Inside the
+# job the allocated slice is the only visible device, so index 0 addresses it.
+if [[ "$CUDA_VISIBLE_DEVICES" == MIG-* ]]; then
+  echo "MIG slice $CUDA_VISIBLE_DEVICES -> CUDA_VISIBLE_DEVICES=0"; export CUDA_VISIBLE_DEVICES=0
+fi
+nvidia-smi -L
 echo "=== rbd eval $TAG ($REV, upstream $(cat $RBD/UPSTREAM_REV)) model=$M ==="
 cd $RBD/code
 for ds in ${DS_LIST:-mmlu countdown ifeval_verify math}; do
