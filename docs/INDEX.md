@@ -3,6 +3,15 @@
 仓库里所有文档、交付说明与登记处的入口。版本规则见 `README.md`:v1 已冻结,
 v2 为当前版本;旧版本文件只改引用不改内容。
 
+## v6(2026-09-28 起)
+
+| 文件 | 内容 | 作者 |
+|---|---|---|
+| `docs/unified_paper_document_v6.md` | v6 企划书:已发表的"RL 比 SFT 遗忘少"差距的格式 / 知识分解,复现 Retaining by Doing | A |
+| `docs/TASKS_B_v6.md` | B 的任务:环境与数据、决定性的格式提醒测试(B1)、可选训练 | A 写,B 执行 |
+| `third_party/rbd_patches.diff` | 对作者代码(princeton-pli/retaining-by-doing @ 1228541)的补丁 | A |
+| `results/v6/result_A/`、`results/v6/result_B/` | v6 交付 | A / B |
+
 ## v5(2026-09-27 起)
 
 | 文件 | 内容 | 作者 |

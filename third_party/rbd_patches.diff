@@ -1,0 +1,38 @@
+diff --git a/core/data.py b/core/data.py
+index 14ebfd6..9dce88b 100644
+--- a/core/data.py
++++ b/core/data.py
+@@ -1170,6 +1170,7 @@ class MMLUDataset(BaseDataset):
+         self.model_name = kwargs.get('model_name', None)
+ 
+         dataset = []
++        data_dir = Path('data')  # v6 patch: upstream 1228541 referenced an undefined data_dir here
+         if dataset_split == 'train':
+             data_path = data_dir / 'rl' / 'mmlu.jsonl'
+             print(f'Loading data from: {data_path}')
+diff --git a/core/training/rl.py b/core/training/rl.py
+index bb70a1b..7ecc2c9 100644
+--- a/core/training/rl.py
++++ b/core/training/rl.py
+@@ -337,7 +337,7 @@ class RLRayFSDPTrainer(DistributedBaseTrainer):
+         model = model_module.from_pretrained(
+             model_name,
+             torch_dtype=torch.bfloat16,
+-            attn_implementation='flash_attention_2',
++            attn_implementation='sdpa',  # v6 patch 2: flash_attn not installed; exact attention either way
+             use_cache=False,
+             trust_remote_code=True,
+             local_files_only=True,
+diff --git a/core/training/sft.py b/core/training/sft.py
+index bb11387..b0f33da 100644
+--- a/core/training/sft.py
++++ b/core/training/sft.py
+@@ -214,7 +214,7 @@ class FSDPTrainer(BaseTrainer):
+         model = model_module.from_pretrained(
+             model_name,
+             torch_dtype=torch.bfloat16,
+-            attn_implementation='flash_attention_2',
++            attn_implementation='sdpa',  # v6 patch 2: flash_attn not installed; exact attention either way
+             use_cache=False,
+             trust_remote_code=True,
+             local_files_only=True,
