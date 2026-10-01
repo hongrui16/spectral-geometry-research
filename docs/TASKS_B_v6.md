@@ -1,5 +1,7 @@
 # 作者 B 任务清单 v6(2026-10-01,A 写)
 
+> **2026-10-01:项目已停止,本清单不再执行**(见 `docs/unified_paper_document_v6.md` 第五部分)。
+
 企划书 `docs/unified_paper_document_v6.md`;数字登记 `paper/results_draft.md` "v6 登记处"。
 v6 的问题:已发表的"RL 比 SFT 遗忘少"(Retaining by Doing,arXiv 2510.18874)差距里,多少是答题格式、多少是知识。
 **分工(2026-10-01 更新)**:剩下的实验**全部由 B 跑**(B 那边也要用这些结果,跨组重跑本身就是独立复现);A 不再占 GPU,只做代码支持、核对 B 的数字、写短文 / 技术报告。
